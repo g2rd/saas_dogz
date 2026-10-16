@@ -155,7 +155,7 @@ export function InviteForm({
           />
 
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            Ważne do{new Date(state.created.expiresAt).toLocaleDateString("pl-PL")}. Nowe zaproszenie unieważnia to.
+            Ważne do {new Date(state.created.expiresAt).toLocaleDateString("pl-PL")}. Nowe zaproszenie unieważnia to.
           </p>
         </div>
       ) : null}

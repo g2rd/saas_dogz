@@ -263,6 +263,16 @@ Powiadomienia lokalnie: `npm run dev` sam przetwarza outbox co 10 s (wyłączeni
 
 Uwagi praktyczne (Windows): w PowerShell `npx` bywa kapryśne, użyj `npx.cmd`; długie ścieżki w katalogu tymczasowym psują `git commit -F`, więc plik z opisem trzymaj w krótkiej ścieżce; pakiet `supabase` z npm wymaga zatwierdzenia skryptów instalacyjnych (`npm rebuild supabase`).
 
+### Test na telefonie bez domeny (push, instalacja PWA)
+Push i instalacja wymagają HTTPS, a lokalny adres `http://192.168.x.x:3000` nim nie jest. Rozwiązanie: darmowy tunel Cloudflare (adres `https://<losowa-nazwa>.trycloudflare.com`, bez konta):
+1. `winget install Cloudflare.cloudflared`, potem w osobnym terminalu `cloudflared tunnel --url http://localhost:3000`; skopiuj wypisany adres `https://....trycloudflare.com`.
+2. W innym terminalu ustaw adres i uruchom aplikację: `$env:NEXT_PUBLIC_SITE_URL='https://<nazwa>.trycloudflare.com'; $env:DEV_TUNNEL='1'; npm run dev` (adres w linkach i QR zaproszeń; `DEV_TUNNEL=1` dopuszcza domenę tunelu w `next.config.ts`).
+3. W `.env.local` ustaw `VAPID_SUBJECT=mailto:<twój prawdziwy e-mail>` (Apple może odrzucać adresy typu `.local`).
+4. Na telefonie otwórz adres tunelu. iPhone: Safari → Udostępnij → Do ekranu początkowego, otwórz z ikony. Android: Chrome → Zainstaluj. Zaloguj się, `Powiadomienia` → `Ustawienia` → „Włącz push na tym urządzeniu”, zezwól.
+5. Wywołaj zdarzenie z laptopa (`localhost:3000`): np. trener planuje zajęcia klientowi albo klient klika „Odnów pakiet”; push dociera w ciągu ok. 10 s (pętla outbox działa w `next dev`).
+6. Diagnostyka: `docker exec supabase_db_dogtrainer psql -U postgres -c "select channel, status, detail from notification_log order by created_at desc limit 5;"` (status `sent` = wysłano, `skipped` + „brak subskrypcji push” = urządzenie nie włączyło pusha).
+Adres tunelu zmienia się przy każdym uruchomieniu, więc subskrypcję i ikonę trzeba założyć od nowa. Stały adres daje wdrożenie staging (Vercel + Supabase UE) lub własna domena z nazwanym tunelem Cloudflare.
+
 ### Konta testowe (tylko lokalnie)
 Konta istnieją wyłącznie w lokalnej bazie Supabase (Docker) i znikają po `supabase db reset`; nie są częścią repozytorium. Aplikacja: `http://localhost:3000` (`npm run dev`), poczta lokalna (Mailpit): `http://127.0.0.1:54324`.
 
