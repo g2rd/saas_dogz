@@ -217,7 +217,7 @@ Zajęcia (planowanie, rozliczanie z pakietu, odwoływanie), pakiety i płatnośc
 | Build produkcyjny | `npm run build` | przechodzi, trasy panelu to częściowy prerender |
 | Migracje | `supabase start` | obie zastosowane bez błędów |
 | Testy RLS (pgTAP) | `npm run db:test` | 125/125 (7 plików, w tym `notifications` i `member_invitations`) |
-| Testy przypadków użycia na bazie (auth z Mailpit, pakiety, płatności, zajęcia, zaproszenia, panel klienta, powiadomienia, zaproszenia personelu, wyścigi) | `npm run test:integration` | 100/100 (7 plików) |
+| Testy przypadków użycia na bazie (auth z Mailpit, pakiety, płatności, zajęcia, zaproszenia, panel klienta, powiadomienia, zaproszenia personelu, wyścigi) | `npm run test:integration` | 101/101 (7 plików) |
 
 Testy integracyjne pokrywają: tworzenie klienta z normalizacją, błędy walidacji pól, wyszukiwanie (także ze znakami sterującymi filtru), psy i notatki, odrzucenie daty urodzenia z przyszłości, archiwizację i przywracanie, izolację organizacji (także przy podmienionym `organizationId`), widok klienta z dostępem (tylko własne dane i notatki oznaczone jako widoczne) oraz ograniczenia roli `assistant`.
 
