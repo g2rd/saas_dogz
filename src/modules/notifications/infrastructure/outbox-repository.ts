@@ -62,16 +62,17 @@ export function outboxRepository(db: SupabaseClient) {
 
       let clientId = str(payload.client_id);
       let request: EventFacts["request"] = null;
+      let requestSessionId: string | null = null;
       if (event.type === "client_request.created") {
         const row = must(
           await db
             .from("client_requests")
-            .select("id, client_id, kind, note, client_package_id")
+            .select("id, client_id, kind, note, client_package_id, session_id")
             .eq("organization_id", orgId)
             .eq("id", str(payload.request_id) ?? "")
             .maybeSingle(),
           "request",
-        ) as { id: string; client_id: string; kind: RequestKind; note: string | null; client_package_id: string | null } | null;
+        ) as { id: string; client_id: string; kind: RequestKind; note: string | null; client_package_id: string | null; session_id: string | null } | null;
         if (!row) return null;
         clientId = row.client_id;
         let packageName: string | null = null;
@@ -83,6 +84,7 @@ export function outboxRepository(db: SupabaseClient) {
           packageName = pkg?.name ?? null;
         }
         request = { id: row.id, kind: row.kind, note: row.note, packageName };
+        requestSessionId = row.session_id;
       }
       if (!clientId) return null;
 
@@ -163,7 +165,7 @@ export function outboxRepository(db: SupabaseClient) {
       }
 
       let session: EventFacts["session"] = null;
-      const sessionId = str(payload.session_id);
+      const sessionId = str(payload.session_id) ?? requestSessionId;
       if (sessionId) {
         const row = must(
           await db.from("training_sessions").select("id, starts_at, status").eq("organization_id", orgId).eq("id", sessionId).maybeSingle(),
@@ -172,6 +174,25 @@ export function outboxRepository(db: SupabaseClient) {
         // Przypomnienie o odwołanych lub już odbytych zajęciach nie ma sensu
         if (row && (event.type !== "training_session.reminder" || row.status === "scheduled")) {
           session = { id: row.id, startsAt: new Date(row.starts_at) };
+        }
+      }
+
+      // Ogłoszony wolny termin: kopia danych oferty (czas i rodzaj zajęć); dla zdarzeń bez własnej sesji to też czas zajęć
+      let offer: EventFacts["offer"] = null;
+      const offerId = str(payload.offer_id);
+      if (offerId) {
+        const row = must(
+          await db
+            .from("slot_offers")
+            .select("session_id, type_name, note, starts_at")
+            .eq("organization_id", orgId)
+            .eq("id", offerId)
+            .maybeSingle(),
+          "offer",
+        ) as { session_id: string; type_name: string; note: string | null; starts_at: string } | null;
+        if (row) {
+          offer = { typeName: row.type_name, note: row.note };
+          session ??= { id: row.session_id, startsAt: new Date(row.starts_at) };
         }
       }
 
@@ -185,7 +206,17 @@ export function outboxRepository(db: SupabaseClient) {
         charge,
         session,
         request,
+        offer,
       };
+    },
+
+    /** Klienci z listy chętnych (z aktywnym dostępem do panelu), poza wykluczonym; odbiorcy ogłoszenia wolnego terminu. */
+    async waitlistClientIds(organizationId: string, excludeClientId: string | null): Promise<string[]> {
+      const rows = must(
+        await db.from("waitlist_entries").select("client_id").eq("organization_id", organizationId),
+        "waitlist",
+      ) as { client_id: string }[];
+      return rows.map((r) => r.client_id).filter((id) => id !== excludeClientId);
     },
 
     /** Zapisuje powiadomienie; gdy już istnieje (ponowienie zdarzenia), zwraca istniejące z `created: false`. */

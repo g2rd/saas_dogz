@@ -12,6 +12,7 @@ const facts = (overrides: Partial<EventFacts> = {}): EventFacts => ({
   charge: null,
   session: null,
   request: null,
+  offer: null,
   ...overrides,
 });
 
@@ -154,5 +155,50 @@ describe("kanały i treść wiadomości", () => {
     expect(message.html).toContain("Cześć &lt;b&gt;");
     expect(message.html).toContain("A &amp; B");
     expect(message.text).toContain("https://app.example.pl/portal");
+  });
+});
+
+describe("planNotifications: wolne terminy", () => {
+  const session = { id: "s1", startsAt: new Date("2030-03-01T09:00:00Z") };
+  const offer = { typeName: "Trening", note: "Zwolnił się termin" };
+
+  it("ogłoszenie trafia do klienta z datą, rodzajem zajęć i notatką trenera", () => {
+    const [draft] = planNotifications(
+      { ...event("slot_offer.created", { offer_id: "o1" }) },
+      facts({ session, offer }),
+    );
+    expect(draft).toMatchObject({ audience: "client", recipientUserId: "client-user", link: "/portal/sessions" });
+    expect(draft.title).toBe("Wolny termin: 01.03.2030 o 10:00");
+    expect(draft.body).toContain("Trening. Zwolnił się termin.");
+    expect(draft.body).toContain("trener wybierze osobę");
+  });
+
+  it("zgłoszenie „Biorę” informuje personel, wybór i odrzucenie klienta", () => {
+    const claim = planNotifications(event("slot_claim.created", { claim_id: "c1", offer_id: "o1" }), facts({ session, offer }));
+    expect(claim.every((d) => d.audience === "staff")).toBe(true);
+    expect(claim[0].title).toBe("Anna Kowalska chce wolny termin");
+    expect(claim[0].link).toBe("/app/sessions");
+
+    const accepted = planNotifications(event("slot_claim.accepted", {}), facts({ session }));
+    expect(accepted[0]).toMatchObject({ audience: "client", title: "Miejsce jest dla Ciebie!" });
+    expect(accepted[0].body).toContain("01.03.2030 o 10:00");
+
+    const declined = planNotifications(event("slot_claim.declined", {}), facts({ session, offer }));
+    expect(declined[0]).toMatchObject({ audience: "client", title: "Termin został zajęty" });
+  });
+
+  it("bez danych terminu nic nie wysyła", () => {
+    expect(planNotifications(event("slot_offer.created"), facts({ offer }))).toEqual([]);
+    expect(planNotifications(event("slot_claim.accepted"), facts())).toEqual([]);
+  });
+
+  it("prośba „Nie mogę przyjść” trafia do personelu z terminem zajęć", () => {
+    const [draft] = planNotifications(
+      event("client_request.created"),
+      facts({ session, request: { id: "r1", kind: "cancel", note: "Choroba", packageName: null } }),
+    );
+    expect(draft.title).toBe("Anna Kowalska nie może przyjść na zajęcia");
+    expect(draft.body).toBe("Zajęcia 01.03.2030 o 10:00. Choroba");
+    expect(draft.link).toBe("/app/requests");
   });
 });

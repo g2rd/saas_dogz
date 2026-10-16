@@ -29,6 +29,7 @@ type RequestRow = {
   client_id: string;
   client_package_id: string | null;
   charge_id: string | null;
+  session_id: string | null;
   kind: RequestKind;
   status: "new" | "seen";
   note: string | null;
@@ -150,6 +151,7 @@ export function notificationsRepository(db: SupabaseClient, userId: string, orga
         p_kind: input.kind,
         p_package: input.packageId,
         p_charge: input.chargeId,
+        p_session: input.sessionId,
         p_note: input.note || null,
       });
       if (error) return err(fromDbError(error));
@@ -161,7 +163,7 @@ export function notificationsRepository(db: SupabaseClient, userId: string, orga
     async listRequests(options: { status?: "new" | "seen"; clientId?: string; limit: number }): Promise<Result<ClientRequest[]>> {
       let query = db
         .from("client_requests")
-        .select("id, client_id, client_package_id, charge_id, kind, status, note, created_at")
+        .select("id, client_id, client_package_id, charge_id, session_id, kind, status, note, created_at")
         .eq("organization_id", organizationId)
         .order("created_at", { ascending: false })
         .limit(options.limit);
@@ -204,6 +206,7 @@ export function notificationsRepository(db: SupabaseClient, userId: string, orga
           status: row.status,
           packageId: row.client_package_id,
           chargeId: row.charge_id,
+          sessionId: row.session_id,
           packageName: row.client_package_id ? (packageNames.get(row.client_package_id) ?? null) : null,
           chargeDescription: row.charge_id ? (chargeNames.get(row.charge_id) ?? null) : null,
           note: row.note,

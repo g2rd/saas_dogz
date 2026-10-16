@@ -9,6 +9,7 @@ import { dateInZone, formatDateHeadingTitle, timeInZone } from "@/shared/time";
 import { Badge } from "@/shared/ui/badge";
 import { requirePortalContext } from "../_lib/context";
 import { respondAction } from "./notifications/actions";
+import { SlotsSection } from "./slots-section";
 
 export default function PortalHome() {
   return (
@@ -79,6 +80,10 @@ async function Overview() {
       </div>
 
       <InstallPrompt />
+
+      <Suspense fallback={null}>
+        <SlotsSection compact />
+      </Suspense>
 
       {overview.lowBalance.map((pkg) => (
         <div

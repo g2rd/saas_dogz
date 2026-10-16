@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { siteUrl } from "@/shared/env";
 import { createServiceClient } from "@/shared/supabase/admin";
-import { enabledChannels, type Channel, type NotificationDraft } from "../domain/notification";
+import { enabledChannels, type Channel, type NotificationDraft, type OutboxEvent } from "../domain/notification";
 import { isNotifiable, planNotifications, renderExternalMessage } from "../domain/plan";
 import { outboxRepository } from "../infrastructure/outbox-repository";
 import { createEmailSender, createPushSender } from "../infrastructure/senders";
@@ -47,8 +47,7 @@ export async function processOutbox(
   for (const event of events) {
     try {
       if (isNotifiable(event.type) && event.organizationId) {
-        const facts = await repo.loadFacts(event);
-        const drafts = facts ? planNotifications(event, facts) : [];
+        const drafts = await draftsFor(repo, event);
         let failure: string | null = null;
 
         for (const draft of drafts) {
@@ -139,4 +138,23 @@ export async function runOutbox(options: { limit?: number; runDailyRules?: boole
     },
     options,
   );
+}
+
+/**
+ * Szkice powiadomień dla zdarzenia. Ogłoszenie wolnego terminu trafia do wielu klientów (lista chętnych), więc dla niego
+ * zdarzenie jest rozwijane na klientów; reszta zdarzeń dotyczy jednego klienta z ładunku.
+ */
+async function draftsFor(repo: ReturnType<typeof outboxRepository>, event: OutboxEvent): Promise<NotificationDraft[]> {
+  if (event.type === "slot_offer.created" && event.organizationId) {
+    const exclude = typeof event.payload.exclude_client_id === "string" ? event.payload.exclude_client_id : null;
+    const drafts: NotificationDraft[] = [];
+    for (const clientId of await repo.waitlistClientIds(event.organizationId, exclude)) {
+      const perClient = { ...event, payload: { ...event.payload, client_id: clientId } };
+      const facts = await repo.loadFacts(perClient);
+      if (facts) drafts.push(...planNotifications(perClient, facts));
+    }
+    return drafts;
+  }
+  const facts = await repo.loadFacts(event);
+  return facts ? planNotifications(event, facts) : [];
 }

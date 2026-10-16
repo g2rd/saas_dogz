@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { hasPermission } from "@/modules/core";
-import { getSessionAgenda, listSessionTypes, type Session } from "@/modules/scheduling";
+import { SlotOfferPanel, getSessionAgenda, listOpenSlotOffers, listSessionTypes, type Session } from "@/modules/scheduling";
 import { dateInZone, formatDateHeading, formatDateHeadingTitle } from "@/shared/time";
 import { requireContext } from "../../_lib/context";
 import { SessionCard } from "./session-card";
+import { acceptSlotClaimAction, closeSlotOfferAction } from "./slot-actions";
 
 export default function SessionsPage() {
   return (
@@ -35,10 +36,16 @@ export default function SessionsPage() {
 
 async function Agenda() {
   const ctx = await requireContext();
-  const [agendaResult, typesResult] = await Promise.all([getSessionAgenda(ctx), listSessionTypes(ctx)]);
+  const [agendaResult, typesResult, offersResult] = await Promise.all([
+    getSessionAgenda(ctx),
+    listSessionTypes(ctx),
+    listOpenSlotOffers(ctx),
+  ]);
   if (!agendaResult.ok) throw new Error(agendaResult.error.message);
   const agenda = agendaResult.value;
   const types = typesResult.ok ? typesResult.value : [];
+  const offers = offersResult.ok ? offersResult.value : [];
+  const offeredSessionIds = new Set(offers.map((o) => o.sessionId));
 
   const canWrite = hasPermission(ctx, "sessions.write");
   const canCharge = hasPermission(ctx, "payments.write");
@@ -63,6 +70,7 @@ async function Agenda() {
       canCharge={canCharge}
       canWrite={canWrite}
       showTrainer={showTrainer}
+      hasOpenOffer={offeredSessionIds.has(session.id)}
     />
   );
 
@@ -78,6 +86,13 @@ async function Agenda() {
         </p>
       ) : null}
 
+      <SlotOfferPanel
+        offers={offers}
+        timezone={agenda.timezone}
+        acceptAction={acceptSlotClaimAction}
+        closeAction={closeSlotOfferAction}
+      />
+
       <section>
         <h2 className="mb-3 text-lg font-semibold">
           Dziś <span className="font-normal text-zinc-600 dark:text-zinc-400">· {formatDateHeading(agenda.today)}</span>
@@ -88,6 +103,14 @@ async function Agenda() {
           <ul className="flex flex-col gap-3">{agenda.todaySessions.map(card)}</ul>
         )}
       </section>
+
+      {agenda.canceledUpcoming.length > 0 ? (
+        <section>
+          <h2 className="mb-1 text-lg font-semibold">Odwołane terminy</h2>
+          <p className="mb-3 text-sm text-zinc-600">Zwolnione miejsce możesz ogłosić klientom z listy chętnych.</p>
+          <ul className="flex flex-col gap-3">{agenda.canceledUpcoming.map(card)}</ul>
+        </section>
+      ) : null}
 
       <section>
         <h2 className="mb-3 text-lg font-semibold">Najbliższe</h2>

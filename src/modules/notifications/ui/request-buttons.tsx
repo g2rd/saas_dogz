@@ -16,12 +16,14 @@ export function RequestButtons({
   kinds,
   packageId,
   chargeId,
+  sessionId,
   alreadySent,
 }: {
   action: RespondAction;
   kinds: readonly RequestKind[];
   packageId?: string | null;
   chargeId?: string | null;
+  sessionId?: string | null;
   alreadySent: readonly RequestKind[];
 }) {
   const [state, formAction] = useActionState(action, {});
@@ -51,7 +53,8 @@ export function RequestButtons({
               <input type="hidden" name="kind" value={kind} />
               {packageId ? <input type="hidden" name="packageId" value={packageId} /> : null}
               {chargeId ? <input type="hidden" name="chargeId" value={chargeId} /> : null}
-              <SubmitButton variant={kind === "end" ? "secondary" : "primary"} pendingLabel="Wysyłanie...">
+              {sessionId ? <input type="hidden" name="sessionId" value={sessionId} /> : null}
+              <SubmitButton variant={kind === "end" || kind === "cancel" ? "secondary" : "primary"} pendingLabel="Wysyłanie...">
                 {REQUEST_ACTION_LABELS[kind]}
               </SubmitButton>
             </form>

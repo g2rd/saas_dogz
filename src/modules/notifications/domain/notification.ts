@@ -3,7 +3,7 @@ import { formText } from "@/shared/form";
 
 export type Audience = "staff" | "client";
 
-export const REQUEST_KINDS = ["renew", "pay", "end"] as const;
+export const REQUEST_KINDS = ["renew", "pay", "end", "cancel"] as const;
 export type RequestKind = (typeof REQUEST_KINDS)[number];
 
 /** Etykiety przycisków odpowiedzi klienta na powiadomienie o kończącym się pakiecie. */
@@ -11,6 +11,7 @@ export const REQUEST_ACTION_LABELS: Record<RequestKind, string> = {
   renew: "Odnów pakiet",
   pay: "Zapłacę",
   end: "Kończę współpracę",
+  cancel: "Nie mogę przyjść",
 };
 
 /** Potwierdzenie widoczne dla klienta po wysłaniu prośby. */
@@ -18,6 +19,7 @@ export const REQUEST_CONFIRMATIONS: Record<RequestKind, string> = {
   renew: "Dziękujemy! Trener dostał informację, że chcesz odnowić pakiet.",
   pay: "Dziękujemy! Trener dostał informację, że zapłacisz.",
   end: "Dziękujemy! Trener dostał informację, że kończysz współpracę.",
+  cancel: "Dziękujemy! Trener dostał informację, że nie możesz przyjść, i zdecyduje o odwołaniu zajęć.",
 };
 
 export const REQUEST_STATUS_LABELS = { new: "Nowa", seen: "Obejrzana" } as const;
@@ -26,6 +28,7 @@ export const createRequestInputSchema = z.object({
   kind: z.enum(REQUEST_KINDS, { error: "Wybierz odpowiedź." }),
   packageId: z.preprocess((v) => (v === "" || v == null ? null : v), z.uuid().nullable()),
   chargeId: z.preprocess((v) => (v === "" || v == null ? null : v), z.uuid().nullable()),
+  sessionId: z.preprocess((v) => (v === "" || v == null ? null : v), z.uuid().nullable()),
   note: formText(500),
 });
 export type CreateRequestInput = z.output<typeof createRequestInputSchema>;
@@ -39,6 +42,7 @@ export type ClientRequest = {
   packageId: string | null;
   packageName: string | null;
   chargeId: string | null;
+  sessionId: string | null;
   chargeDescription: string | null;
   note: string | null;
   createdAt: Date;

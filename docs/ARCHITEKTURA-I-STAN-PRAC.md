@@ -26,7 +26,7 @@ Zdalne repozytorium: `https://github.com/g2rd/saas_dogz`. **Gałąź `dev` jest 
 3. Domena z testami jednostkowymi, przypadki użycia z `authorize`, repozytoria, testy integracyjne na prawdziwej bazie (w tym wyścigi i izolacja organizacji).
 4. UI mobile-first, przeklikanie w przeglądarce (przy ukrytym oknie podglądu strumieniowana treść nie podmienia się sama; pomaga `$RV($RB)` w konsoli), poprawki znalezionych błędów.
 5. `npm run typecheck`, `lint`, `test`, `db:test`, `test:integration`, `check:boundaries`, `build` muszą przechodzić.
-6. ADR dla decyzji, aktualizacja tego pliku, commit z dopiskiem `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`.
+6. ADR dla decyzji, aktualizacja tego pliku, commit (bez dopisku `Co-Authored-By`; decyzja właściciela).
 
 ### Środowisko lokalne (Windows, PowerShell)
 - Narzędzia są zainstalowane w tej sesji: Node 24, Git, Docker Desktop (WSL2). W nowej powłoce dodaj do `PATH`: `C:\Program Files\nodejs`, `C:\Program Files\Git\cmd`, `C:\Program Files\Docker\Docker\resources\bin`. Używaj `npm.cmd` i `npx.cmd` (skrypty `.ps1` bywają kapryśne).
@@ -194,6 +194,8 @@ Funkcja `public.create_organization(name, slug)`: atomowo tworzy organizację, u
 
 9. **PWA i telefon, etap 5 (część PWA)** (gałąź `feat/pwa`, ADR 0009) oraz **usunięcie SMS** (gałąź `feat/remove-sms`, migracja 0008): `app/manifest.ts`, ikony w `public/icons` (skrypt `generate-icons.mjs`), `/start`, rozszerzony `public/sw.js`, `offline.html`, `PwaRegister` i `InstallPrompt`, dolna nawigacja trenera i strona `/app/more`, ekran „Dziś” jako start na telefonie, instalacja w ustawieniach push dla iPhone'a, `viewport-fit=cover`. Decyzje i ograniczenia w [ADR 0009](adr/0009-pwa.md).
 
+10. **Jasny motyw, wolne terminy i lista chętnych** (gałęzie `feat/light-theme`, `feat/free-slots`, ADR 0010, migracja 0009): aplikacja jest tylko jasna (klasy `dark:` wyłączone, zielony kolor główny, czytelny czerwony przycisk „Odwołaj zajęcia”); lista chętnych klienta, ogłoszenie wolnego terminu przez trenera (odwołane zajęcia), „Biorę” w kolejności zgłoszeń, wybór osoby przez trenera z komunikatem „Miejsce jest dla Ciebie!” i „Termin został zajęty” dla pozostałych, prośba klienta „Nie mogę przyjść” (rodzaj `cancel`), sekcje „Wolne terminy” i „Odwołane terminy” u trenera oraz karta wolnych terminów w portalu.
+
 ### Stan repozytorium zdalnego (aktualizuj po każdym wypchnięciu)
 - `origin/main` = commit `19b334a`: etapy 1-3 (zatwierdzone przez właściciela).
 - `origin/dev`: gałąź integracyjna, zawiera `main` plus późniejsze zmiany; wypchnięta 2026-10-16 z etapem 4 (commit `8d37f74`). `main` nadal na etapach 1-3.
@@ -212,12 +214,12 @@ Zajęcia (planowanie, rozliczanie z pakietu, odwoływanie), pakiety i płatnośc
 | --- | --- | --- |
 | Typy | `npm run typecheck` | czysto |
 | Lint | `npm run lint` | czysto |
-| Testy jednostkowe (domena) | `npm test` | 157/157 (w tym symulacja service workera) |
+| Testy jednostkowe (domena) | `npm test` | 161/161 (w tym symulacja service workera) |
 | Granice modułów | `npm run check:boundaries` | brak naruszeń (185 modułów) |
 | Build produkcyjny | `npm run build` | przechodzi, trasy panelu to częściowy prerender |
 | Migracje | `supabase start` | obie zastosowane bez błędów |
-| Testy RLS (pgTAP) | `npm run db:test` | 125/125 (7 plików, w tym `notifications` i `member_invitations`) |
-| Testy przypadków użycia na bazie (auth z Mailpit, pakiety, płatności, zajęcia, zaproszenia, panel klienta, powiadomienia, zaproszenia personelu, wyścigi) | `npm run test:integration` | 101/101 (7 plików) |
+| Testy RLS (pgTAP) | `npm run db:test` | 153/153 (8 plików, w tym `notifications`, `member_invitations` i `free_slots`) |
+| Testy przypadków użycia na bazie (auth z Mailpit, pakiety, płatności, zajęcia, zaproszenia, panel klienta, powiadomienia, zaproszenia personelu, wyścigi) | `npm run test:integration` | 111/111 (8 plików) |
 
 Testy integracyjne pokrywają: tworzenie klienta z normalizacją, błędy walidacji pól, wyszukiwanie (także ze znakami sterującymi filtru), psy i notatki, odrzucenie daty urodzenia z przyszłości, archiwizację i przywracanie, izolację organizacji (także przy podmienionym `organizationId`), widok klienta z dostępem (tylko własne dane i notatki oznaczone jako widoczne) oraz ograniczenia roli `assistant`.
 
@@ -239,6 +241,9 @@ Lokalny Supabase + `npm run dev` (pętla outbox włączona): zdarzenie niskiego 
 
 ### Przeklikane: etap 5 (PWA)
 Produkcyjny build na `127.0.0.1`: manifest (`application/manifest+json`), `sw.js` (`application/javascript`), meta `theme-color`, `apple-touch-icon`, `viewport-fit=cover`, `/start` przekierowuje niezalogowanego na `/login`. Panel trenera w 375 px: ekran „Dziś” na górze, dolna nawigacja z pięcioma pozycjami, strona „Więcej” bez poziomego przewijania. Service worker sprawdzony symulacją (6 testów: strona offline, cache zasobów, ignorowanie POST/API/cudzych domen, push, bezpieczne kliknięcie). **Nie** sprawdzono rejestracji service workera w przeglądarce (wbudowana przeglądarka Claude go nie obsługuje, a Chrome z rozszerzeniem nie miał dostępu do adresu lokalnego), instalacji ani push na telefonie.
+
+### Przeklikane: wolne terminy
+Trener odwołał zajęcia Anny (przycisk „Odwołaj zajęcia” widoczny, sesja przeszła do „Odwołane terminy”), ogłosił wolny termin (sekcja „Wolne terminy”), klientka zapisała się na listę chętnych, zobaczyła ogłoszenie z wyborem psa i kliknęła „Biorę” („Zgłoszono. Czekasz na decyzję trenera.”). Przy emulowanym ciemnym trybie systemu aplikacja pozostaje jasna. Wybór osoby przez trenera, wycofanie, zamknięcie i powiadomienia sprawdzają testy integracyjne (nie klikano w przeglądarce). Uwaga: po przełączaniu gałęzi gitem Turbopack w `next dev` potrafi zostać przy starym CSS; pomaga usunięcie `.next/dev` i restart.
 
 ### Czego NIE zweryfikowano
 - Edycja klienta i psa przez formularz, usuwanie notatki oraz archiwizacja psa nie były przeklikane; rejestracja z zaproszenia przy włączonym potwierdzeniu e-mail (link wraca na stronę zaproszenia) nie była przeklikana (lokalnie potwierdzenia są wyłączone); odrzucanie psa i odbieranie dostępu tylko testami integracyjnymi.

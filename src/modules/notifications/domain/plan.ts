@@ -2,7 +2,6 @@ import { formatIsoDate } from "@/shared/dates";
 import { formatMoney, money } from "@/shared/money";
 import { dateInZone, timeInZone } from "@/shared/time";
 import {
-  REQUEST_KINDS,
   type NotificationDraft,
   type OutboxEvent,
   type RequestKind,
@@ -21,6 +20,8 @@ export type EventFacts = {
   charge: { id: string; description: string; remainingMinor: number; currency: string; dueDate: string } | null;
   session: { id: string; startsAt: Date } | null;
   request: { id: string; kind: RequestKind; note: string | null; packageName: string | null } | null;
+  /** Ogłoszony wolny termin (kopia danych oferty) dla zdarzeń slot_offer.* i slot_claim.*. */
+  offer: { typeName: string; note: string | null } | null;
 };
 
 /** Zdarzenia, dla których procesor wczytuje fakty o kliencie; pozostałe są pomijane bez powiadomień. */
@@ -34,6 +35,10 @@ export const NOTIFIABLE_EVENT_TYPES = [
   "training_session.canceled",
   "payment.recorded",
   "invitation.accepted",
+  "slot_offer.created",
+  "slot_claim.created",
+  "slot_claim.accepted",
+  "slot_claim.declined",
 ] as const;
 
 export function isNotifiable(type: string): boolean {
@@ -57,6 +62,7 @@ const REQUEST_STAFF_TITLES: Record<RequestKind, (client: string) => string> = {
   renew: (client) => `${client} chce odnowić pakiet`,
   pay: (client) => `${client} zapłaci za pakiet`,
   end: (client) => `${client} kończy współpracę`,
+  cancel: (client) => `${client} nie może przyjść na zajęcia`,
 };
 
 type Base = Omit<NotificationDraft, "recipientUserId" | "audience" | "clientId" | "dedupeKey">;
@@ -101,7 +107,7 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
           title: left,
           body: `W pakiecie „${pkg.name}” ${balance <= 0 ? "nie ma już wolnych zajęć" : `zostało ${balance} ${sessionsWord(balance)}`}. Co robisz dalej: odnawiasz, płacisz czy kończysz?`,
           link: "/portal",
-          data: { packageId: pkg.id, balance, actions: [...REQUEST_KINDS] },
+          data: { packageId: pkg.id, balance, actions: ["renew", "pay", "end"] },
         }),
         ...toStaff({
           type: event.type,
@@ -116,7 +122,11 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
     case "client_request.created": {
       const request = facts.request;
       if (!request) return [];
-      const parts = [request.packageName ? `Pakiet „${request.packageName}”.` : null, request.note].filter(Boolean);
+      const parts = [
+        request.packageName ? `Pakiet „${request.packageName}”.` : null,
+        request.kind === "cancel" && facts.session ? `Zajęcia ${fullDateTime(facts.session.startsAt, facts.timezone)}.` : null,
+        request.note,
+      ].filter(Boolean);
       return toStaff({
         type: event.type,
         title: REQUEST_STAFF_TITLES[request.kind](facts.clientName),
@@ -203,6 +213,53 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
         body: `Trener zaksięgował wpłatę ${formatMoney(money(amountMinor, currency))}. Dziękujemy!`,
         link: "/portal/payments",
         data: {},
+      });
+    }
+
+    case "slot_offer.created": {
+      if (!facts.session || !facts.offer) return [];
+      const when = fullDateTime(facts.session.startsAt, facts.timezone);
+      return toClient({
+        type: event.type,
+        title: `Wolny termin: ${when}`,
+        body: [facts.offer.typeName, facts.offer.note, "Chcesz go wziąć? Zgłoś się w aplikacji, trener wybierze osobę."]
+          .filter(Boolean)
+          .join(". "),
+        link: "/portal/sessions",
+        data: { offerId: event.payload.offer_id },
+      });
+    }
+
+    case "slot_claim.created": {
+      if (!facts.session) return [];
+      return toStaff({
+        type: event.type,
+        title: `${facts.clientName} chce wolny termin`,
+        body: `Termin ${fullDateTime(facts.session.startsAt, facts.timezone)}. Wybierz osobę w Zajęcia.`,
+        link: "/app/sessions",
+        data: { claimId: event.payload.claim_id, offerId: event.payload.offer_id },
+      });
+    }
+
+    case "slot_claim.accepted": {
+      if (!facts.session) return [];
+      return toClient({
+        type: event.type,
+        title: "Miejsce jest dla Ciebie!",
+        body: `Zajęcia ${fullDateTime(facts.session.startsAt, facts.timezone)} zostały dla Ciebie zarezerwowane.`,
+        link: "/portal/sessions",
+        data: { sessionId: facts.session.id },
+      });
+    }
+
+    case "slot_claim.declined": {
+      if (!facts.session) return [];
+      return toClient({
+        type: event.type,
+        title: "Termin został zajęty",
+        body: `Wolny termin ${fullDateTime(facts.session.startsAt, facts.timezone)} dostał inny kursant. Dziękujemy za zgłoszenie!`,
+        link: "/portal/sessions",
+        data: { offerId: event.payload.offer_id },
       });
     }
 

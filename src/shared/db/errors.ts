@@ -20,6 +20,12 @@ export function fromDbError(error: DbError): AppError {
       return appError("conflict", "To zaproszenie wygasło lub zostało już użyte.", { reason: "invitation_unusable" });
     case "DT005":
       return appError("conflict", "To zaproszenie jest przypisane do innego adresu e-mail.", { reason: "email_mismatch" });
+    case "DT007":
+      return appError("conflict", "Wolny termin można ogłosić tylko dla odwołanych zajęć, które jeszcze się nie odbyły.", { reason: "not_free_slot" });
+    case "DT008":
+      return appError("conflict", "Ten termin jest już ogłoszony.", { reason: "offer_exists" });
+    case "DT009":
+      return appError("conflict", "To ogłoszenie nie jest już otwarte (termin zajęty lub zamknięty).", { reason: "offer_closed" });
     case "DT006":
       return appError("conflict", "Ta osoba ma już dostęp do tej organizacji.", { reason: "already_member" });
     case "DT002":

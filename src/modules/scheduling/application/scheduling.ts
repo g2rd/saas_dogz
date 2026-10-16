@@ -115,6 +115,8 @@ export type SessionAgenda = {
   todaySessions: Session[];
   /** Zaplanowane zajęcia od jutra do końca okna. */
   upcoming: Session[];
+  /** Odwołane zajęcia od jutra do końca okna (do ogłoszenia wolnego terminu). */
+  canceledUpcoming: Session[];
 };
 
 /** Lista „Dziś” i „Najbliższe” (domyślnie 14 dni) w strefie organizacji. */
@@ -134,12 +136,14 @@ export async function getSessionAgenda(
   const windowEnd = startOfDayUtc(addDaysIso(today, 1 + (options.upcomingDays ?? 14)), timezone);
 
   const repo = sessionsRepository(ctx.db);
-  const [todayResult, upcomingResult] = await Promise.all([
+  const [todayResult, upcomingResult, canceledResult] = await Promise.all([
     repo.list(ctx.organizationId, { from: todayRange.from, to: todayRange.to }),
     repo.list(ctx.organizationId, { from: todayRange.to, to: windowEnd, status: "scheduled" }),
+    repo.list(ctx.organizationId, { from: todayRange.to, to: windowEnd, status: "canceled" }),
   ]);
   if (!todayResult.ok) return todayResult;
   if (!upcomingResult.ok) return upcomingResult;
+  if (!canceledResult.ok) return canceledResult;
 
   return ok({
     timezone,
@@ -150,6 +154,7 @@ export async function getSessionAgenda(
     today,
     todaySessions: todayResult.value,
     upcoming: upcomingResult.value,
+    canceledUpcoming: canceledResult.value,
   });
 }
 
