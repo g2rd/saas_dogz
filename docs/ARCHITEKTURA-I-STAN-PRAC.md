@@ -280,6 +280,8 @@ Po resecie bazy: trenera i dane odtwarza `SEED_EMAIL=trener@example.test SEED_PA
 Czego jeszcze nie ma: magic linku dla klientów i prawdziwego SMS-a (adapter SMSAPI). Zaproszenia personelu: `Zespół` w nagłówku → `Zaproś do zespołu` (e-mail i rola, link `/join/<token>` ważny 7 dni, wysyłany e-mailem).
 ## 8. Do zrobienia
 
+Ścieżka do pierwszej sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJNE.md](WDROZENIE-PRODUKCYJNE.md) (fazy A-F z bramkami, tabela ryzyk, minimalny zakres pilotażu).
+
 Kolejność odpowiada planowi v2.0 (Faza 1 = MVP do płatnego pilotażu).
 
 ### Najbliższe (domknięcie tego, co jest)
