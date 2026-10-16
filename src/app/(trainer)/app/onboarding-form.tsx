@@ -15,6 +15,7 @@ export function OnboardingForm({
       <TextField
         label="Nazwa Twojej szkoły lub działalności"
         name="name"
+        defaultValue={state.values?.name}
         errors={state.fieldErrors?.name}
         required
       />

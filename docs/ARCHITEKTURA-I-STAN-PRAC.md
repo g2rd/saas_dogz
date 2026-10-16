@@ -159,9 +159,19 @@ Logowanie, utworzenie organizacji przy pierwszym wejściu, lista klientów z wys
 
 Testy integracyjne pokrywają: tworzenie klienta z normalizacją, błędy walidacji pól, wyszukiwanie (także ze znakami sterującymi filtru), psy i notatki, odrzucenie daty urodzenia z przyszłości, archiwizację i przywracanie, izolację organizacji (także przy podmienionym `organizationId`), widok klienta z dostępem (tylko własne dane i notatki oznaczone jako widoczne) oraz ograniczenia roli `assistant`.
 
+### Przeklikane w przeglądarce (lokalny Supabase + `npm run dev`)
+Przepływ przeszedł end-to-end: przekierowanie niezalogowanego z `/app` na `/login`, logowanie, kreator pierwszej organizacji („Szkoła Łapa"), dodanie klienta (telefon `600 100 200` zapisany jako `+48600100200`, e-mail zamieniony na małe litery), błąd walidacji telefonu z komunikatem przy polu, dodanie psa (wiek liczony poprawnie), notatka widoczna dla klienta, wyszukiwanie (trafienie i brak wyników), archiwizacja i przywrócenie klienta, wylogowanie i ponowna ochrona trasy.
+
+Znalezione i naprawione w tej rundzie:
+1. **Błąd prerenderu `Date.now()`** na `/app` (Cache Components): `getClaims()` używa czasu, a strona była próbą prerenderu. Naprawa: `await connection()` przed `cookies()` w `createUserClient`.
+2. **Utrata wpisanych danych po błędzie walidacji:** React 19 czyści formularz po akcji. Naprawa: `FormState.values` i odtwarzanie jako `defaultValue` we wszystkich formularzach.
+3. Na stronie psa pokazywało się „Nie podano" przy nieznanej płci (na liście klienta już nie). Naprawione.
+4. Mylący komunikat pustej listy, gdy wszyscy klienci są w archiwum. Naprawione.
+
 ### Czego NIE zweryfikowano
-- **Interfejs w przeglądarce:** żadna strona nie została wyrenderowana ani kliknięta. Przechodzą typy i build, ale przepływ logowanie → kreator organizacji → klient → pies nie był przeklikany. To pierwszy krok na następną sesję.
-- Logowanie hasłem i odświeżanie sesji w `proxy.ts` na żywym Supabase (testy używają `signInWithPassword` bezpośrednio, ale nie przez Next.js).
+- Zaproszenia, panel klienta, edycja klienta i psa przez formularz, usuwanie notatki oraz archiwizacja psa nie były przeklikane (kod istnieje, sprawdzony tylko typami i buildem).
+- Widok mobilny i dostępność (tylko podgląd w oknie 1024 px).
+- Odświeżanie wygasłej sesji w `proxy.ts` (nie czekano na wygaśnięcie tokenu).
 - Wydajność RLS na dużych zbiorach, indeksy poza podstawowymi.
 - `npm audit` zgłosił 5 podatności o wysokiej wadze w zależnościach scaffoldu; nie były przeglądane.
 
@@ -183,7 +193,7 @@ Uwagi praktyczne (Windows): w PowerShell `npx` bywa kapryśne, użyj `npx.cmd`; 
 Kolejność odpowiada planowi v2.0 (Faza 1 = MVP do płatnego pilotażu).
 
 ### Najbliższe (domknięcie tego, co jest)
-1. Przeklikać panel w przeglądarce i naprawić znalezione błędy (logowanie, kreator, klienci, psy, notatki).
+1. Dokończyć przeklikanie: edycja klienta i psa, usuwanie notatki, archiwizacja psa, widok mobilny. Po zalogowaniu przechodzić na adres z parametru `next` (dziś zawsze `/app`; trzeba walidować, że to ścieżka względna wewnątrz `/app`).
 2. Strona rejestracji trenera i reset hasła (jest tylko logowanie). Okres próbny 14 dni bez karty.
 3. Wygenerować typy bazy (`npm run db:types`, zapis w UTF-8 bez BOM) i przepisać repozytoria na typy generowane.
 4. Dodać `.gitattributes` (końce linii; Git ostrzega o LF→CRLF), `Dependabot`, przejrzeć `npm audit`.

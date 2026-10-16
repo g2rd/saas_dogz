@@ -11,7 +11,7 @@ export async function createOrganizationAction(
 ): Promise<FormState> {
   const db = await createUserClient();
   const result = await createOrganization(db, Object.fromEntries(formData));
-  if (!result.ok) return toFormState(result.error);
+  if (!result.ok) return toFormState(result.error, formData);
   redirect("/app");
 }
 

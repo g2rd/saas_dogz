@@ -1,11 +1,14 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { publicEnv } from "../env";
 
 /** Klient w kontekście zalogowanego użytkownika (RLS obowiązuje). */
 export async function createUserClient() {
-  // cookies() najpierw: oznacza render jako zależny od żądania, więc prerender
-  // się wstrzymuje, zanim sprawdzimy zmienne środowiskowe.
+  // Najpierw connection(), potem cookies(): render zależy od żądania, więc prerender
+  // wstrzymuje się, zanim sprawdzimy zmienne środowiskowe lub zweryfikujemy JWT
+  // (getClaims używa Date.now(), niedozwolonego w prerenderze).
+  await connection();
   const cookieStore = await cookies();
   const env = publicEnv();
 

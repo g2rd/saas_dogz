@@ -56,7 +56,11 @@ async function ClientList({ searchParams }: Pick<PageProps<"/app/clients">, "sea
 
       {clients.length === 0 ? (
         <p className="text-zinc-600 dark:text-zinc-400">
-          {q ? "Brak klientów pasujących do wyszukiwania." : "Nie masz jeszcze klientów. Dodaj pierwszego."}
+          {q
+            ? "Brak klientów pasujących do wyszukiwania."
+            : showArchived
+              ? "Brak klientów. Dodaj pierwszego."
+              : "Brak aktywnych klientów. Dodaj nowego albo zaznacz „Pokaż archiwalnych”."}
         </p>
       ) : (
         <ul className="divide-y divide-zinc-200 rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">

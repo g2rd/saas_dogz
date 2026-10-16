@@ -31,7 +31,7 @@ function unwrap<T>(result: Result<T>): T {
 export async function createClientAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const ctx = await requireContext();
   const result = await createClient(ctx, Object.fromEntries(formData));
-  if (!result.ok) return toFormState(result.error);
+  if (!result.ok) return toFormState(result.error, formData);
   redirect(clientPath(result.value.id));
 }
 
@@ -42,7 +42,7 @@ export async function updateClientAction(
 ): Promise<FormState> {
   const ctx = await requireContext();
   const result = await updateClient(ctx, clientId, Object.fromEntries(formData));
-  if (!result.ok) return toFormState(result.error);
+  if (!result.ok) return toFormState(result.error, formData);
   redirect(clientPath(clientId));
 }
 
@@ -65,7 +65,7 @@ export async function addDogAction(
 ): Promise<FormState> {
   const ctx = await requireContext();
   const result = await addDog(ctx, clientId, Object.fromEntries(formData));
-  if (!result.ok) return toFormState(result.error);
+  if (!result.ok) return toFormState(result.error, formData);
   redirect(dogPath(clientId, result.value.id));
 }
 
@@ -77,7 +77,7 @@ export async function updateDogAction(
 ): Promise<FormState> {
   const ctx = await requireContext();
   const result = await updateDog(ctx, dogId, Object.fromEntries(formData));
-  if (!result.ok) return toFormState(result.error);
+  if (!result.ok) return toFormState(result.error, formData);
   redirect(dogPath(clientId, dogId));
 }
 
@@ -101,7 +101,7 @@ export async function addDogNoteAction(
 ): Promise<FormState> {
   const ctx = await requireContext();
   const result = await addDogNote(ctx, dogId, Object.fromEntries(formData));
-  if (!result.ok) return toFormState(result.error);
+  if (!result.ok) return toFormState(result.error, formData);
   redirect(dogPath(clientId, dogId));
 }
 

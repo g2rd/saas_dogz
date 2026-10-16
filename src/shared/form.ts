@@ -4,13 +4,24 @@ import { appError, type AppError } from "./errors";
 export type FormState = {
   error?: string;
   fieldErrors?: Record<string, string[] | undefined>;
+  /** Wartości z ostatniego wysłania; React 19 czyści formularz po akcji, więc odtwarzamy je jako defaultValue. */
+  values?: Record<string, string>;
 };
 
-export function toFormState(error: AppError): FormState {
-  if (error.code === "validation" && error.details && typeof error.details === "object") {
-    return { error: error.message, fieldErrors: error.details as FormState["fieldErrors"] };
+function formValues(formData: FormData): Record<string, string> {
+  const values: Record<string, string> = {};
+  for (const [key, value] of formData.entries()) {
+    if (typeof value === "string" && !key.startsWith("$ACTION")) values[key] = value;
   }
-  return { error: error.message };
+  return values;
+}
+
+export function toFormState(error: AppError, formData?: FormData): FormState {
+  const values = formData ? formValues(formData) : undefined;
+  if (error.code === "validation" && error.details && typeof error.details === "object") {
+    return { error: error.message, fieldErrors: error.details as FormState["fieldErrors"], values };
+  }
+  return { error: error.message, values };
 }
 
 /** Parsuje dane wejściowe schematem Zod i zamienia błędy na AppError z błędami pól. */
