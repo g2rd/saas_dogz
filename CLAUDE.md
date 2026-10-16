@@ -11,6 +11,6 @@ Po każdej zmianie (etap, migracja, decyzja, błąd, nowe zadanie) zaktualizuj `
 - Architektura: modularny monolit (`src/modules/<moduł>/{domain,application,infrastructure,ui}`, publiczne API w `index.ts`); granice pilnuje `npm run check:boundaries`.
 - Dostęp do danych tylko przez `supabase-js` w kontekście użytkownika (RLS zawsze działa). Klucz `service_role` tylko w zadaniach w tle, webhookach i panelu administratora.
 - Nowa tabela = RLS + test pgTAP. Zapisy wielotabelowe jako funkcje SQL `security definer` ze sprawdzeniem roli i organizacji.
-- Etap pracy = nowa gałąź, testy (`typecheck`, `lint`, `test`, `db:test`, `test:integration`, `check:boundaries`, `build`), przeklikanie w przeglądarce, ADR, aktualizacja planu, commit. Scalanie do `main` i `git push` tylko na prośbę właściciela.
+- Przepływ gałęzi: **wszystkie zmiany trafiają do gałęzi `dev`** (integracyjnej). Etap pracy = nowa gałąź `feat/...` z `dev`, testy (`typecheck`, `lint`, `test`, `db:test`, `test:integration`, `check:boundaries`, `build`), przeklikanie w przeglądarce, ADR, aktualizacja planu, commit, scalenie do `dev`. **`main` zmieniamy dopiero po wyraźnym zatwierdzeniu przez właściciela** (merge `dev` do `main` i push). `git push` tylko na prośbę właściciela; logowanie do GitHuba wymaga przeglądarki, więc push uruchamiaj w terminalu użytkownika (`run_in_terminal`), nie w powłoce Claude.
 - Commity kończ linią `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`.
 - Hasła i klucze nie trafiają do repozytorium ani do rozmowy; konta testowe tylko lokalne.

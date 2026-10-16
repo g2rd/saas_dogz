@@ -11,10 +11,10 @@ import {
 import { safeNextPath } from "../domain/redirect";
 
 /** Ścieżki, na które może wskazywać `next` w linkach z e-maili (callback). */
-export const CALLBACK_NEXT_PREFIXES = ["/app", "/portal", "/invite", "/reset-password"] as const;
+export const CALLBACK_NEXT_PREFIXES = ["/app", "/portal", "/invite", "/join", "/reset-password"] as const;
 
 /** Ścieżki, na które może wskazywać `next` po zalogowaniu lub rejestracji. */
-export const LOGIN_NEXT_PREFIXES = ["/app", "/portal", "/invite"] as const;
+export const LOGIN_NEXT_PREFIXES = ["/app", "/portal", "/invite", "/join"] as const;
 
 export type SignupOutcome = "signed_in" | "confirmation_required";
 

@@ -5,10 +5,16 @@ import { formatMoney, money } from "@/shared/money";
 import { Badge } from "@/shared/ui/badge";
 import { SubmitButton } from "@/shared/ui/form-fields";
 import { requireContext } from "../../../_lib/context";
-import { createInviteAction, revokeAccessAction } from "./invite-actions";
+import { createInviteAction, deliverInviteAction, revokeAccessAction } from "./invite-actions";
 
 /** Dostęp klienta do panelu: zaproszenie (link, QR, kod) i odbieranie dostępu. */
-export async function AccessSection({ clientId, clientEmail }: { clientId: string; clientEmail: string | null }) {
+export async function AccessSection({
+  clientId,
+  clientEmail,
+}: {
+  clientId: string;
+  clientEmail: string | null;
+}) {
   const ctx = await requireContext();
   if (!hasPermission(ctx, "clients.write")) return null;
 
@@ -70,6 +76,7 @@ export async function AccessSection({ clientId, clientEmail }: { clientId: strin
         <div className="mt-4">
           <InviteForm
             action={createInviteAction.bind(null, clientId)}
+            deliverAction={deliverInviteAction.bind(null, clientId)}
             packages={packageOptions}
             defaultEmail={clientEmail}
           />

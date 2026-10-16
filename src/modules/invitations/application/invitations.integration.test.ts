@@ -14,6 +14,7 @@ import {
 } from "@/modules/portal/application/portal";
 import { scheduleSession, createSessionType } from "@/modules/scheduling/application/scheduling";
 import { systemClock } from "@/shared/clock";
+import { waitForEmailTo } from "@/shared/testing/mailpit";
 import type { ClientRequestContext, RequestContext } from "@/shared/context";
 import { addDaysIso, isoDate } from "@/shared/dates";
 import {
@@ -26,6 +27,7 @@ import {
 import {
   acceptInvitation,
   createClientInvitation,
+  deliverClientInvitation,
   getClientAccessInfo,
   lookupInvitation,
   revokeClientAccess,
@@ -345,5 +347,86 @@ describe("revoking access", () => {
 
     const info = value(await getClientAccessInfo(ctx, annaId));
     expect(info.accounts).toHaveLength(0);
+  });
+});
+
+describe("delivering invitations to the client", () => {
+  const recipient = `anna-${crypto.randomUUID().slice(0, 8)}@example.test`;
+  const sent: { to: string }[] = [];
+  const fakeSender = {
+    email: {
+      send: async (message: { to: string }) => {
+        sent.push({ to: message.to });
+        return { status: "sent" as const };
+      },
+    },
+  };
+
+  it("sends the link and code by e-mail (Mailpit) to the address on the invitation", async () => {
+    const created = value(await createClientInvitation(ctx, { clientId: annaId, packageId, email: recipient }));
+    const result = value(await deliverClientInvitation(ctx, { clientId: annaId, link: created.link, code: created.code }));
+    expect(result.recipient).toBe(`${recipient.slice(0, 1)}***@example.test`);
+
+    const mail = await waitForEmailTo(recipient);
+    expect(mail.subject).toContain("Szkoła Zaproszeń");
+    expect(mail.text).toContain(created.link);
+    expect(mail.text).toContain(created.code);
+  });
+
+  it("falls back to the client's e-mail from the record", async () => {
+    const withMail = `kartoteka-${crypto.randomUUID().slice(0, 8)}@example.test`;
+    await adminClient().from("clients").update({ email: withMail }).eq("id", annaId);
+    const created = value(await createClientInvitation(ctx, { clientId: annaId, packageId, email: "" }));
+    value(await deliverClientInvitation(ctx, { clientId: annaId, link: created.link, code: created.code }, fakeSender));
+    expect(sent.map((s) => s.to)).toEqual([withMail]);
+  });
+
+  it("refuses links and codes that do not match a pending invitation", async () => {
+    const created = value(await createClientInvitation(ctx, { clientId: annaId, packageId, email: "" }));
+    sent.length = 0;
+
+    const wrongCode = await deliverClientInvitation(
+      ctx,
+      { clientId: annaId, link: created.link, code: "AAAAA-AAAAA" },
+      fakeSender,
+    );
+    expect(wrongCode.ok).toBe(false);
+
+    const foreignLink = await deliverClientInvitation(
+      ctx,
+      { clientId: annaId, link: `https://evil.example/invite/${"a".repeat(43)}`, code: created.code },
+      fakeSender,
+    );
+    expect(foreignLink.ok).toBe(false);
+
+    const otherClient = await deliverClientInvitation(
+      ctx,
+      { clientId: piotrId, link: created.link, code: created.code },
+      fakeSender,
+    );
+    expect(otherClient.ok).toBe(false);
+
+    // Nowe zaproszenie unieważnia poprzednie, więc stare nie może już być wysłane
+    value(await createClientInvitation(ctx, { clientId: annaId, packageId, email: "" }));
+    const revoked = await deliverClientInvitation(ctx, { clientId: annaId, link: created.link, code: created.code }, fakeSender);
+    expect(revoked.ok).toBe(false);
+    expect(sent).toHaveLength(0);
+  });
+
+  it("requires the client to have an e-mail address, and the right role", async () => {
+    const lonely = value(await createClient(ctx, { firstName: "Bez", lastName: "Kontaktu" })).id;
+    const created = value(await createClientInvitation(ctx, { clientId: lonely, packageId: "", email: "" }));
+
+    const noEmail = await deliverClientInvitation(ctx, { clientId: lonely, link: created.link, code: created.code }, fakeSender);
+    expect(noEmail.ok).toBe(false);
+    if (!noEmail.ok) expect(noEmail.error.code).toBe("validation");
+
+    const asAssistant = await deliverClientInvitation(
+      contextFor(assistant, orgA, "assistant"),
+      { clientId: lonely, link: created.link, code: created.code },
+      fakeSender,
+    );
+    expect(asAssistant.ok).toBe(false);
+    if (!asAssistant.ok) expect(asAssistant.error.code).toBe("forbidden");
   });
 });

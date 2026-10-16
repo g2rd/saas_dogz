@@ -81,6 +81,72 @@ export function invitationsRepository(db: SupabaseClient) {
       return ok(undefined);
     },
 
+    /** Oczekujące zaproszenie klienta o danym skrócie tokenu (do wysyłki); null, gdy nieważne. */
+    async findDeliverable(
+      organizationId: string,
+      clientId: string,
+      tokenHash: string,
+      now: Date,
+    ): Promise<
+      Result<{
+        email: string | null;
+        codeHash: string | null;
+        expiresAt: Date;
+        packageName: string | null;
+        clientFirstName: string;
+        clientEmail: string | null;
+      } | null>
+    > {
+      const invitation = await db
+        .from("invitations")
+        .select("email, code_hash, expires_at, accepted_at, revoked_at, client_package_id")
+        .eq("organization_id", organizationId)
+        .eq("client_id", clientId)
+        .eq("kind", "client")
+        .eq("token_hash", tokenHash)
+        .maybeSingle();
+      if (invitation.error) return err(fromDbError(invitation.error));
+      const row = invitation.data as {
+        email: string | null;
+        code_hash: string | null;
+        expires_at: string;
+        accepted_at: string | null;
+        revoked_at: string | null;
+        client_package_id: string | null;
+      } | null;
+      if (!row || row.accepted_at || row.revoked_at || new Date(row.expires_at).getTime() <= now.getTime()) return ok(null);
+
+      const client = await db
+        .from("clients")
+        .select("first_name, email")
+        .eq("organization_id", organizationId)
+        .eq("id", clientId)
+        .maybeSingle();
+      if (client.error) return err(fromDbError(client.error));
+      const clientRow = client.data as { first_name: string; email: string | null } | null;
+      if (!clientRow) return ok(null);
+
+      let packageName: string | null = null;
+      if (row.client_package_id) {
+        const pkg = await db
+          .from("client_packages")
+          .select("name")
+          .eq("organization_id", organizationId)
+          .eq("id", row.client_package_id)
+          .maybeSingle();
+        packageName = (pkg.data as { name: string } | null)?.name ?? null;
+      }
+
+      return ok({
+        email: row.email,
+        codeHash: row.code_hash,
+        expiresAt: new Date(row.expires_at),
+        packageName,
+        clientFirstName: clientRow.first_name,
+        clientEmail: clientRow.email,
+      });
+    },
+
     async getAccessInfo(organizationId: string, clientId: string, now: Date): Promise<Result<ClientAccessInfo>> {
       const access = await db
         .from("client_access")

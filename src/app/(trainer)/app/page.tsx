@@ -10,14 +10,16 @@ import { listOverdueCharges } from "@/modules/payments";
 import { SESSION_STATUS_LABELS, formatSessionRange, getSessionAgenda } from "@/modules/scheduling";
 import { formatIsoDate } from "@/shared/dates";
 import { formatMoney, money } from "@/shared/money";
+import { countNewClientRequests } from "@/modules/notifications";
 import { Badge } from "@/shared/ui/badge";
+import { InstallPrompt } from "@/shared/ui/pwa";
 import { createOrganizationAction } from "./actions";
 import { OnboardingForm } from "./onboarding-form";
 
 export default function TrainerDashboard() {
   return (
     <>
-      <h1 className="text-2xl font-semibold">Panel trenera</h1>
+      <h1 className="sr-only text-2xl font-semibold md:not-sr-only">Panel trenera</h1>
       <Suspense fallback={<p className="mt-4 text-zinc-500">Ładowanie...</p>}>
         <DashboardContent />
       </Suspense>
@@ -49,13 +51,15 @@ async function DashboardContent() {
   const org = await getOrganization(ctx.value);
   const c = ctx.value;
 
-  const [low, overdue, clients, agenda, pendingDogs] = await Promise.all([
+  const [low, overdue, clients, agenda, pendingDogs, newRequests] = await Promise.all([
     hasPermission(c, "packages.read") ? listLowBalancePackages(c) : null,
     hasPermission(c, "payments.read") ? listOverdueCharges(c) : null,
     listClients(c),
     hasPermission(c, "sessions.read") ? getSessionAgenda(c, { upcomingDays: 0 }) : null,
     hasPermission(c, "dogs.write") ? listPendingDogs(c) : null,
+    countNewClientRequests(c),
   ]);
+  const requestCount = newRequests.ok ? newRequests.value : 0;
   const pendingDogList = pendingDogs?.ok ? pendingDogs.value : [];
   const todayAgenda = agenda?.ok ? agenda.value : null;
   const names = new Map((clients.ok ? clients.value : []).map((cl) => [cl.id, clientFullName(cl)]));
@@ -69,7 +73,7 @@ async function DashboardContent() {
         Organizacja: <strong>{org.ok ? org.value.name : "—"}</strong>
       </p>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="hidden flex-wrap gap-3 md:flex">
         <Link
           href="/app/sessions"
           className="inline-flex h-11 items-center rounded-full bg-foreground px-6 font-medium text-background"
@@ -88,6 +92,22 @@ async function DashboardContent() {
         >
           Szablony pakietów
         </Link>
+      </div>
+
+      {requestCount > 0 ? (
+        <Link
+          href="/app/requests"
+          className="flex min-h-14 items-center justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-800 dark:bg-amber-950/40"
+        >
+          <span className="font-medium">
+            {requestCount === 1 ? "1 nowa prośba klienta" : `Nowe prośby klientów: ${requestCount}`}
+          </span>
+          <Badge tone="warning">Zobacz</Badge>
+        </Link>
+      ) : null}
+
+      <div className="order-last">
+        <InstallPrompt />
       </div>
 
       {pendingDogList.length > 0 ? (
@@ -113,7 +133,7 @@ async function DashboardContent() {
       ) : null}
 
       {todayAgenda ? (
-        <div>
+        <div className="order-first">
           <h2 className="mb-2 text-lg font-semibold">Dziś</h2>
           {todayAgenda.todaySessions.length === 0 ? (
             <p className="text-zinc-600 dark:text-zinc-400">Na dziś nie ma zaplanowanych zajęć.</p>
