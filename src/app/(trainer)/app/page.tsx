@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { getOrganization, getRequestContext } from "@/modules/core";
+import { clientFullName, listClients } from "@/modules/clients";
+import { getOrganization, getRequestContext, hasPermission } from "@/modules/core";
+import { listLowBalancePackages } from "@/modules/packages";
+import { listOverdueCharges } from "@/modules/payments";
+import { formatIsoDate } from "@/shared/dates";
+import { formatMoney, money } from "@/shared/money";
+import { Badge } from "@/shared/ui/badge";
 import { createOrganizationAction } from "./actions";
 import { OnboardingForm } from "./onboarding-form";
 
@@ -35,20 +41,93 @@ async function DashboardContent() {
   }
 
   const org = await getOrganization(ctx.value);
+  const c = ctx.value;
+
+  const [low, overdue, clients] = await Promise.all([
+    hasPermission(c, "packages.read") ? listLowBalancePackages(c) : null,
+    hasPermission(c, "payments.read") ? listOverdueCharges(c) : null,
+    listClients(c),
+  ]);
+  const names = new Map((clients.ok ? clients.value : []).map((cl) => [cl.id, clientFullName(cl)]));
+  const lowList = low?.ok ? low.value : [];
+  const overdueList = overdue?.ok ? overdue.value : [];
+  const nameOf = (clientId: string) => names.get(clientId) ?? "Klient";
 
   return (
-    <section className="mt-6 flex flex-col gap-4">
+    <section className="mt-6 flex flex-col gap-6">
       <p className="text-zinc-600 dark:text-zinc-400">
         Organizacja: <strong>{org.ok ? org.value.name : "—"}</strong>
       </p>
-      <div>
+
+      <div className="flex flex-wrap gap-3">
         <Link
           href="/app/clients"
           className="inline-flex h-11 items-center rounded-full bg-foreground px-6 font-medium text-background"
         >
           Klienci i psy
         </Link>
+        <Link
+          href="/app/packages"
+          className="inline-flex h-11 items-center rounded-full border border-zinc-300 px-6 font-medium dark:border-zinc-700"
+        >
+          Szablony pakietów
+        </Link>
       </div>
+
+      {low ? (
+        <div>
+          <h2 className="mb-2 text-lg font-semibold">Kończące się pakiety</h2>
+          {lowList.length === 0 ? (
+            <p className="text-zinc-600 dark:text-zinc-400">Żaden pakiet się nie kończy.</p>
+          ) : (
+            <ul className="divide-y divide-zinc-200 rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+              {lowList.map((pkg) => (
+                <li key={pkg.id}>
+                  <Link
+                    href={`/app/clients/${pkg.clientId}/packages/${pkg.id}`}
+                    className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-900"
+                  >
+                    <span>
+                      <span className="font-medium">{nameOf(pkg.clientId)}</span>
+                      <span className="text-sm text-zinc-600 dark:text-zinc-400"> · {pkg.name}</span>
+                    </span>
+                    <Badge tone="warning">zostało {pkg.balance}</Badge>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ) : null}
+
+      {overdue ? (
+        <div>
+          <h2 className="mb-2 text-lg font-semibold">Płatności po terminie</h2>
+          {overdueList.length === 0 ? (
+            <p className="text-zinc-600 dark:text-zinc-400">Brak zaległości.</p>
+          ) : (
+            <ul className="divide-y divide-zinc-200 rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+              {overdueList.map((charge) => (
+                <li key={charge.id}>
+                  <Link
+                    href={`/app/clients/${charge.clientId}`}
+                    className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-900"
+                  >
+                    <span>
+                      <span className="font-medium">{nameOf(charge.clientId)}</span>
+                      <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                        {" "}
+                        · {charge.description || "Należność"}, termin {formatIsoDate(charge.dueDate)}
+                      </span>
+                    </span>
+                    <Badge tone="danger">{formatMoney(money(charge.remainingMinor, charge.currency))}</Badge>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ) : null}
     </section>
   );
 }

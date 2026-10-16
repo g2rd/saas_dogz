@@ -7,6 +7,8 @@ export function fromDbError(error: DbError): AppError {
   switch (error.code) {
     case "42501":
       return appError("forbidden", "Brak uprawnień do tej operacji.");
+    case "P0002":
+      return appError("not_found", "Nie znaleziono rekordu.");
     case "23505":
       return appError("conflict", "Taki rekord już istnieje.");
     case "23503":

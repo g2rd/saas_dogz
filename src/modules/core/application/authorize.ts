@@ -8,6 +8,11 @@ function isOrgRole(role: string): role is OrgRole {
   return (ORG_ROLES as readonly string[]).includes(role);
 }
 
+/** Czy rola ma uprawnienie; do ukrywania elementów UI (autoryzacją pozostaje `authorize` i RLS). */
+export function hasPermission(ctx: AuthContext, permission: Permission): boolean {
+  return authorize(ctx, permission).ok;
+}
+
 /** Pierwsza warstwa autoryzacji w przypadku użycia; drugą jest RLS w bazie. */
 export function authorize(ctx: AuthContext, permission: Permission): Result<void> {
   if (!isOrgRole(ctx.role) || !roleCan(ctx.role, permission)) {

@@ -24,18 +24,29 @@ describe("packageBalance", () => {
 });
 
 describe("packageStatus", () => {
-  const now = new Date("2026-10-16T12:00:00Z");
+  const today = "2026-10-16";
+  const base = { balance: 3, validUntil: null, canceledAt: null };
 
-  it("is active with balance and valid date", () => {
-    expect(packageStatus(3, new Date("2026-12-01T00:00:00Z"), now)).toBe("active");
+  it("is active with balance and no expiry", () => {
+    expect(packageStatus(base, today)).toBe("active");
+    expect(packageStatus({ ...base, validUntil: "2026-12-01" }, today)).toBe("active");
   });
 
-  it("is expired after validity date, even with balance", () => {
-    expect(packageStatus(3, new Date("2026-10-01T00:00:00Z"), now)).toBe("expired");
+  it("is valid through the whole last day", () => {
+    expect(packageStatus({ ...base, validUntil: "2026-10-16" }, today)).toBe("active");
+    expect(packageStatus({ ...base, validUntil: "2026-10-15" }, today)).toBe("expired");
+  });
+
+  it("is expired even with balance left", () => {
+    expect(packageStatus({ ...base, balance: 5, validUntil: "2026-10-01" }, today)).toBe("expired");
   });
 
   it("is depleted at zero balance", () => {
-    expect(packageStatus(0, null, now)).toBe("depleted");
+    expect(packageStatus({ ...base, balance: 0 }, today)).toBe("depleted");
+  });
+
+  it("canceled wins over everything", () => {
+    expect(packageStatus({ balance: 0, validUntil: "2020-01-01", canceledAt: new Date() }, today)).toBe("canceled");
   });
 });
 

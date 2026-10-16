@@ -116,8 +116,7 @@ Funkcja `public.create_organization(name, slug)`: atomowo tworzy organizację, u
 ### Zaprojektowane, jeszcze bez migracji (z planu v2.0)
 
 - Kalendarz: `session_types`, `locations`, `session_series`, `training_sessions`, `session_attendees`, `session_private_notes`.
-- Pakiety: `package_templates`, `package_template_session_types`, `client_packages`, `package_ledger` + widok `v_client_package_balance`.
-- Płatności: `charges`, `payments`, `payment_allocations` + widoki `v_charge_status`, `v_client_balance`.
+- Pakiety (reszta): `package_template_session_types` (po module zajęć).
 - Zadania domowe: `exercise_library`, `homework_templates`, `homework_assignments`, `homework_submissions`, `homework_comments`.
 - Powiadomienia: `notifications`, `notification_preferences`, `notification_log`.
 - Rozliczenia SaaS: `plans`, `plan_entitlements`, `subscriptions`, `entitlement_overrides`, `billing_events`.
@@ -143,8 +142,10 @@ Funkcja `public.create_organization(name, slug)`: atomowo tworzy organizację, u
 
 4. **Rejestracja i odzyskiwanie hasła** (gałąź `feat/signup-password-reset`): rejestracja trenera (`/signup`, z obsługą potwierdzenia e-mail), reset hasła (`/forgot-password`, `/reset-password`, trasa `/auth/callback` wymieniająca kod PKCE na sesję), parametr `next` po zalogowaniu z walidacją (`safeNextPath`: tylko ścieżki względne wewnątrz `/app`, odrzuca `//host`, `\`, `..`, znaki sterujące), adres aplikacji w linkach z e-maili z konfiguracji (`NEXT_PUBLIC_SITE_URL`, nie z nagłówka Host, żeby nie dało się podstawić linku resetującego), jeden komunikat dla złego e-maila i złego hasła, brak wycieku istnienia konta przy resecie, hasła nigdy nie wracają do HTML formularza.
 
+5. **Pakiety i płatności, etap 1 demo** (gałąź `feat/packages-payments`): migracja 0003 (`package_templates`, `client_packages`, `package_ledger` tylko do dopisywania, `charges`, `payments`, `payment_allocations`, widoki `v_client_package_balance`, `v_charge_balance`, `v_client_balance`, funkcje `sell_package`, `record_payment`, `adjust_package`, `void_charge`), domena (kwoty z formularza w groszach, sprzedaż z szablonu lub własna, status pakietu, alokacja wpłat), przypadki użycia, panel trenera (szablony pakietów, sprzedaż, saldo „zostało N z M", wpłaty, historia, korekta, kafelki „Kończące się pakiety" i „Płatności po terminie" na pulpicie). Decyzje w [ADR 0005](adr/0005-packages-payments.md).
+
 ### Funkcje widoczne dla użytkownika
-Rejestracja, reset hasła, logowanie, utworzenie organizacji przy pierwszym wejściu, lista klientów z wyszukiwaniem, dodanie/edycja/archiwizacja klienta, dodanie/edycja/archiwizacja psa, notatki o psie (prywatne lub widoczne dla klienta).
+Pakiety i płatności (szablony, sprzedaż, wpłaty częściowe, nadpłaty, korekty, zaległości), rejestracja, reset hasła, logowanie, utworzenie organizacji przy pierwszym wejściu, lista klientów z wyszukiwaniem, dodanie/edycja/archiwizacja klienta, dodanie/edycja/archiwizacja psa, notatki o psie (prywatne lub widoczne dla klienta).
 
 ## 6. Weryfikacja (wyniki z tej sesji)
 
@@ -152,12 +153,12 @@ Rejestracja, reset hasła, logowanie, utworzenie organizacji przy pierwszym wej�
 | --- | --- | --- |
 | Typy | `npm run typecheck` | czysto |
 | Lint | `npm run lint` | czysto |
-| Testy jednostkowe (domena) | `npm test` | 57/57 |
+| Testy jednostkowe (domena) | `npm test` | 93/93 |
 | Granice modułów | `npm run check:boundaries` | brak naruszeń (65 modułów) |
 | Build produkcyjny | `npm run build` | przechodzi, trasy panelu to częściowy prerender |
 | Migracje | `supabase start` | obie zastosowane bez błędów |
-| Testy RLS (pgTAP) | `npm run db:test` | 14/14 |
-| Testy przypadków użycia na bazie (w tym auth z Mailpit) | `npm run test:integration` | 16/16 |
+| Testy RLS (pgTAP) | `npm run db:test` | 34/34 |
+| Testy przypadków użycia na bazie (auth z Mailpit, pakiety, płatności, wyścigi) | `npm run test:integration` | 35/35, 12 powtórzeń bez błędu |
 
 Testy integracyjne pokrywają: tworzenie klienta z normalizacją, błędy walidacji pól, wyszukiwanie (także ze znakami sterującymi filtru), psy i notatki, odrzucenie daty urodzenia z przyszłości, archiwizację i przywracanie, izolację organizacji (także przy podmienionym `organizationId`), widok klienta z dostępem (tylko własne dane i notatki oznaczone jako widoczne) oraz ograniczenia roli `assistant`.
 
@@ -206,8 +207,8 @@ Kolejność odpowiada planowi v2.0 (Faza 1 = MVP do płatnego pilotażu).
 7. **Zaproszenia** personelu i klientów (przepływ na tabeli `invitations`, magic link, przyjęcie zaproszenia tworzy `organization_members` lub `client_access`).
 8. **Panel klienta (PWA):** trasa `(client)` / `/portal`, logowanie magic linkiem, najbliższe treningi, saldo pakietów i należności, zadania domowe, branding trenera, przełączanie między trenerami, manifest PWA.
 9. **Kalendarz:** migracja `session_types`, `locations`, `session_series`, `training_sessions`, `session_attendees`, `session_private_notes`; widoki dzień/tydzień/lista; serie cykliczne (rrule); zajęcia grupowe z limitem miejsc; polityka odwołań (próg godzinowy, czy późne odwołanie zużywa zajęcia); obecności; atomowe zakończenie treningu jako funkcja SQL; kanał ICS.
-10. **Pakiety:** migracja (`package_templates`, `client_packages`, `package_ledger`, widok salda), przypadki użycia na gotowej domenie `ledger.ts`, ostrzeżenia o kończących się pakietach.
-11. **Płatności:** migracja (`charges`, `payments`, `payment_allocations`, widoki), ewidencja wpłat, płatności częściowe i nadpłaty, lista zaległości, na gotowej domenie `charge-status.ts`.
+10. ~~Pakiety~~ (zrobione w etapie 1 demo; zostało: anulowanie pakietu, wygasanie pakietu zadaniem dziennym z wpisem `expiry`, powiązanie z typami zajęć).
+11. ~~Płatności~~ (zrobione w etapie 1 demo; zostało: storno błędnie zaksięgowanej wpłaty, zwrot wpłaty, obsługa wielu walut u jednego klienta, płatności online).
 12. **Zadania domowe:** biblioteka ćwiczeń, szablony, przydzielanie, przesyłanie krótkich filmów (upload bezpośrednio do Storage z podpisanym URL, limity według planu, retencja). Wymaga włączenia usługi Storage w lokalnym Supabase.
 13. **Powiadomienia e-mail:** procesor `outbox_events` (Vercel Cron), Resend + szablony React Email, przypomnienia o treningach, kończące się pakiety, zaległości. Odbiorcy idempotentni.
 14. **Plany i uprawnienia:** `plans`, `plan_entitlements`, `subscriptions`, `entitlement_overrides`; funkcje `can(org, feature)` i `limit(org, klucz)`; tryb tylko do odczytu po trialu; oferta Founding Member.
@@ -272,7 +273,7 @@ Cel: aplikacja do pokazania trenerom, w której cały obieg „klient → pakiet
 - **Tryb demo:** organizacja z realistycznymi danymi (seed) oraz panel „sterowanie demo": przewiń czas (symuluj koniec pakietu, zaległą płatność) i wyślij powiadomienie testowe, żeby pokazać pełny obieg na żywo bez czekania.
 
 ### 10.4. Kolejność wdrożenia (każdy etap: migracja z RLS, domena z testami, przypadki użycia, UI, testy na bazie, przeklikanie)
-1. **Pakiety i płatności** (trener sprzedaje pakiet, widzi saldo i należności, rejestruje wpłatę).
+1. ✅ **Pakiety i płatności** (trener sprzedaje pakiet, widzi saldo i należności, rejestruje wpłatę). Zrobione (sekcja 5, ADR 0005).
 2. **Zajęcia (minimalne)** i zużywanie pakietu.
 3. **Zaproszenia i panel klienta** (`/portal`, logowanie z zaproszenia, saldo, płatności, dodawanie psa, zatwierdzanie przez trenera).
 4. **Powiadomienia** (w aplikacji, web push, e-mail; reguły niskiego salda i płatności; odpowiedzi klienta; adapter SMS).

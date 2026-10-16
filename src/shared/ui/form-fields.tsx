@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { useFormStatus } from "react-dom";
 import type { FormState } from "../form";
 
@@ -13,17 +14,28 @@ type BaseProps = {
   hint?: string;
 };
 
-function FieldShell({ label, name, errors, hint, children }: BaseProps & { children: React.ReactNode }) {
+/** Unikalne id pola: ta sama nazwa pola może wystąpić w kilku formularzach na jednej stronie. */
+function useFieldId(name: string) {
+  return `${useId()}-${name}`;
+}
+
+function FieldShell({
+  id,
+  label,
+  errors,
+  hint,
+  children,
+}: Omit<BaseProps, "name"> & { id: string; children: React.ReactNode }) {
   const hasError = Boolean(errors?.length);
   return (
     <div className="flex flex-col gap-1 text-sm">
-      <label htmlFor={name} className="font-medium">
+      <label htmlFor={id} className="font-medium">
         {label}
       </label>
       {children}
       {hint && !hasError ? <p className="text-zinc-500">{hint}</p> : null}
       {hasError ? (
-        <p id={`${name}-error`} role="alert" className="text-red-600">
+        <p id={`${id}-error`} role="alert" className="text-red-600">
           {errors?.join(", ")}
         </p>
       ) : null}
@@ -36,19 +48,31 @@ export function TextField({
   defaultValue,
   required,
   autoComplete,
+  inputMode,
+  min,
   ...base
-}: BaseProps & { type?: string; defaultValue?: string | null; required?: boolean; autoComplete?: string }) {
+}: BaseProps & {
+  type?: string;
+  defaultValue?: string | null;
+  required?: boolean;
+  autoComplete?: string;
+  inputMode?: "text" | "numeric" | "decimal" | "tel" | "email";
+  min?: number;
+}) {
+  const id = useFieldId(base.name);
   return (
-    <FieldShell {...base}>
+    <FieldShell id={id} label={base.label} errors={base.errors} hint={base.hint}>
       <input
-        id={base.name}
+        id={id}
         name={base.name}
         type={type}
         defaultValue={defaultValue ?? ""}
         required={required}
         autoComplete={autoComplete}
+        inputMode={inputMode}
+        min={min}
         aria-invalid={Boolean(base.errors?.length)}
-        aria-describedby={base.errors?.length ? `${base.name}-error` : undefined}
+        aria-describedby={base.errors?.length ? `${id}-error` : undefined}
         className={inputClass}
       />
     </FieldShell>
@@ -60,9 +84,17 @@ export function SelectField({
   defaultValue,
   ...base
 }: BaseProps & { options: { value: string; label: string }[]; defaultValue?: string }) {
+  const id = useFieldId(base.name);
   return (
-    <FieldShell {...base}>
-      <select id={base.name} name={base.name} defaultValue={defaultValue} className={inputClass}>
+    <FieldShell id={id} label={base.label} errors={base.errors} hint={base.hint}>
+      {/* key: React nie odświeża wybranej opcji po zmianie defaultValue (np. po resecie formularza po błędzie). */}
+      <select
+        key={defaultValue ?? ""}
+        id={id}
+        name={base.name}
+        defaultValue={defaultValue}
+        className={inputClass}
+      >
         {options.map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}
@@ -78,10 +110,12 @@ export function TextAreaField({
   required,
   ...base
 }: BaseProps & { defaultValue?: string; required?: boolean }) {
+  const id = useFieldId(base.name);
   return (
-    <FieldShell {...base}>
+    <FieldShell id={id} label={base.label} errors={base.errors} hint={base.hint}>
       <textarea
-        id={base.name}
+        key={defaultValue ?? ""}
+        id={id}
         name={base.name}
         rows={4}
         defaultValue={defaultValue}
@@ -106,7 +140,13 @@ export function CheckboxField({
 }) {
   return (
     <label className="flex items-start gap-3 text-sm">
-      <input type="checkbox" name={name} defaultChecked={defaultChecked} className="mt-1 size-4" />
+      <input
+        key={String(defaultChecked ?? false)}
+        type="checkbox"
+        name={name}
+        defaultChecked={defaultChecked}
+        className="mt-1 size-4"
+      />
       <span>
         <span className="font-medium">{label}</span>
         {hint ? <span className="block text-zinc-500">{hint}</span> : null}

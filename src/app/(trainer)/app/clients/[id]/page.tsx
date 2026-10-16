@@ -10,6 +10,7 @@ import {
 import { DOG_SEX_LABELS, DogForm, formatDogAge, listDogs } from "@/modules/dogs";
 import { SubmitButton } from "@/shared/ui/form-fields";
 import { requireContext } from "../../../_lib/context";
+import { BillingSection } from "./billing-section";
 import {
   addDogAction,
   archiveClientAction,
@@ -99,6 +100,10 @@ async function ClientDetails({ params }: Pick<PageProps<"/app/clients/[id]">, "p
           </details>
         ) : null}
       </section>
+
+      <Suspense fallback={<p className="text-zinc-500">Ładowanie pakietów i płatności...</p>}>
+        <BillingSection clientId={id} dogs={dogs.map((d) => ({ id: d.id, name: d.name }))} />
+      </Suspense>
 
       {canWrite ? (
         <section>

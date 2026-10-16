@@ -10,6 +10,7 @@ export default function TrainerLayout({ children }: LayoutProps<"/app">) {
             DogTrainer
           </Link>
           <Link href="/app/clients">Klienci</Link>
+          <Link href="/app/packages">Pakiety</Link>
           <form action={logoutAction} className="ml-auto">
             <button type="submit" className="text-zinc-600 dark:text-zinc-400">
               Wyloguj

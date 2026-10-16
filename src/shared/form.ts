@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { appError, type AppError } from "./errors";
+import { parseAmountToMinor } from "./money";
 
 export type FormState = {
   error?: string;
@@ -43,6 +44,32 @@ export function parseInput<S extends z.ZodType>(
 /** Pole tekstowe z formularza: brak wartości traktowany jak pusty ciąg. */
 export const formText = (max: number) =>
   z.preprocess((v) => (v == null ? "" : v), z.string().trim().max(max, `Maksymalnie ${max} znaków`));
+
+/** Liczba całkowita z formularza (tekst), w podanym zakresie. */
+export const formInt = (min: number, max: number, message: string) =>
+  z.preprocess(
+    (v) => (typeof v === "string" && v.trim() !== "" ? Number(v.trim()) : v),
+    z.number({ error: message }).int(message).min(min, message).max(max, message),
+  );
+
+/** Jak `formInt`, ale pusty ciąg lub brak wartości oznacza null. */
+export const formOptionalInt = (min: number, max: number, message: string) =>
+  z.preprocess(
+    (v) => {
+      if (v == null || (typeof v === "string" && v.trim() === "")) return null;
+      return typeof v === "string" ? Number(v.trim()) : v;
+    },
+    z.number({ error: message }).int(message).min(min, message).max(max, message).nullable(),
+  );
+
+const AMOUNT_MESSAGE = "Podaj poprawną kwotę, np. 800 lub 800,50";
+
+/** Kwota z formularza ("800,50") w groszach. */
+export const formAmountMinor = (message = AMOUNT_MESSAGE) =>
+  z.preprocess(
+    (v) => (typeof v === "string" ? (parseAmountToMinor(v) ?? Number.NaN) : v),
+    z.number({ error: message }).int(message).min(0, message),
+  );
 
 /** Pole opcjonalne: pusty ciąg oznacza brak wartości. */
 export const emptyToNull = (v: unknown) => (v === "" || v === undefined ? null : v);

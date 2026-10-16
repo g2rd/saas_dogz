@@ -1,4 +1,4 @@
-export { authorize } from "./application/authorize";
+export { authorize, hasPermission } from "./application/authorize";
 export {
   CALLBACK_NEXT_PREFIXES,
   exchangeAuthCode,

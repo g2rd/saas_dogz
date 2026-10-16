@@ -1,4 +1,5 @@
 import { authorize } from "@/modules/core";
+import { isoDate } from "@/shared/dates";
 import { appError } from "@/shared/errors";
 import { parseInput } from "@/shared/form";
 import type { RequestContext } from "@/shared/context";
@@ -6,7 +7,6 @@ import { err, type Result } from "@/shared/result";
 import {
   dogInputSchema,
   dogNoteInputSchema,
-  isoDate,
   type Dog,
   type DogInput,
   type DogNote,

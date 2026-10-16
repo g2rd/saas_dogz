@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isRealIsoDate } from "@/shared/dates";
 import { emptyToNull, formText } from "@/shared/form";
 
 export const DOG_SEXES = ["male", "female", "unknown"] as const;
@@ -43,23 +44,9 @@ export type DogNote = {
   createdAt: Date;
 };
 
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
-
-function isRealDate(value: string): boolean {
-  if (!ISO_DATE.test(value)) return false;
-  const [y, m, d] = value.split("-").map(Number);
-  const date = new Date(Date.UTC(y, m - 1, d));
-  return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
-}
-
-/** Data YYYY-MM-DD dla podanego momentu w UTC. */
-export function isoDate(at: Date): string {
-  return at.toISOString().slice(0, 10);
-}
-
 /** Wiek w pełnych miesiącach; null, gdy brak daty lub data z przyszłości. */
 export function ageInMonths(birthDate: string | null, now: Date): number | null {
-  if (!birthDate || !isRealDate(birthDate)) return null;
+  if (!birthDate || !isRealIsoDate(birthDate)) return null;
   const [y, m, d] = birthDate.split("-").map(Number);
   let months = (now.getUTCFullYear() - y) * 12 + (now.getUTCMonth() + 1 - m);
   if (now.getUTCDate() < d) months -= 1;
@@ -78,7 +65,7 @@ export function formatDogAge(birthDate: string | null, now: Date): string | null
 
 const optionalIsoDate = z.preprocess(
   emptyToNull,
-  z.string().refine(isRealDate, "Niepoprawna data").nullable(),
+  z.string().refine(isRealIsoDate, "Niepoprawna data").nullable(),
 );
 
 export const dogInputSchema = z.object({

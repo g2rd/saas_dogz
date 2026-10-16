@@ -1,36 +1,36 @@
 import { describe, expect, it } from "vitest";
 import { chargeRemaining, chargeStatus, type ChargeSnapshot } from "./charge-status";
 
-const now = new Date("2026-10-16T12:00:00Z");
-const future = new Date("2026-11-01T00:00:00Z");
-const past = new Date("2026-10-01T00:00:00Z");
+const today = "2026-10-16";
 
 const base: ChargeSnapshot = {
   amountMinor: 30000,
   allocatedMinor: 0,
-  dueDate: future,
+  dueDate: "2026-11-01",
   voided: false,
 };
 
 describe("chargeStatus", () => {
   it("unpaid before due date with nothing paid", () => {
-    expect(chargeStatus(base, now)).toBe("unpaid");
+    expect(chargeStatus(base, today)).toBe("unpaid");
   });
 
   it("partial when part is allocated", () => {
-    expect(chargeStatus({ ...base, allocatedMinor: 10000 }, now)).toBe("partial");
+    expect(chargeStatus({ ...base, allocatedMinor: 10000 }, today)).toBe("partial");
   });
 
   it("paid when fully allocated, even after due date", () => {
-    expect(chargeStatus({ ...base, allocatedMinor: 30000, dueDate: past }, now)).toBe("paid");
+    expect(chargeStatus({ ...base, allocatedMinor: 30000, dueDate: "2026-10-01" }, today)).toBe("paid");
   });
 
-  it("overdue after due date when not fully paid", () => {
-    expect(chargeStatus({ ...base, allocatedMinor: 10000, dueDate: past }, now)).toBe("overdue");
+  it("overdue only from the day after the due date", () => {
+    expect(chargeStatus({ ...base, dueDate: "2026-10-16" }, today)).toBe("unpaid");
+    expect(chargeStatus({ ...base, dueDate: "2026-10-15" }, today)).toBe("overdue");
+    expect(chargeStatus({ ...base, allocatedMinor: 10000, dueDate: "2026-10-01" }, today)).toBe("overdue");
   });
 
   it("void wins over everything", () => {
-    expect(chargeStatus({ ...base, voided: true, dueDate: past }, now)).toBe("void");
+    expect(chargeStatus({ ...base, voided: true, dueDate: "2026-10-01" }, today)).toBe("void");
   });
 });
 
