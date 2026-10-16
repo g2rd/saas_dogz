@@ -76,7 +76,7 @@ async function DashboardContent() {
       <div className="hidden flex-wrap gap-3 md:flex">
         <Link
           href="/app/sessions"
-          className="inline-flex h-11 items-center rounded-full bg-foreground px-6 font-medium text-background"
+          className="inline-flex h-11 items-center rounded-full bg-primary hover:bg-primary-hover px-6 font-medium text-primary-foreground"
         >
           Zajęcia
         </Link>

@@ -166,7 +166,7 @@ export function SubmitButton({
 }) {
   const { pending } = useFormStatus();
   const styles = {
-    primary: "bg-foreground text-background",
+    primary: "bg-primary hover:bg-primary-hover text-primary-foreground",
     secondary: "border border-zinc-300 dark:border-zinc-700",
     danger: "border border-red-300 text-red-700 dark:border-red-800 dark:text-red-400",
   }[variant];

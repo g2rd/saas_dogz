@@ -13,7 +13,7 @@ export default function PackagesPage({ searchParams }: PageProps<"/app/packages"
         <h1 className="text-2xl font-semibold">Pakiety</h1>
         <Link
           href="/app/packages/new"
-          className="inline-flex h-11 items-center rounded-full bg-foreground px-6 font-medium text-background"
+          className="inline-flex h-11 items-center rounded-full bg-primary hover:bg-primary-hover px-6 font-medium text-primary-foreground"
         >
           Nowy szablon
         </Link>

@@ -32,7 +32,7 @@ export function PortalNav() {
               >
                 <span
                   aria-hidden
-                  className={`h-1 w-8 rounded-full ${active ? "bg-foreground" : "bg-transparent"}`}
+                  className={`h-1 w-8 rounded-full ${active ? "bg-primary" : "bg-transparent"}`}
                 />
                 {item.label}
               </Link>

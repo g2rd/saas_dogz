@@ -30,10 +30,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   // Dla stref bezpiecznych (wcięcie, pasek gestów): dolna nawigacja używa env(safe-area-inset-bottom)
   viewportFit: "cover",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
-  ],
+  themeColor: "#ffffff",
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

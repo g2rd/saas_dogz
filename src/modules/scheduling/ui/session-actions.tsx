@@ -47,8 +47,8 @@ export function SessionActions({
             <SubmitButton pendingLabel="Rozliczanie...">Zakończ zajęcia</SubmitButton>
           </form>
           <details className="text-sm">
-            <summary className="inline-flex h-11 cursor-pointer items-center rounded-full border border-zinc-300 px-5 font-medium dark:border-zinc-700">
-              Odwołaj
+            <summary className="inline-flex h-11 cursor-pointer items-center rounded-full border border-red-300 bg-red-50 px-5 font-medium text-red-700 hover:bg-red-100">
+              Odwołaj zajęcia
             </summary>
             <form action={cancelForm} className="mt-2 flex max-w-xs flex-col gap-2 rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
               <p className="text-zinc-600 dark:text-zinc-400">

@@ -31,7 +31,7 @@ export function TrainerBottomNav({ requests }: { requests: number }) {
                   active ? "font-semibold text-foreground" : "text-zinc-500"
                 }`}
               >
-                <span aria-hidden className={`h-1 w-8 rounded-full ${active ? "bg-foreground" : "bg-transparent"}`} />
+                <span aria-hidden className={`h-1 w-8 rounded-full ${active ? "bg-primary" : "bg-transparent"}`} />
                 <span>
                   {item.label}
                   {"badge" in item && requests > 0 ? (

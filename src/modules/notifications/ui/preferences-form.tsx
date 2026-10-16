@@ -170,7 +170,7 @@ export function PushToggle({
           type="button"
           onClick={enable}
           disabled={busy || status === "checking"}
-          className="h-11 self-start rounded-full bg-foreground px-5 font-medium text-background disabled:opacity-60"
+          className="h-11 self-start rounded-full bg-primary hover:bg-primary-hover px-5 font-medium text-primary-foreground disabled:opacity-60"
         >
           Włącz push na tym urządzeniu
         </button>

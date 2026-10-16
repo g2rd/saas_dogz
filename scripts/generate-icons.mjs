@@ -4,7 +4,7 @@ import { ImageResponse } from "next/og.js";
 import React from "react";
 
 const h = React.createElement;
-const BG = "#171717";
+const BG = "#059669";
 const FG = "#ffffff";
 
 /** Łapa: cztery palce i poduszka; `scale` zmniejsza rysunek (maskable wymaga marginesu bezpiecznej strefy). */

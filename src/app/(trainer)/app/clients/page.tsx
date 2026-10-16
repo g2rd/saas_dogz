@@ -10,7 +10,7 @@ export default function ClientsPage({ searchParams }: PageProps<"/app/clients">)
         <h1 className="text-2xl font-semibold">Klienci</h1>
         <Link
           href="/app/clients/new"
-          className="inline-flex h-11 items-center rounded-full bg-foreground px-6 font-medium text-background"
+          className="inline-flex h-11 items-center rounded-full bg-primary hover:bg-primary-hover px-6 font-medium text-primary-foreground"
         >
           Dodaj klienta
         </Link>

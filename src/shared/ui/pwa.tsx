@@ -110,7 +110,7 @@ export function InstallPrompt() {
           <button
             type="button"
             onClick={install}
-            className="mt-3 inline-flex h-11 items-center rounded-full bg-foreground px-5 font-medium text-background"
+            className="mt-3 inline-flex h-11 items-center rounded-full bg-primary hover:bg-primary-hover px-5 font-medium text-primary-foreground"
           >
             Zainstaluj
           </button>
