@@ -14,7 +14,7 @@ Stan na 2026-10-16. Dokument opisuje, jak zbudowana jest aplikacja, co jest już
 | 1. Pakiety i płatności | ✅ zrobione, scalone do `main` | `main` |
 | 2. Zajęcia (minimalne) i zużywanie pakietu | ✅ zrobione, scalone do `main` | `main` (3a8ef92) |
 | 3. Zaproszenia (link, QR, krótki kod) i panel klienta `/portal` | ✅ zrobione, scalone do `main` | `main` |
-| 4. Powiadomienia (w aplikacji, web push, e-mail, adapter SMS w podglądzie), odpowiedzi klienta („Odnów / Zapłać / Zakończ”), wysyłka zaproszeń, zaproszenia personelu | ✅ zrobione i przeklikane, scalone do `dev` (nie do `main`; czeka na zatwierdzenie właściciela), ADR 0008 | `dev` (`feat/notifications`) |
+| 4. Powiadomienia (w aplikacji, web push, e-mail; SMS usunięty 2026-10-16), odpowiedzi klienta („Odnów / Zapłać / Zakończ”), wysyłka zaproszeń, zaproszenia personelu | ✅ zrobione i przeklikane, scalone do `dev` (nie do `main`; czeka na zatwierdzenie właściciela), ADR 0008 | `dev` (`feat/notifications`) |
 | 5. PWA, dopracowanie mobilne, seed demo i „sterowanie demo” | ⏳ **następny krok** (plan w sekcji 11) | |
 
 Zdalne repozytorium: `https://github.com/g2rd/saas_dogz`. **Gałąź `dev` jest gałęzią integracyjną: tam trafiają wszystkie zmiany. `main` zawiera tylko to, co właściciel zatwierdził; do `main` wchodzimy dopiero po jego wyraźnym zatwierdzeniu (merge `dev` do `main` i push).** Stan wypchnięcia i szczegóły w sekcji 5. Plan następnego etapu jest w sekcji 11.
@@ -53,9 +53,9 @@ Platforma multi-tenant dla trenerów psów w Polsce: klienci i psy, kalendarz tr
 | Jakość | ESLint, dependency-cruiser (granice modułów) | |
 | Środowisko lokalne | Node 24.20, npm 11, Git 2.55, Docker Desktop 4.95 + WSL2, Supabase CLI 2.121 (z npm) | Zainstalowane w tej sesji przez winget. |
 
-Powiadomienia: `web-push` (VAPID), e-mail przez adapter (Resend po ustawieniu `RESEND_API_KEY`, lokalnie Mailpit), SMS w podglądzie (ADR 0008).
+Powiadomienia: `web-push` (VAPID), e-mail przez adapter (Resend po ustawieniu `RESEND_API_KEY`, lokalnie Mailpit). SMS: rezygnacja (decyzja właściciela 2026-10-16, migracja 0008); kanały to dzwonek, web push i e-mail (ADR 0008).
 
-Nie ma jeszcze: Stripe, Fakturowni, konta Resend (adapter jest, brak klucza), prawdziwego SMS-a, Sentry, PostHog, next-intl, React Hook Form, CI, hostingu (patrz sekcja 8).
+Nie ma jeszcze: Stripe, Fakturowni, konta Resend (adapter jest, brak klucza), Sentry, PostHog, next-intl, React Hook Form, CI, hostingu (patrz sekcja 8).
 
 ## 3. Architektura
 
@@ -147,7 +147,7 @@ Nawet gdy przypadek użycia ma błąd, RLS nie wpuści danych innej organizacji.
 | `dogs` | dogs | Profil psa |
 | `dog_notes` | dogs | Notatki zdrowotne/behawioralne/szczepienia; prywatne domyślnie, klient widzi tylko `visible_to_client` |
 | `notifications` | notifications | Skrzynka w aplikacji (dzwonek); zapis tylko `service_role`, użytkownik zmienia wyłącznie `read_at`; unikalny `(recipient_user_id, dedupe_key)` |
-| `notification_preferences` | notifications | Kanały użytkownika (push, e-mail, SMS); domyślnie push i e-mail |
+| `notification_preferences` | notifications | Kanały użytkownika (push, e-mail); domyślnie oba włączone |
 | `notification_log` | notifications | Dostarczenia per kanał (`sent`/`failed`/`skipped`/`preview`), unikalne `(notification_id, channel)`; bez polityk RLS |
 | `push_subscriptions` | notifications | Subskrypcje web push urządzeń użytkownika |
 | `client_requests` | notifications | Odpowiedzi klienta (`renew`/`pay`/`end`), tylko informacja dla trenera; zapis funkcją `create_client_request` |
@@ -199,7 +199,7 @@ Funkcja `public.create_organization(name, slug)`: atomowo tworzy organizację, u
 `https://github.com/g2rd/saas_dogz`: `origin/main` zawiera etapy 1-3 (wypchnięte 2026-10-16 na prośbę właściciela, commit `75944e4` i kolejny z aktualizacją tego pliku). Gałęzie robocze `feat/*` są tylko lokalne (są już w `main`). Kolejne wypchnięcia robimy tylko na prośbę właściciela; ten wiersz aktualizuj po każdym wypchnięciu. Logowanie do GitHuba odbywa się przez Git Credential Manager w przeglądarce, więc `git push` uruchamiaj w terminalu użytkownika (narzędzie `run_in_terminal`), nie w powłoce Claude.
 
 ### Funkcje widoczne dla użytkownika
-Powiadomienia po obu stronach (dzwonek, e-mail, push, SMS w podglądzie) z odpowiedziami klienta, wysyłka zaproszeń e-mailem i SMS-em, zespół i zaproszenia personelu,
+Powiadomienia po obu stronach (dzwonek, e-mail, push) z odpowiedziami klienta, wysyłka zaproszeń e-mailem, zespół i zaproszenia personelu,
 Zaproszenia klientów i panel klienta (saldo zajęć, płatności z terminami, zajęcia, dodawanie psów do zatwierdzenia),
 Zajęcia (planowanie, rozliczanie z pakietu, odwoływanie), pakiety i płatności (szablony, sprzedaż, wpłaty częściowe, nadpłaty, korekty, zaległości), rejestracja, reset hasła, logowanie, utworzenie organizacji przy pierwszym wejściu, lista klientów z wyszukiwaniem, dodanie/edycja/archiwizacja klienta, dodanie/edycja/archiwizacja psa, notatki o psie (prywatne lub widoczne dla klienta).
 
@@ -273,11 +273,11 @@ Po resecie bazy: trenera i dane odtwarza `SEED_EMAIL=trener@example.test SEED_PA
 1. Zaloguj się jako trener, otwórz kartę klienta (`Klienci`, wybrany klient), sekcja **Panel klienta**, `Zaproś klienta do panelu`.
 2. Wybierz pakiet do potwierdzenia (domyślnie najnowszy aktywny) i ewentualnie e-mail klienta (podpowiada się z kartoteki). Z e-mailem tylko konto z tym adresem przyjmie zaproszenie; bez e-maila przyjmie je każdy, kto ma kod lub link.
 3. `Utwórz zaproszenie`: pojawią się **kod QR**, **krótki kod** (np. `G8SCF-U6JSX`) i **link**. Są widoczne tylko teraz (po odświeżeniu strony ich nie odzyskasz, trzeba utworzyć nowe zaproszenie, które unieważnia poprzednie). Ważne 7 dni.
-4. **Wyślij je klientowi**: pod kodem QR są przyciski `Wyślij e-mailem` (adres z zaproszenia lub kartoteki; lokalnie wiadomość trafia do Mailpit) i `Wyślij SMS (podgląd)` (numer z kartoteki; SMS tylko w logu serwera). Można też pokazać QR, przeczytać kod lub wkleić link samodzielnie.
+4. **Wyślij je klientowi**: pod kodem QR są przyciski `Wyślij e-mailem` (adres z zaproszenia lub kartoteki; lokalnie wiadomość trafia do Mailpit). Można też pokazać QR, przeczytać kod lub wkleić link samodzielnie.
 5. Klient skanuje QR lub otwiera link (albo wchodzi na `/invite` i wpisuje kod), zakłada konto (imię, e-mail, hasło) i od razu trafia do panelu `/portal`. Kto ma już konto: `Zaloguj się` na stronie zaproszenia, potem `Przyjmij zaproszenie`.
 6. Na karcie klienta pojawi się „Konto z dostępem do panelu” z przyciskiem `Odbierz dostęp`.
 
-Czego jeszcze nie ma: magic linku dla klientów i prawdziwego SMS-a (adapter SMSAPI). Zaproszenia personelu: `Zespół` w nagłówku → `Zaproś do zespołu` (e-mail i rola, link `/join/<token>` ważny 7 dni, wysyłany e-mailem).
+Czego jeszcze nie ma: magic linku dla klientów (SMS: rezygnacja). Zaproszenia personelu: `Zespół` w nagłówku → `Zaproś do zespołu` (e-mail i rola, link `/join/<token>` ważny 7 dni, wysyłany e-mailem).
 ## 8. Do zrobienia
 
 Ścieżka do pierwszej sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJNE.md](WDROZENIE-PRODUKCYJNE.md) (fazy A-F z bramkami, tabela ryzyk, minimalny zakres pilotażu).
@@ -365,7 +365,7 @@ Cel: aplikacja do pokazania trenerom, w której cały obieg „klient → pakiet
 1. ✅ **Pakiety i płatności** (trener sprzedaje pakiet, widzi saldo i należności, rejestruje wpłatę). Zrobione (sekcja 5, ADR 0005).
 2. ✅ **Zajęcia (minimalne)** i zużywanie pakietu. Zrobione (sekcja 5, ADR 0006).
 3. ✅ **Zaproszenia i panel klienta** (`/portal`, logowanie z zaproszenia, saldo, płatności, dodawanie psa, zatwierdzanie przez trenera). Zrobione (sekcja 5, ADR 0007).
-4. ✅ **Powiadomienia** (w aplikacji, web push, e-mail; reguły niskiego salda i płatności; odpowiedzi klienta; adapter SMS w podglądzie), wysyłka zaproszeń i zaproszenia personelu. Zrobione (sekcja 5, ADR 0008).
+4. ✅ **Powiadomienia** (w aplikacji, web push, e-mail; reguły niskiego salda i płatności; odpowiedzi klienta; SMS usunięty), wysyłka zaproszeń i zaproszenia personelu. Zrobione (sekcja 5, ADR 0008).
 5. **PWA i dopracowanie mobilne** (manifest, ikony, service worker, dolna nawigacja, widok „Dziś"), seed demo i sterowanie demo.
 
 ### 10.5. Pytania do ustalenia przed startem (rozstrzygnięte 2026-10-16: płatność księguje trener, SMS w trybie podglądu, zaproszenie jako QR + link + krótki kod)
@@ -389,7 +389,7 @@ Cel: aplikacja do pokazania trenerom na telefonie (instalowalna z linku lub QR),
 - [ ] Seed demo (`npm run seed:demo`, tylko lokalnie lub dla organizacji demo): organizacja z kilkoma klientami i psami, pakiety w różnych stanach (świeży, kończący się, wyczerpany), płatności (opłacona, zbliżający się termin, zaległa), zajęcia dziś i w przyszłości, konto klienta; idempotentny
 - [ ] „Sterowanie demo” (panel tylko dla organizacji oznaczonej jako demo): przewiń czas (symuluj koniec pakietu, zaległą płatność, zajęcia za 24 h), wyślij powiadomienie testowe, uruchom outbox od razu, zresetuj dane demo
 - [ ] Produkcyjny harmonogram dla `/api/cron/outbox` (Vercel Cron co minutę wymaga planu Pro; alternatywnie zewnętrzny harmonogram), alert przy `stuck > 0`
-- [ ] Prawdziwy adapter SMS (SMSAPI) za interfejsem `SmsSender`, jeśli właściciel zdecyduje o budżecie; test web push na prawdziwym telefonie
+- [ ] Test web push na prawdziwym telefonie (SMS: rezygnacja)
 - [ ] Testy, przeklikanie, ADR 0009, aktualizacja tego pliku, commit
 - [ ] Decyzje do potwierdzenia z właścicielem przed startem: na jakim telefonie prezentujemy (iPhone wymaga instalacji PWA dla push); czy panel „sterowanie demo” ma być dostępny na produkcji dla jednej organizacji demo
 

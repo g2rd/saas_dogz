@@ -1,8 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
-import type { EmailSender, SmsSender } from "@/modules/notifications";
 import { authorize, getOrganization } from "@/modules/core";
-import { createEmailSender, createSmsSender } from "@/modules/notifications";
+import { createEmailSender, type EmailSender } from "@/modules/notifications";
 import type { RequestContext } from "@/shared/context";
 import { invitationHashSecret, siteUrl } from "@/shared/env";
 import { appError } from "@/shared/errors";
@@ -106,28 +105,23 @@ export async function acceptInvitation(
   return result;
 }
 
-export type InvitationChannel = "email" | "sms";
-
 const deliverInputSchema = z.object({
   clientId: z.uuid(),
-  channel: z.enum(["email", "sms"]),
   link: z.string().min(1).max(500),
   code: z.string().min(1).max(40),
 });
 
 const maskEmail = (value: string) => value.replace(/^(.).*(@.*)$/, "$1***$2");
-const maskPhone = (value: string) => `${value.slice(0, 3)}***${value.slice(-2)}`;
 
 /**
- * Wysyła klientowi zaproszenie e-mailem lub SMS-em (SMS w trybie podglądu). Serwer sam weryfikuje link i kod
- * z bazą (HMAC), więc nie da się nim wysłać dowolnej treści ani zaproszenia nieważnego lub cudzego.
- * Adres: e-mail z zaproszenia albo z kartoteki; numer z kartoteki.
+ * Wysyła klientowi zaproszenie e-mailem. Serwer sam weryfikuje link i kod z bazą (HMAC), więc nie da się nim
+ * wysłać dowolnej treści ani zaproszenia nieważnego lub cudzego. Adres: e-mail z zaproszenia albo z kartoteki.
  */
 export async function deliverClientInvitation(
   ctx: RequestContext,
   raw: unknown,
-  sender: { email: EmailSender; sms: SmsSender } = { email: createEmailSender(), sms: createSmsSender() },
-): Promise<Result<{ channel: InvitationChannel; recipient: string; preview: boolean }>> {
+  sender: { email: EmailSender } = { email: createEmailSender() },
+): Promise<Result<{ recipient: string }>> {
   const allowed = authorize(ctx, "clients.write");
   if (!allowed.ok) return allowed;
 
@@ -164,25 +158,15 @@ export async function deliverClientInvitation(
     packageName: invitation.packageName,
   });
 
-  if (input.value.channel === "email") {
-    const to = invitation.email ?? invitation.clientEmail;
-    if (!to) return err(appError("validation", "Klient nie ma adresu e-mail. Uzupełnij go w kartotece."));
-    try {
-      const outcome = await sender.email.send({ to, subject: message.subject, text: message.text, html: message.html });
-      if (outcome.status === "skipped") {
-        return err(appError("internal", `E-mail nie został wysłany: ${outcome.detail ?? "brak konfiguracji"}.`));
-      }
-    } catch {
-      return err(appError("internal", "Nie udało się wysłać e-maila. Spróbuj ponownie albo przekaż link osobiście."));
-    }
-    return ok({ channel: "email", recipient: maskEmail(to), preview: false });
-  }
-
-  if (!invitation.clientPhone) return err(appError("validation", "Klient nie ma numeru telefonu. Uzupełnij go w kartotece."));
+  const to = invitation.email ?? invitation.clientEmail;
+  if (!to) return err(appError("validation", "Klient nie ma adresu e-mail. Uzupełnij go w kartotece."));
   try {
-    const outcome = await sender.sms.send(invitation.clientPhone, message.sms);
-    return ok({ channel: "sms", recipient: maskPhone(invitation.clientPhone), preview: outcome.status === "preview" });
+    const outcome = await sender.email.send({ to, subject: message.subject, text: message.text, html: message.html });
+    if (outcome.status === "skipped") {
+      return err(appError("internal", `E-mail nie został wysłany: ${outcome.detail ?? "brak konfiguracji"}.`));
+    }
   } catch {
-    return err(appError("internal", "Nie udało się wysłać SMS-a."));
+    return err(appError("internal", "Nie udało się wysłać e-maila. Spróbuj ponownie albo przekaż link osobiście."));
   }
+  return ok({ recipient: maskEmail(to) });
 }

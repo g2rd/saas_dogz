@@ -79,24 +79,22 @@ export type NotificationDraft = {
   dedupeKey: string;
 };
 
-export type Channel = "push" | "email" | "sms";
-export const CHANNELS: readonly Channel[] = ["push", "email", "sms"];
+export type Channel = "push" | "email";
+export const CHANNELS: readonly Channel[] = ["push", "email"];
 
-export type ChannelPreferences = { push: boolean; email: boolean; sms: boolean };
+export type ChannelPreferences = { push: boolean; email: boolean };
 
-/** Domyślnie push i e-mail włączone, SMS wyłączony (płatny dodatek). */
-export const DEFAULT_PREFERENCES: ChannelPreferences = { push: true, email: true, sms: false };
+/** Domyślnie push i e-mail włączone. */
+export const DEFAULT_PREFERENCES: ChannelPreferences = { push: true, email: true };
 
 export const CHANNEL_LABELS: Record<Channel, string> = {
   push: "Powiadomienia push na telefonie",
   email: "E-mail",
-  sms: "SMS (podgląd, bez wysyłki)",
 };
 
 export const preferencesInputSchema = z.object({
   push: z.boolean(),
   email: z.boolean(),
-  sms: z.boolean(),
 });
 
 export function enabledChannels(preferences: ChannelPreferences | null): Channel[] {

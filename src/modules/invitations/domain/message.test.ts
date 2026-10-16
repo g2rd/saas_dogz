@@ -13,7 +13,7 @@ const input = {
 describe("composeInvitationMessage", () => {
   it("zawiera link, kod i termin we wszystkich wariantach", () => {
     const message = composeInvitationMessage(input);
-    for (const body of [message.text, message.html, message.sms]) {
+    for (const body of [message.text, message.html]) {
       expect(body).toContain("https://app.example.pl/invite/abc");
       expect(body).toContain("ABCDE-FGHJK");
       expect(body).toContain("23.10.2026");

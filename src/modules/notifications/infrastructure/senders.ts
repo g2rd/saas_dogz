@@ -1,6 +1,6 @@
 import webpush from "web-push";
 import { notificationEnv } from "@/shared/env";
-import type { EmailSender, PushSender, SmsSender } from "../application/ports";
+import type { EmailSender, PushSender } from "../application/ports";
 
 /**
  * E-mail: Resend na produkcji (`RESEND_API_KEY`), lokalnie HTTP API Mailpit (podgląd w `http://127.0.0.1:54324`).
@@ -82,19 +82,6 @@ export function createPushSender(): PushSender {
         if (statusCode === 404 || statusCode === 410) return { status: "skipped", detail: "subskrypcja wygasła", gone: true };
         throw error;
       }
-    },
-  };
-}
-
-/**
- * SMS w trybie podglądu: treść trafia do logu serwera, nic nie jest wysyłane.
- * Prawdziwy adapter (np. SMSAPI) implementuje ten sam interfejs `SmsSender`.
- */
-export function createSmsSender(): SmsSender {
-  return {
-    async send(to, text) {
-      console.info(`[sms:podgląd] do ${to}: ${text.replace(/\s+/g, " ").slice(0, 160)}`);
-      return { status: "preview", detail: `podgląd do ${to}` };
     },
   };
 }

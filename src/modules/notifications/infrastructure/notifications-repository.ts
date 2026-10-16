@@ -98,7 +98,7 @@ export function notificationsRepository(db: SupabaseClient, userId: string, orga
     async getPreferences(): Promise<Result<ChannelPreferences>> {
       const { data, error } = await db
         .from("notification_preferences")
-        .select("push, email, sms")
+        .select("push, email")
         .eq("user_id", userId)
         .maybeSingle();
       if (error) return err(fromDbError(error));

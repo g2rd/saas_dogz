@@ -243,7 +243,7 @@ export function outboxRepository(db: SupabaseClient) {
 
     async preferencesFor(userId: string): Promise<ChannelPreferences | null> {
       const row = must(
-        await db.from("notification_preferences").select("push, email, sms").eq("user_id", userId).maybeSingle(),
+        await db.from("notification_preferences").select("push, email").eq("user_id", userId).maybeSingle(),
         "preferences",
       ) as ChannelPreferences | null;
       return row;
@@ -253,14 +253,6 @@ export function outboxRepository(db: SupabaseClient) {
       const { data, error } = await db.auth.admin.getUserById(userId);
       if (error) throw new Error(`user: ${error.message}`);
       return data.user?.email ?? null;
-    },
-
-    async phoneForClient(organizationId: string, clientId: string): Promise<string | null> {
-      const row = must(
-        await db.from("clients").select("phone").eq("organization_id", organizationId).eq("id", clientId).maybeSingle(),
-        "phone",
-      ) as { phone: string | null } | null;
-      return row?.phone ?? null;
     },
 
     async pushTargets(userId: string): Promise<PushTarget[]> {

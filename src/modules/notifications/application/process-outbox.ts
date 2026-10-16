@@ -4,14 +4,13 @@ import { createServiceClient } from "@/shared/supabase/admin";
 import { enabledChannels, type Channel, type NotificationDraft } from "../domain/notification";
 import { isNotifiable, planNotifications, renderExternalMessage } from "../domain/plan";
 import { outboxRepository } from "../infrastructure/outbox-repository";
-import { createEmailSender, createPushSender, createSmsSender } from "../infrastructure/senders";
-import type { EmailSender, PushSender, SmsSender } from "./ports";
+import { createEmailSender, createPushSender } from "../infrastructure/senders";
+import type { EmailSender, PushSender } from "./ports";
 
 export type OutboxDeps = {
   db: SupabaseClient;
   email: EmailSender;
   push: PushSender;
-  sms: SmsSender;
   baseUrl: string;
   now: () => Date;
 };
@@ -55,7 +54,7 @@ export async function processOutbox(
         for (const draft of drafts) {
           const saved = await repo.saveNotification(event.organizationId, draft);
           if (saved.created) result.notifications += 1;
-          const problem = await deliverExternally(deps, repo, event.organizationId, saved.id, draft);
+          const problem = await deliverExternally(deps, repo, saved.id, draft);
           if (problem && !failure) failure = problem;
         }
         if (failure) throw new Error(failure);
@@ -76,7 +75,6 @@ export async function processOutbox(
 async function deliverExternally(
   deps: OutboxDeps,
   repo: ReturnType<typeof outboxRepository>,
-  organizationId: string,
   notificationId: string,
   draft: NotificationDraft,
 ): Promise<string | null> {
@@ -89,7 +87,7 @@ async function deliverExternally(
 
   for (const channel of channels) {
     try {
-      const outcome = await sendVia(deps, repo, organizationId, channel, draft, message);
+      const outcome = await sendVia(deps, repo, channel, draft, message);
       await repo.logDelivery(notificationId, channel, outcome.status, outcome.detail ?? null);
     } catch (error) {
       const detail = error instanceof Error ? error.message : String(error);
@@ -103,7 +101,6 @@ async function deliverExternally(
 async function sendVia(
   deps: OutboxDeps,
   repo: ReturnType<typeof outboxRepository>,
-  organizationId: string,
   channel: Channel,
   draft: NotificationDraft,
   message: ReturnType<typeof renderExternalMessage>,
@@ -127,13 +124,6 @@ async function sendVia(
       }
       return sent > 0 ? { status: "sent", detail: `${sent}/${targets.length} urządzeń` } : { status: "skipped", detail: lastDetail };
     }
-    case "sms": {
-      // SMS dostaje tylko klient (numer z kartoteki); personel nie ma numeru w modelu danych
-      if (draft.audience !== "client" || !draft.clientId) return { status: "skipped", detail: "SMS tylko dla klientów" };
-      const phone = await repo.phoneForClient(organizationId, draft.clientId);
-      if (!phone) return { status: "skipped", detail: "brak numeru telefonu" };
-      return deps.sms.send(phone, message.text);
-    }
   }
 }
 
@@ -144,7 +134,6 @@ export async function runOutbox(options: { limit?: number; runDailyRules?: boole
       db: createServiceClient(),
       email: createEmailSender(),
       push: createPushSender(),
-      sms: createSmsSender(),
       baseUrl: siteUrl(),
       now: () => new Date(),
     },

@@ -146,7 +146,7 @@ select is((select count(*)::int from public.notification_log), 0, 'delivery log 
 
 -- Preferencje i subskrypcje push
 select lives_ok(
-  $$insert into public.notification_preferences (user_id, sms) values ('00000000-0000-0000-0000-0000000000a1', true)$$,
+  $$insert into public.notification_preferences (user_id, email) values ('00000000-0000-0000-0000-0000000000a1', false)$$,
   'user saves own preferences');
 
 select throws_ok(

@@ -28,7 +28,7 @@ export async function createInviteAction(
   return { created: { link, code, qrSvg, expiresAt: expiresAt.toISOString() } };
 }
 
-/** Wysyła klientowi zaproszenie (e-mail lub SMS w podglądzie); serwer sam weryfikuje link i kod. */
+/** Wysyła klientowi zaproszenie e-mailem; serwer sam weryfikuje link i kod. */
 export async function deliverInviteAction(
   clientId: string,
   _prev: DeliverActionState,
@@ -37,15 +37,7 @@ export async function deliverInviteAction(
   const ctx = await requireContext();
   const result = await deliverClientInvitation(ctx, { ...Object.fromEntries(formData), clientId });
   if (!result.ok) return { error: result.error.message };
-  const { channel, recipient, preview } = result.value;
-  return {
-    message:
-      channel === "email"
-        ? `Wysłano e-mail na adres ${recipient}.`
-        : preview
-          ? `SMS do ${recipient} w trybie podglądu: treść zapisana w logu serwera, nic nie wysłano.`
-          : `Wysłano SMS na numer ${recipient}.`,
-  };
+  return { message: `Wysłano e-mail na adres ${result.value.recipient}.` };
 }
 
 export async function revokeAccessAction(clientId: string, userId: string) {

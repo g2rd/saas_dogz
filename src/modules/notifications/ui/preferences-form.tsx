@@ -17,12 +17,6 @@ export function PreferencesForm({ action, preferences }: { action: SaveAction; p
       </p>
       <CheckboxField name="push" label={CHANNEL_LABELS.push} defaultChecked={preferences.push} />
       <CheckboxField name="email" label={CHANNEL_LABELS.email} defaultChecked={preferences.email} />
-      <CheckboxField
-        name="sms"
-        label={CHANNEL_LABELS.sms}
-        hint="Na razie tryb podglądu: treść trafia do logu serwera, SMS nie jest wysyłany."
-        defaultChecked={preferences.sms}
-      />
       <FormMessage state={state} />
       {state.saved ? (
         <p role="status" className="text-sm text-emerald-700 dark:text-emerald-400">

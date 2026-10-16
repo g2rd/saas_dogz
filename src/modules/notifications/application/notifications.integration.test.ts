@@ -9,7 +9,7 @@ import { addDaysIso, isoDate } from "@/shared/dates";
 import { adminClient, contextFor, createTestUser, type TestUser } from "@/shared/testing/supabase-test";
 import { emailCountTo, waitForEmailTo } from "@/shared/testing/mailpit";
 import { createEmailSender } from "../infrastructure/senders";
-import type { EmailMessage, EmailSender, PushSender, SmsSender } from "./ports";
+import type { EmailMessage, EmailSender, PushSender } from "./ports";
 import {
   countNewClientRequests,
   countUnreadNotifications,
@@ -38,7 +38,6 @@ let packageId: string;
 let sessionTypeId: string;
 
 const emails: EmailMessage[] = [];
-const smsSent: { to: string; text: string }[] = [];
 let failEmailTo: string | null = null;
 
 const fakeEmail: EmailSender = {
@@ -46,12 +45,6 @@ const fakeEmail: EmailSender = {
     if (failEmailTo === message.to) throw new Error("smtp down");
     emails.push(message);
     return { status: "sent" };
-  },
-};
-const fakeSms: SmsSender = {
-  async send(to, text) {
-    smsSent.push({ to, text });
-    return { status: "preview" };
   },
 };
 const pushSent: { endpoint: string; title: string }[] = [];
@@ -67,7 +60,6 @@ const deps = (overrides: Partial<OutboxDeps> = {}): OutboxDeps => ({
   db: adminClient(),
   email: fakeEmail,
   push: fakePush,
-  sms: fakeSms,
   baseUrl: "http://localhost:3000",
   now: () => new Date(),
   ...overrides,
@@ -245,17 +237,17 @@ describe("prośby klienta", () => {
 });
 
 describe("kanały i preferencje", () => {
-  it("domyślnie push i e-mail, SMS wyłączony; zapis preferencji zmienia kanały", async () => {
-    expect(value(await getNotificationPreferences(ctx))).toMatchObject({ preferences: { push: true, email: true, sms: false }, pushDevices: 0 });
+  it("domyślnie push i e-mail; zapis preferencji zmienia kanały", async () => {
+    expect(value(await getNotificationPreferences(ctx))).toMatchObject({ preferences: { push: true, email: true }, pushDevices: 0 });
 
-    value(await saveNotificationPreferences(clientCtx(clientUser), { push: true, email: false, sms: true }));
-    expect(value(await getNotificationPreferences(clientCtx(clientUser))).preferences).toEqual({ push: true, email: false, sms: true });
+    value(await saveNotificationPreferences(clientCtx(clientUser), { push: true, email: false }));
+    expect(value(await getNotificationPreferences(clientCtx(clientUser))).preferences).toEqual({ push: true, email: false });
 
     const invalid = await saveNotificationPreferences(ctx, { push: "tak" });
     expect(invalid.ok).toBe(false);
   });
 
-  it("wysyła SMS (podgląd) i push tylko na życzenie, e-mail nie wychodzi przy wyłączonym kanale", async () => {
+  it("wysyła push na urządzenia, usuwa wygasłe, a e-mail nie wychodzi przy wyłączonym kanale", async () => {
     value(
       await savePushSubscription(clientCtx(clientUser), {
         endpoint: "https://push.example.test/alive",
@@ -277,7 +269,6 @@ describe("kanały i preferencje", () => {
 
     const toClient = emails.filter((m) => m.to === clientUser.email);
     expect(toClient).toEqual([]);
-    expect(smsSent.some((s) => s.to === "+48600100200" && s.text.includes("Zaplanowano zajęcia"))).toBe(true);
     expect(pushSent.some((p) => p.endpoint.endsWith("/alive") && p.title === "Zaplanowano zajęcia")).toBe(true);
     // Wygasła subskrypcja jest usuwana
     expect(value(await getNotificationPreferences(clientCtx(clientUser))).pushDevices).toBe(1);
@@ -286,8 +277,8 @@ describe("kanały i preferencje", () => {
 
 describe("niepowodzenia i ponowienia", () => {
   it("błąd kanału zostawia zdarzenie do ponowienia i nie wysyła ponownie tego, co już dotarło", async () => {
-    value(await saveNotificationPreferences(clientCtx(clientUser), { push: false, email: true, sms: false }));
-    value(await saveNotificationPreferences(ctx, { push: false, email: true, sms: false }));
+    value(await saveNotificationPreferences(clientCtx(clientUser), { push: false, email: true }));
+    value(await saveNotificationPreferences(ctx, { push: false, email: true }));
 
     emails.length = 0;
     failEmailTo = owner.email;

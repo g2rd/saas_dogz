@@ -11,11 +11,9 @@ import { createInviteAction, deliverInviteAction, revokeAccessAction } from "./i
 export async function AccessSection({
   clientId,
   clientEmail,
-  clientPhone,
 }: {
   clientId: string;
   clientEmail: string | null;
-  clientPhone: string | null;
 }) {
   const ctx = await requireContext();
   if (!hasPermission(ctx, "clients.write")) return null;
@@ -79,7 +77,6 @@ export async function AccessSection({
           <InviteForm
             action={createInviteAction.bind(null, clientId)}
             deliverAction={deliverInviteAction.bind(null, clientId)}
-            canSms={Boolean(clientPhone)}
             packages={packageOptions}
             defaultEmail={clientEmail}
           />

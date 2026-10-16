@@ -352,23 +352,19 @@ describe("revoking access", () => {
 
 describe("delivering invitations to the client", () => {
   const recipient = `anna-${crypto.randomUUID().slice(0, 8)}@example.test`;
-  const sms: { to: string; text: string }[] = [];
+  const sent: { to: string }[] = [];
   const fakeSender = {
-    email: { send: async () => ({ status: "sent" as const }) },
-    sms: {
-      send: async (to: string, text: string) => {
-        sms.push({ to, text });
-        return { status: "preview" as const };
+    email: {
+      send: async (message: { to: string }) => {
+        sent.push({ to: message.to });
+        return { status: "sent" as const };
       },
     },
   };
 
   it("sends the link and code by e-mail (Mailpit) to the address on the invitation", async () => {
     const created = value(await createClientInvitation(ctx, { clientId: annaId, packageId, email: recipient }));
-    const result = value(
-      await deliverClientInvitation(ctx, { clientId: annaId, channel: "email", link: created.link, code: created.code }),
-    );
-    expect(result).toMatchObject({ channel: "email", preview: false });
+    const result = value(await deliverClientInvitation(ctx, { clientId: annaId, link: created.link, code: created.code }));
     expect(result.recipient).toBe(`${recipient.slice(0, 1)}***@example.test`);
 
     const mail = await waitForEmailTo(recipient);
@@ -377,75 +373,57 @@ describe("delivering invitations to the client", () => {
     expect(mail.text).toContain(created.code);
   });
 
-  it("sends an SMS preview to the phone from the client record", async () => {
-    await adminClient().from("clients").update({ phone: "+48600100300" }).eq("id", annaId);
+  it("falls back to the client's e-mail from the record", async () => {
+    const withMail = `kartoteka-${crypto.randomUUID().slice(0, 8)}@example.test`;
+    await adminClient().from("clients").update({ email: withMail }).eq("id", annaId);
     const created = value(await createClientInvitation(ctx, { clientId: annaId, packageId, email: "" }));
-    const result = value(
-      await deliverClientInvitation(ctx, { clientId: annaId, channel: "sms", link: created.link, code: created.code }, fakeSender),
-    );
-    expect(result).toMatchObject({ channel: "sms", preview: true });
-    expect(sms).toHaveLength(1);
-    expect(sms[0].to).toBe("+48600100300");
-    expect(sms[0].text).toContain(created.link);
+    value(await deliverClientInvitation(ctx, { clientId: annaId, link: created.link, code: created.code }, fakeSender));
+    expect(sent.map((s) => s.to)).toEqual([withMail]);
   });
 
   it("refuses links and codes that do not match a pending invitation", async () => {
     const created = value(await createClientInvitation(ctx, { clientId: annaId, packageId, email: "" }));
+    sent.length = 0;
 
     const wrongCode = await deliverClientInvitation(
       ctx,
-      { clientId: annaId, channel: "sms", link: created.link, code: "AAAAA-AAAAA" },
+      { clientId: annaId, link: created.link, code: "AAAAA-AAAAA" },
       fakeSender,
     );
     expect(wrongCode.ok).toBe(false);
 
     const foreignLink = await deliverClientInvitation(
       ctx,
-      { clientId: annaId, channel: "sms", link: `https://evil.example/invite/${"a".repeat(43)}`, code: created.code },
+      { clientId: annaId, link: `https://evil.example/invite/${"a".repeat(43)}`, code: created.code },
       fakeSender,
     );
     expect(foreignLink.ok).toBe(false);
 
     const otherClient = await deliverClientInvitation(
       ctx,
-      { clientId: piotrId, channel: "sms", link: created.link, code: created.code },
+      { clientId: piotrId, link: created.link, code: created.code },
       fakeSender,
     );
     expect(otherClient.ok).toBe(false);
 
     // Nowe zaproszenie unieważnia poprzednie, więc stare nie może już być wysłane
     value(await createClientInvitation(ctx, { clientId: annaId, packageId, email: "" }));
-    const revoked = await deliverClientInvitation(
-      ctx,
-      { clientId: annaId, channel: "sms", link: created.link, code: created.code },
-      fakeSender,
-    );
+    const revoked = await deliverClientInvitation(ctx, { clientId: annaId, link: created.link, code: created.code }, fakeSender);
     expect(revoked.ok).toBe(false);
-    expect(sms).toHaveLength(1);
+    expect(sent).toHaveLength(0);
   });
 
-  it("requires the client to have an address or phone, and the right role", async () => {
+  it("requires the client to have an e-mail address, and the right role", async () => {
     const lonely = value(await createClient(ctx, { firstName: "Bez", lastName: "Kontaktu" })).id;
     const created = value(await createClientInvitation(ctx, { clientId: lonely, packageId: "", email: "" }));
 
-    const noPhone = await deliverClientInvitation(
-      ctx,
-      { clientId: lonely, channel: "sms", link: created.link, code: created.code },
-      fakeSender,
-    );
-    expect(noPhone.ok).toBe(false);
-    if (!noPhone.ok) expect(noPhone.error.code).toBe("validation");
-
-    const noEmail = await deliverClientInvitation(
-      ctx,
-      { clientId: lonely, channel: "email", link: created.link, code: created.code },
-      fakeSender,
-    );
+    const noEmail = await deliverClientInvitation(ctx, { clientId: lonely, link: created.link, code: created.code }, fakeSender);
     expect(noEmail.ok).toBe(false);
+    if (!noEmail.ok) expect(noEmail.error.code).toBe("validation");
 
     const asAssistant = await deliverClientInvitation(
       contextFor(assistant, orgA, "assistant"),
-      { clientId: lonely, channel: "sms", link: created.link, code: created.code },
+      { clientId: lonely, link: created.link, code: created.code },
       fakeSender,
     );
     expect(asAssistant.ok).toBe(false);

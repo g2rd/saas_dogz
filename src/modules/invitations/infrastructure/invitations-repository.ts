@@ -95,7 +95,6 @@ export function invitationsRepository(db: SupabaseClient) {
         packageName: string | null;
         clientFirstName: string;
         clientEmail: string | null;
-        clientPhone: string | null;
       } | null>
     > {
       const invitation = await db
@@ -119,12 +118,12 @@ export function invitationsRepository(db: SupabaseClient) {
 
       const client = await db
         .from("clients")
-        .select("first_name, email, phone")
+        .select("first_name, email")
         .eq("organization_id", organizationId)
         .eq("id", clientId)
         .maybeSingle();
       if (client.error) return err(fromDbError(client.error));
-      const clientRow = client.data as { first_name: string; email: string | null; phone: string | null } | null;
+      const clientRow = client.data as { first_name: string; email: string | null } | null;
       if (!clientRow) return ok(null);
 
       let packageName: string | null = null;
@@ -145,7 +144,6 @@ export function invitationsRepository(db: SupabaseClient) {
         packageName,
         clientFirstName: clientRow.first_name,
         clientEmail: clientRow.email,
-        clientPhone: clientRow.phone,
       });
     },
 

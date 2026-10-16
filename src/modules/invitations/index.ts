@@ -2,7 +2,6 @@ export {
   acceptInvitation,
   createClientInvitation,
   deliverClientInvitation,
-  type InvitationChannel,
   getClientAccessInfo,
   lookupInvitation,
   revokeClientAccess,

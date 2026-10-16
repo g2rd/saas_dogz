@@ -40,7 +40,6 @@ export async function savePortalPreferencesAction(
   const result = await saveNotificationPreferences(ctx, {
     push: formData.get("push") === "on",
     email: formData.get("email") === "on",
-    sms: formData.get("sms") === "on",
   });
   if (!result.ok) return toFormState(result.error, formData);
   return { saved: true };

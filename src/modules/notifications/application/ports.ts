@@ -14,7 +14,3 @@ export interface PushSender {
   /** `gone: true` oznacza wygasłą subskrypcję (do usunięcia). */
   send(target: PushTarget, payload: PushPayload): Promise<SendOutcome & { gone?: boolean }>;
 }
-
-export interface SmsSender {
-  send(to: string, text: string): Promise<SendOutcome>;
-}

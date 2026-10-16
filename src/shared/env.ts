@@ -59,7 +59,7 @@ export function hasSupabaseEnv(): boolean {
 
 /**
  * Konfiguracja kanałów powiadomień (wszystko opcjonalne; brak klucza = kanał w trybie podglądu).
- * Lokalnie e-maile trafiają do Mailpit (`supabase start`), push i SMS są pomijane lub w podglądzie.
+ * Lokalnie e-maile trafiają do Mailpit (`supabase start`), push jest pomijany bez kluczy VAPID.
  */
 export function notificationEnv() {
   const production = process.env.NODE_ENV === "production";

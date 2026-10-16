@@ -60,3 +60,11 @@ ich nie przetwarzał.
   interfejsy są gotowe, brakuje tylko adaptera SMS.
 - `payment.recorded` nie niesie waluty; powiadomienie zakłada PLN (jedna waluta na organizację w MVP).
 - Użytkownik w kilku organizacjach po przyjęciu zaproszenia trafia do pierwszej (przełącznik organizacji nadal do zrobienia).
+
+## Aktualizacja 2026-10-16: rezygnacja z SMS
+
+Właściciel zdecydował, że SMS nie powstanie. Kanały powiadomień to dzwonek, web push i e-mail. Usunięto port `SmsSender`
+i adapter podglądu, gałąź SMS w procesorze, przycisk „Wyślij SMS” przy zaproszeniu klienta (zostaje wysyłka e-mailem)
+oraz pole SMS w ustawieniach. Migracja 0008 usuwa kolumnę `notification_preferences.sms` i wartość `sms` w
+`notification_log.channel`. Numer telefonu klienta zostaje w kartotece. Konsekwencja: klient bez zainstalowanej aplikacji
+(PWA) nie dostanie przypomnienia poza e-mailem, więc instalacja PWA staje się ważna (etap 5).

@@ -140,9 +140,9 @@ describe("planNotifications: zajęcia", () => {
 });
 
 describe("kanały i treść wiadomości", () => {
-  it("domyślnie push i e-mail, bez SMS", () => {
+  it("domyślnie push i e-mail", () => {
     expect(enabledChannels(null)).toEqual(["push", "email"]);
-    expect(enabledChannels({ push: false, email: false, sms: true })).toEqual(["sms"]);
+    expect(enabledChannels({ push: false, email: true })).toEqual(["email"]);
   });
 
   it("buduje link bezwzględny i escapuje HTML", () => {

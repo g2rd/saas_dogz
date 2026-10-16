@@ -15,7 +15,7 @@ export {
   type InboxScope,
 } from "./application/notifications";
 export { processOutbox, runOutbox, type OutboxDeps, type OutboxRunResult } from "./application/process-outbox";
-export type { EmailMessage, EmailSender, PushSender, SmsSender } from "./application/ports";
+export type { EmailMessage, EmailSender, PushSender } from "./application/ports";
 export {
   CHANNEL_LABELS,
   REQUEST_ACTION_LABELS,
@@ -28,7 +28,7 @@ export {
   type RequestKind,
 } from "./domain/notification";
 export { sessionsWord } from "./domain/plan";
-export { createEmailSender, createSmsSender } from "./infrastructure/senders";
+export { createEmailSender } from "./infrastructure/senders";
 export { BellBadge, NotificationList } from "./ui/notification-list";
 export { PreferencesForm, PushToggle } from "./ui/preferences-form";
 export { RequestButtons, type RespondState } from "./ui/request-buttons";

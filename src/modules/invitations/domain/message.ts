@@ -13,12 +13,11 @@ const escapeHtml = (value: string) =>
 const formatDate = (at: Date) =>
   `${String(at.getUTCDate()).padStart(2, "0")}.${String(at.getUTCMonth() + 1).padStart(2, "0")}.${at.getUTCFullYear()}`;
 
-/** Treść zaproszenia wysyłanego klientowi e-mailem lub SMS-em (link i krótki kod razem). */
+/** Treść zaproszenia wysyłanego klientowi e-mailem (link i krótki kod razem). */
 export function composeInvitationMessage(input: InvitationMessageInput): {
   subject: string;
   text: string;
   html: string;
-  sms: string;
 } {
   const until = formatDate(input.expiresAt);
   const greeting = input.clientFirstName ? `Cześć ${input.clientFirstName}!` : "Cześć!";
@@ -41,9 +40,7 @@ export function composeInvitationMessage(input: InvitationMessageInput): {
     `<p>Albo wpisz kod na stronie zaproszenia: <strong>${escapeHtml(input.code)}</strong></p>` +
     `<p>Zaproszenie jest ważne do ${until}.</p>`;
 
-  const sms = `${input.organizationName}: zaproszenie do panelu klienta. Link: ${input.link} Kod: ${input.code} (do ${until})`;
-
-  return { subject: `Zaproszenie do panelu klienta: ${input.organizationName}`, text, html, sms };
+  return { subject: `Zaproszenie do panelu klienta: ${input.organizationName}`, text, html };
 }
 
 /** Treść zaproszenia do zespołu (trener, asystent, administrator) wysyłanego e-mailem. */

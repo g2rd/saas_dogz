@@ -220,7 +220,7 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
   }
 }
 
-/** Treść wiadomości zewnętrznej (e-mail, SMS, push) na podstawie powiadomienia. */
+/** Treść wiadomości zewnętrznej (e-mail, push) na podstawie powiadomienia. */
 export function renderExternalMessage(
   draft: Pick<NotificationDraft, "title" | "body" | "link">,
   baseUrl: string,
