@@ -33,5 +33,10 @@ Lokalna baza wymaga Dockera: `npm run db:start`, potem `npm run db:reset` (migra
 
 ## Stan
 
-Fundament (Faza 1): moduł `core` w bazie z RLS i `create_organization`, logowanie, proxy sesji, logika domenowa pakietów i należności z testami.
-Dalej: klienci, psy, kalendarz, pakiety, płatności, panel klienta (zgodnie z planem v2.0).
+Gotowe (Faza 1, w toku):
+- `core`: organizacje, członkostwa, RLS, `create_organization`, kreator pierwszej organizacji, logowanie i proxy sesji
+- `clients` i `dogs`: migracja z RLS, domena, repozytoria, przypadki użycia, panel trenera (lista z wyszukiwaniem, szczegóły, formularze, archiwizacja, notatki o psach)
+- logika domenowa pakietów i należności z testami
+
+Dalej: kalendarz, pakiety, płatności, panel klienta, import klientów, zaproszenia (zgodnie z planem v2.0).
+Nie zweryfikowano jeszcze na żywej bazie: migracje i testy pgTAP wymagają Dockera (`npm run db:start`).

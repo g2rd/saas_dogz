@@ -4,8 +4,10 @@ import { publicEnv } from "../env";
 
 /** Klient w kontekście zalogowanego użytkownika (RLS obowiązuje). */
 export async function createUserClient() {
-  const env = publicEnv();
+  // cookies() najpierw: oznacza render jako zależny od żądania, więc prerender
+  // się wstrzymuje, zanim sprawdzimy zmienne środowiskowe.
   const cookieStore = await cookies();
+  const env = publicEnv();
 
   return createServerClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
     cookies: {

@@ -12,6 +12,13 @@ module.exports = {
       },
     },
     {
+      name: "app-uses-module-public-api",
+      comment: "Trasy importują moduły wyłącznie przez index.ts",
+      severity: "error",
+      from: { path: "^src/app/" },
+      to: { path: "^src/modules/[^/]+/(?!index\\.ts$)" },
+    },
+    {
       name: "domain-is-pure",
       comment: "domain nie zależy od frameworka, bazy ani infrastruktury",
       severity: "error",

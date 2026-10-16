@@ -9,6 +9,10 @@ export const PERMISSIONS = [
   "members.manage",
   "clients.read",
   "clients.write",
+  "dogs.read",
+  "dogs.write",
+  "dog_notes.read",
+  "dog_notes.write",
   "sessions.read",
   "sessions.write",
   "packages.read",
@@ -25,6 +29,7 @@ export type Permission = (typeof PERMISSIONS)[number];
 const ASSISTANT: readonly Permission[] = [
   "organization.read",
   "clients.read",
+  "dogs.read",
   "sessions.read",
   "sessions.write",
   "packages.read",
@@ -33,6 +38,9 @@ const ASSISTANT: readonly Permission[] = [
 const TRAINER: readonly Permission[] = [
   ...ASSISTANT,
   "clients.write",
+  "dogs.write",
+  "dog_notes.read",
+  "dog_notes.write",
   "packages.write",
   "payments.read",
   "payments.write",
