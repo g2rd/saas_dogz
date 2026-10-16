@@ -78,6 +78,19 @@ export function dogsRepository(db: SupabaseClient) {
       return ok((data as DogRow[]).map(toDog));
     },
 
+    /** Wszystkie niearchiwalne psy organizacji (np. do wyboru przy planowaniu zajęć). */
+    async listAll(organizationId: string): Promise<Result<Dog[]>> {
+      const { data, error } = await db
+        .from("dogs")
+        .select(DOG_COLUMNS)
+        .eq("organization_id", organizationId)
+        .is("archived_at", null)
+        .order("name")
+        .limit(1000);
+      if (error) return err(fromDbError(error));
+      return ok((data as DogRow[]).map(toDog));
+    },
+
     async get(organizationId: string, id: string): Promise<Result<Dog>> {
       const { data, error } = await db
         .from("dogs")

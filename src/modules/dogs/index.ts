@@ -6,6 +6,7 @@ export {
   getDog,
   listDogNotes,
   listDogs,
+  listOrganizationDogs,
   restoreDog,
   updateDog,
 } from "./application/dogs";

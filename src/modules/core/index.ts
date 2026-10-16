@@ -10,7 +10,14 @@ export {
 } from "./application/auth";
 export { safeNextPath } from "./domain/redirect";
 export { createOrganization } from "./application/create-organization";
-export { getOrganization, type Organization } from "./application/organization";
+export {
+  getOrganization,
+  getOrganizationSettings,
+  listTrainers,
+  type Organization,
+  type OrganizationSettings,
+  type Trainer,
+} from "./application/organization";
 export {
   ORG_ROLES,
   PERMISSIONS,

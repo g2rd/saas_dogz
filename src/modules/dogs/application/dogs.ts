@@ -34,6 +34,12 @@ export async function listDogs(
   return dogsRepository(ctx.db).listByClient(ctx.organizationId, clientId, options.includeArchived);
 }
 
+export async function listOrganizationDogs(ctx: RequestContext): Promise<Result<Dog[]>> {
+  const allowed = authorize(ctx, "dogs.read");
+  if (!allowed.ok) return allowed;
+  return dogsRepository(ctx.db).listAll(ctx.organizationId);
+}
+
 export async function getDog(ctx: RequestContext, id: string): Promise<Result<Dog>> {
   const allowed = authorize(ctx, "dogs.read");
   if (!allowed.ok) return allowed;

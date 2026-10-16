@@ -5,6 +5,7 @@ import { clientFullName, listClients } from "@/modules/clients";
 import { getOrganization, getRequestContext, hasPermission } from "@/modules/core";
 import { listLowBalancePackages } from "@/modules/packages";
 import { listOverdueCharges } from "@/modules/payments";
+import { SESSION_STATUS_LABELS, formatSessionRange, getSessionAgenda } from "@/modules/scheduling";
 import { formatIsoDate } from "@/shared/dates";
 import { formatMoney, money } from "@/shared/money";
 import { Badge } from "@/shared/ui/badge";
@@ -43,11 +44,13 @@ async function DashboardContent() {
   const org = await getOrganization(ctx.value);
   const c = ctx.value;
 
-  const [low, overdue, clients] = await Promise.all([
+  const [low, overdue, clients, agenda] = await Promise.all([
     hasPermission(c, "packages.read") ? listLowBalancePackages(c) : null,
     hasPermission(c, "payments.read") ? listOverdueCharges(c) : null,
     listClients(c),
+    hasPermission(c, "sessions.read") ? getSessionAgenda(c, { upcomingDays: 0 }) : null,
   ]);
+  const todayAgenda = agenda?.ok ? agenda.value : null;
   const names = new Map((clients.ok ? clients.value : []).map((cl) => [cl.id, clientFullName(cl)]));
   const lowList = low?.ok ? low.value : [];
   const overdueList = overdue?.ok ? overdue.value : [];
@@ -61,8 +64,14 @@ async function DashboardContent() {
 
       <div className="flex flex-wrap gap-3">
         <Link
-          href="/app/clients"
+          href="/app/sessions"
           className="inline-flex h-11 items-center rounded-full bg-foreground px-6 font-medium text-background"
+        >
+          Zajęcia
+        </Link>
+        <Link
+          href="/app/clients"
+          className="inline-flex h-11 items-center rounded-full border border-zinc-300 px-6 font-medium dark:border-zinc-700"
         >
           Klienci i psy
         </Link>
@@ -73,6 +82,37 @@ async function DashboardContent() {
           Szablony pakietów
         </Link>
       </div>
+
+      {todayAgenda ? (
+        <div>
+          <h2 className="mb-2 text-lg font-semibold">Dziś</h2>
+          {todayAgenda.todaySessions.length === 0 ? (
+            <p className="text-zinc-600 dark:text-zinc-400">Na dziś nie ma zaplanowanych zajęć.</p>
+          ) : (
+            <ul className="divide-y divide-zinc-200 rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+              {todayAgenda.todaySessions.map((session) => (
+                <li key={session.id}>
+                  <Link
+                    href="/app/sessions"
+                    className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-900"
+                  >
+                    <span>
+                      <span className="font-medium tabular-nums">{formatSessionRange(session, todayAgenda.timezone)}</span>
+                      <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                        {" "}
+                        · {session.clientName || "Bez klienta"} · {session.typeName}
+                      </span>
+                    </span>
+                    <Badge tone={session.status === "completed" ? "success" : session.status === "canceled" ? "warning" : "neutral"}>
+                      {SESSION_STATUS_LABELS[session.status]}
+                    </Badge>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ) : null}
 
       {low ? (
         <div>
