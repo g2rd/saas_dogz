@@ -17,7 +17,7 @@ Stan na 2026-10-16. Dokument opisuje, jak zbudowana jest aplikacja, co jest już
 | 4. Powiadomienia (w aplikacji, web push, e-mail, adapter SMS), odpowiedzi klienta („Odnów / Zapłać / Zakończ”) | ⏳ **następny krok** (plan w sekcji 11) | |
 | 5. PWA, dopracowanie mobilne, seed demo i „sterowanie demo” | ⏳ nie zaczęte | |
 
-Zdalne repozytorium: `https://github.com/g2rd/saas_dogz` (gałąź `main`). Wypychanie (`git push`) robimy wyłącznie na wyraźną prośbę właściciela; stan wypchnięcia jest w sekcji 5. Plan następnego etapu jest w sekcji 11.
+Zdalne repozytorium: `https://github.com/g2rd/saas_dogz`, gałąź `main` (stan po etapie 3 jest wypchnięty). Wypychanie (`git push`) robimy wyłącznie na wyraźną prośbę właściciela; szczegóły w sekcji 5. Plan następnego etapu jest w sekcji 11.
 
 ### Jak pracujemy (definicja „zrobione” dla etapu)
 1. Nowa gałąź na etap (`feat/...`), start od aktualnego `main`; scalanie do `main` tylko na prośbę właściciela (fast-forward, bez push).
@@ -183,7 +183,7 @@ Funkcja `public.create_organization(name, slug)`: atomowo tworzy organizację, u
 7. **Zaproszenia i panel klienta, etap 3 demo** (gałąź `feat/invitations-portal`): migracja 0005 (rozszerzone `invitations`, `invitation_lookup_failures`, zatwierdzanie psów `approval_status` + trigger blokujący niezatwierdzone psy w pakietach i na zajęciach, polityki RLS dla klienta: organizacja, ustawienia, dodawanie psa jako „oczekujący”, funkcje `create_client_invitation`, `lookup_invitation` (publiczna), `accept_invitation`, `revoke_client_access`), moduł `invitations` (sekrety, HMAC z pieprzem `INVITATION_HASH_SECRET`, kod QR), moduł `portal` (model do odczytu dla klienta, dodawanie psa), `resolveLandingPath` (po zalogowaniu personel do `/app`, klient do `/portal`), UI: sekcja „Panel klienta” na karcie klienta (zaproszenie z QR, kodem i linkiem, odbieranie dostępu), zatwierdzanie psów (karta klienta i kafelek na pulpicie), publiczne `/invite` i `/invite/[secret]` (rejestracja z zaproszenia lub przyjęcie na istniejące konto), panel klienta `/portal` z dolną nawigacją (start z saldem „4 z 5 zajęć zostało”, płatność z terminem, zajęcia, płatności, psy), skrypt `npm run seed:dev`. Decyzje w [ADR 0007](adr/0007-invitations-portal.md).
 
 ### Stan repozytorium zdalnego
-`https://github.com/g2rd/saas_dogz`: lokalny `main` obejmuje etapy 1-3. Wypchnięcie na zdalne `main` następuje na prośbę właściciela (zob. historię commitów; ten wiersz aktualizuj po każdym wypchnięciu).
+`https://github.com/g2rd/saas_dogz`: `origin/main` zawiera etapy 1-3 (wypchnięte 2026-10-16 na prośbę właściciela, commit `75944e4` i kolejny z aktualizacją tego pliku). Gałęzie robocze `feat/*` są tylko lokalne (są już w `main`). Kolejne wypchnięcia robimy tylko na prośbę właściciela; ten wiersz aktualizuj po każdym wypchnięciu. Logowanie do GitHuba odbywa się przez Git Credential Manager w przeglądarce, więc `git push` uruchamiaj w terminalu użytkownika (narzędzie `run_in_terminal`), nie w powłoce Claude.
 
 ### Funkcje widoczne dla użytkownika
 Zaproszenia klientów i panel klienta (saldo zajęć, płatności z terminami, zajęcia, dodawanie psów do zatwierdzenia),
