@@ -237,6 +237,27 @@ Testy: `npm test` (jednostkowe), `npm run db:test` (pgTAP), `npm run test:integr
 
 Uwagi praktyczne (Windows): w PowerShell `npx` bywa kapryśne, użyj `npx.cmd`; długie ścieżki w katalogu tymczasowym psują `git commit -F`, więc plik z opisem trzymaj w krótkiej ścieżce; pakiet `supabase` z npm wymaga zatwierdzenia skryptów instalacyjnych (`npm rebuild supabase`).
 
+### Konta testowe (tylko lokalnie)
+Konta istnieją wyłącznie w lokalnej bazie Supabase (Docker) i znikają po `supabase db reset`; nie są częścią repozytorium. Aplikacja: `http://localhost:3000` (`npm run dev`), poczta lokalna (Mailpit): `http://127.0.0.1:54324`.
+
+| Rola | E-mail | Hasło | Po zalogowaniu |
+| --- | --- | --- | --- |
+| Trener (organizacja „Szkoła Łapa”, klienci Anna, Piotr, Marta, pakiet, zajęcia) | `trener@example.test` | `Dev-Haslo-12345` | `/app` |
+| Klient Anna Kowalska (konto z zaproszenia, psy Burek i Rex) | `anna@example.pl` | `Klient-Haslo-2026` | `/portal` |
+| Drugi trener z osobnymi danymi z `npm run seed:dev` | `seedcheck@example.test` | `Seed-Check-Pass-1` | `/app` |
+| Konto bez organizacji (po teście rejestracji i resetu hasła) | `marta.nowak@example.test` | `Nowe-Haslo-2026` | kreator organizacji |
+
+Po resecie bazy: trenera i dane odtwarza `SEED_EMAIL=trener@example.test SEED_PASSWORD=<hasło> npm run seed:dev` (w PowerShellu: `$env:SEED_PASSWORD='...'; npm run seed:dev`), a konto klienta powstaje z nowego zaproszenia (niżej).
+
+### Jak zaprosić klienta do panelu (stan po etapie 3)
+1. Zaloguj się jako trener, otwórz kartę klienta (`Klienci`, wybrany klient), sekcja **Panel klienta**, `Zaproś klienta do panelu`.
+2. Wybierz pakiet do potwierdzenia (domyślnie najnowszy aktywny) i ewentualnie e-mail klienta (podpowiada się z kartoteki). Z e-mailem tylko konto z tym adresem przyjmie zaproszenie; bez e-maila przyjmie je każdy, kto ma kod lub link.
+3. `Utwórz zaproszenie`: pojawią się **kod QR**, **krótki kod** (np. `G8SCF-U6JSX`) i **link**. Są widoczne tylko teraz (po odświeżeniu strony ich nie odzyskasz, trzeba utworzyć nowe zaproszenie, które unieważnia poprzednie). Ważne 7 dni.
+4. **Przekaż je klientowi samodzielnie**: pokaż QR na ekranie, przeczytaj kod, wklej link w wiadomości (komunikator, SMS z telefonu trenera, e-mail). Aplikacja **nie wysyła jeszcze zaproszeń automatycznie** (to etap 4, patrz sekcja 11).
+5. Klient skanuje QR lub otwiera link (albo wchodzi na `/invite` i wpisuje kod), zakłada konto (imię, e-mail, hasło) i od razu trafia do panelu `/portal`. Kto ma już konto: `Zaloguj się` na stronie zaproszenia, potem `Przyjmij zaproszenie`.
+6. Na karcie klienta pojawi się „Konto z dostępem do panelu” z przyciskiem `Odbierz dostęp`.
+
+Czego jeszcze nie ma: automatycznej wysyłki zaproszenia e-mailem lub SMS-em, zaproszeń dla **personelu** (dodawanie kolejnych trenerów i asystentów), magic linku dla klientów oraz powiadomień (etap 4).
 ## 8. Do zrobienia
 
 Kolejność odpowiada planowi v2.0 (Faza 1 = MVP do płatnego pilotażu).
@@ -343,6 +364,8 @@ Cel (z wymagań właściciela): „monity po obu stronach, najlepiej na telefon 
 ### Proponowany podział prac
 - [ ] Migracja 0006: `notifications` (w aplikacji), `notification_preferences`, `notification_log`, `push_subscriptions`, `client_requests` (odpowiedzi klienta: odnowienie, zakończenie współpracy, deklaracja płatności), RLS i pgTAP
 - [ ] Procesor outbox (`/api/cron/outbox`, zabezpieczony sekretem): pobieranie niedostarczonych zdarzeń z blokadą, idempotentne odbiorcy (klucz zdarzenia), ponawianie z licznikiem prób, alert przy zalegających
+- [ ] Wysyłka zaproszenia klientowi po utworzeniu: przyciski `Wyślij e-mailem` (adapter e-mail, lokalnie Mailpit) i `Wyślij SMS` (adapter `SmsSender` w trybie podglądu); link i kod wysyłane razem, bez zapisywania sekretu w bazie (sekret jest tylko w odpowiedzi tworzącej zaproszenie)
+- [ ] Zaproszenia personelu (dodawanie trenerów i asystentów do organizacji) na tej samej tabeli `invitations`
 - [ ] Reguły dzienne: niski stan pakietu, zbliżający się i minięty termin płatności, przypomnienie o zajęciach (24 h przed)
 - [ ] Adaptery za interfejsami: w aplikacji (dzwonek i licznik), web push (VAPID, `web-push`, subskrypcje z PWA), e-mail (Resend lokalnie Mailpit), `SmsSender` w trybie podglądu (log, bez wysyłki)
 - [ ] Odpowiedzi klienta na powiadomienia: przyciski „Odnów pakiet”, „Zapłacę”, „Kończę współpracę” tworzą `client_requests` i powiadomienie dla trenera; widok próśb u trenera
