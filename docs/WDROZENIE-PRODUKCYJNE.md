@@ -151,3 +151,9 @@ Szacunek pracy podaję orientacyjnie i bez gwarancji: fazy A+B+C minimalne to zw
 3. Jaki budżet na SMS (SMSAPI) i infrastrukturę (Supabase, Vercel Pro, Resend, Sentry)?
 4. Kto robi prawo (regulamin, umowa powierzenia) i księgowość (VAT, faktury)?
 5. Na jakim telefonie pokazujemy aplikację (iPhone wymaga PWA dla push)?
+
+## 7. Decyzje i pomysły z 2026-10-16 (wpływ na plan)
+
+- **Decyzja: rezygnujemy z SMS.** Kanały powiadomień to dzwonek w aplikacji, web push (a w przyszłości push natywny) i e-mail. E-mail zostaje przynajmniej dla zaproszeń, potwierdzenia konta i resetu hasła. Do usunięcia: `SmsSender` i adapter podglądu, kolumna `notification_preferences.sms` i wartość `sms` w `notification_log.channel`, gałąź SMS w `process-outbox.ts`, przycisk „Wyślij SMS” i kanał `sms` w `deliverClientInvitation`, pole SMS w ustawieniach, powiązane testy (około 90 wystąpień w 21 plikach). Numer telefonu klienta zostaje w kartotece.
+- **Do przemyślenia: natywna aplikacja mobilna.** Najpierw PWA (etap 5), ewentualnie Capacitor jako nakładka na istniejącą aplikację; pełna natywna (Expo/React Native) wymaga warstwy `/api/v1` i tokenów push urządzeń. Szczegóły w odpowiedzi z tej rozmowy; decyzja po walidacji z trenerami.
+- **Do przemyślenia: freemium (2 klientów za darmo, potem płatny plan).** Wymusza przesunięcie rozliczeń SaaS (kroki 20-21) przed publiczną sprzedaż: `plans`, `plan_entitlements`, `subscriptions`, limit klientów egzekwowany w bazie (wyzwalacz na `clients`, także przy przywracaniu z archiwum), tryb tylko do odczytu po przekroczeniu limitu, Stripe Billing od pierwszego dnia (bez ręcznego fakturowania), ochrona przed wielokrotnymi darmowymi organizacjami.
