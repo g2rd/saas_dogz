@@ -193,7 +193,7 @@ Funkcja `public.create_organization(name, slug)`: atomowo tworzy organizację, u
 
 ### Stan repozytorium zdalnego (aktualizuj po każdym wypchnięciu)
 - `origin/main` = commit `19b334a`: etapy 1-3 (zatwierdzone przez właściciela).
-- `origin/dev`: gałąź integracyjna, zawiera `main` plus późniejsze zmiany (m.in. dokumentacja kont testowych i instrukcji zaproszeń, `0e23f19`).
+- `origin/dev`: gałąź integracyjna, zawiera `main` plus późniejsze zmiany; wypchnięta 2026-10-16 z etapem 4 (commit `8d37f74`). `main` nadal na etapach 1-3.
 - Poniżej zapis historyczny wypchnięcia z 2026-10-16:
 
 `https://github.com/g2rd/saas_dogz`: `origin/main` zawiera etapy 1-3 (wypchnięte 2026-10-16 na prośbę właściciela, commit `75944e4` i kolejny z aktualizacją tego pliku). Gałęzie robocze `feat/*` są tylko lokalne (są już w `main`). Kolejne wypchnięcia robimy tylko na prośbę właściciela; ten wiersz aktualizuj po każdym wypchnięciu. Logowanie do GitHuba odbywa się przez Git Credential Manager w przeglądarce, więc `git push` uruchamiaj w terminalu użytkownika (narzędzie `run_in_terminal`), nie w powłoce Claude.
