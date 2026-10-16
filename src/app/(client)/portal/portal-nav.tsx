@@ -8,6 +8,7 @@ const ITEMS = [
   { href: "/portal/sessions", label: "Zajęcia", exact: false },
   { href: "/portal/payments", label: "Płatności", exact: false },
   { href: "/portal/dogs", label: "Psy", exact: false },
+  { href: "/portal/more", label: "Więcej", exact: false },
 ] as const;
 
 /** Dolna nawigacja panelu klienta: duże pola dotykowe, układ pod kciuk. */
@@ -18,7 +19,7 @@ export function PortalNav() {
       aria-label="Panel klienta"
       className="fixed inset-x-0 bottom-0 z-10 border-t border-zinc-200 bg-background pb-[env(safe-area-inset-bottom)] dark:border-zinc-800"
     >
-      <ul className="mx-auto grid max-w-xl grid-cols-4">
+      <ul className="mx-auto grid max-w-xl grid-cols-5">
         {ITEMS.map((item) => {
           const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
           return (
