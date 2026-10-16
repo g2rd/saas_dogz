@@ -7,10 +7,13 @@ import {
   clientFullName,
   getClient,
 } from "@/modules/clients";
-import { DOG_SEX_LABELS, DogForm, formatDogAge, listDogs } from "@/modules/dogs";
+import { APPROVAL_STATUS_LABELS, DOG_SEX_LABELS, DogForm, formatDogAge, listDogs } from "@/modules/dogs";
+import { Badge } from "@/shared/ui/badge";
 import { SubmitButton } from "@/shared/ui/form-fields";
 import { requireContext } from "../../../_lib/context";
+import { AccessSection } from "./access-section";
 import { BillingSection } from "./billing-section";
+import { approveDogAction, rejectDogAction } from "./invite-actions";
 import { SessionsSection } from "./sessions-section";
 import {
   addDogAction,
@@ -81,13 +84,37 @@ async function ClientDetails({ params }: Pick<PageProps<"/app/clients/[id]">, "p
                   href={`/app/clients/${id}/dogs/${dog.id}`}
                   className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-900"
                 >
-                  <span className="font-medium">{dog.name}</span>
+                  <span className="font-medium">
+                    {dog.name}
+                    {dog.approvalStatus !== "approved" ? (
+                      <span className="ml-2">
+                        <Badge tone={dog.approvalStatus === "pending" ? "warning" : "danger"}>
+                          {APPROVAL_STATUS_LABELS[dog.approvalStatus]}
+                        </Badge>
+                      </span>
+                    ) : null}
+                  </span>
                   <span className="text-sm text-zinc-600 dark:text-zinc-400">
                     {[dog.breed, formatDogAge(dog.birthDate, now), DOG_SEX_LABELS[dog.sex]]
                       .filter((v) => v && v !== DOG_SEX_LABELS.unknown)
                       .join(" · ")}
                   </span>
                 </Link>
+                {dog.approvalStatus === "pending" && canWrite ? (
+                  <div className="flex flex-wrap items-center gap-2 border-t border-dashed border-zinc-200 px-4 py-3 dark:border-zinc-800">
+                    <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                      Pies dodany przez klienta. Zatwierdź, żeby użyć go w zajęciach i pakietach.
+                    </span>
+                    <form action={approveDogAction.bind(null, id, dog.id)}>
+                      <SubmitButton pendingLabel="Zatwierdzanie...">Zatwierdź</SubmitButton>
+                    </form>
+                    <form action={rejectDogAction.bind(null, id, dog.id)}>
+                      <SubmitButton variant="secondary" pendingLabel="Odrzucanie...">
+                        Odrzuć
+                      </SubmitButton>
+                    </form>
+                  </div>
+                ) : null}
               </li>
             ))}
           </ul>
@@ -107,7 +134,14 @@ async function ClientDetails({ params }: Pick<PageProps<"/app/clients/[id]">, "p
       </Suspense>
 
       <Suspense fallback={<p className="text-zinc-500">Ładowanie pakietów i płatności...</p>}>
-        <BillingSection clientId={id} dogs={dogs.map((d) => ({ id: d.id, name: d.name }))} />
+        <BillingSection
+          clientId={id}
+          dogs={dogs.filter((d) => d.approvalStatus === "approved").map((d) => ({ id: d.id, name: d.name }))}
+        />
+      </Suspense>
+
+      <Suspense fallback={<p className="text-zinc-500">Ładowanie panelu klienta...</p>}>
+        <AccessSection clientId={id} clientEmail={client.email} />
       </Suspense>
 
       {canWrite ? (

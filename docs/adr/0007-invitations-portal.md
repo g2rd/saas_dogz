@@ -1,0 +1,18 @@
+# ADR 0007: Zaproszenia klientów i panel klienta (etap 3 demo)
+
+**Status:** przyjęta (2026-10-16)
+
+## Decyzje
+- **Sekrety zaproszenia.** Trener dostaje długi token (256 bitów, w linku i kodzie QR) i krótki kod (10 znaków z 31-znakowego alfabetu bez mylących znaków, około 50 bitów, wyświetlany jako `ABCDE-FGHJK`). Generuje je serwer; do bazy trafia wyłącznie HMAC-SHA256 z tajnym pieprzem (`INVITATION_HASH_SECRET`, wymagany na produkcji), więc wyciek bazy nie ujawnia sekretów ani nie pozwala ich odtworzyć offline. Sekrety są widoczne tylko w odpowiedzi tworzącej zaproszenie (stan akcji, nie adres URL). Zaproszenie jest jednorazowe, ważne 7 dni, a nowe zaproszenie unieważnia poprzednie oczekujące dla tego klienta.
+- **Zaproszenie potwierdza pakiet.** Opcjonalne `client_package_id`; strona zaproszenia pokazuje nazwę, liczbę zajęć i cenę (bez poufnych danych). Zaproszenie może mieć e-mail: wtedy tylko konto z tym adresem je przyjmie (sprawdzane w bazie i dodatkowo przed założeniem konta, żeby nie powstawały zbędne konta). Bez e-maila (QR pokazany osobiście) przyjmie je każdy z sekretem.
+- **Rejestracja bez uprawnień serwisowych.** Klient zakłada konto zwykłą rejestracją, a `accept_invitation` (funkcja `security definer` dla zalogowanych) tworzy `client_access`. Klucz `service_role` nie jest potrzebny w trasach UI. Przy włączonym potwierdzeniu e-mail link wraca na stronę zaproszenia (`/auth/callback?next=/invite/...`).
+- **Publiczny podgląd zaproszenia** (`lookup_invitation`, dostępny dla roli `anon`) zwraca minimum: dla nieważnego tylko status, dla ważnego nazwę organizacji, imię klienta, zamaskowany e-mail i pakiet. Zgadywanie kodów ogranicza globalny licznik nieudanych prób w bazie (100 na 10 minut). Ograniczenie per adres IP wymaga warstwy brzegowej i jest na liście zadań.
+- **Psy dodane przez klienta** mają `approval_status = pending`. Polityka RLS pozwala klientowi wstawić psa tylko swojemu klientowi, tylko jako oczekującego i tylko z własnym `created_by`; klient nie ma uprawnienia do zmiany statusu. Trigger blokuje użycie niezatwierdzonego psa w pakiecie i na zajęciach (także przez funkcje `security definer`). Trener zatwierdza lub odrzuca z karty klienta lub z pulpitu; rozstrzygnięty pies nie wraca do kolejki.
+- **Panel klienta jako model do odczytu.** Moduł `portal` czyta widoki i tabele, które klient widzi przez RLS (pakiety, należności, wpłaty, zajęcia, psy), z kontekstem `ClientRequestContext` (bez ról i uprawnień personelu). Mapowanie wierszy powtarza się w module (nie importuje infrastruktury innych modułów); reguły (status pakietu, status należności, „kończy się”) pochodzą z publicznych API modułów `packages` i `payments`, więc nie ma drugiej wersji logiki.
+- **Kierowanie po zalogowaniu.** Bez wskazanego bezpiecznego adresu docelowego `resolveLandingPath` wybiera: aktywne członkostwo w organizacji → `/app`, aktywny dostęp klienta → `/portal`, inaczej `/app` (kreator organizacji). Dozwolone adresy docelowe: `/app`, `/portal`, `/invite` (linki z e-maili dodatkowo `/reset-password`).
+- **Odbieranie dostępu.** `revoke_client_access` ustawia status `revoked`; klient natychmiast traci wgląd w dane (RLS), a ponowne zaproszenie przywraca dostęp.
+
+## Konsekwencje
+- Brak jeszcze: przełącznika kilku kartotek lub organizacji w portalu (ciasteczko `dt_client` jest czytane, nic go nie ustawia), magic linku dla klientów, zaproszeń personelu, ograniczenia prób per IP, manifestu PWA.
+- Baner „Zostały Ci ostatnie zajęcia” w portalu nie ma jeszcze akcji (odnów, zapłacę, kończę): to etap 4 (powiadomienia i prośby klienta).
+- Zdarzenia `client.invited` i `invitation.accepted` trafiają do outbox i czekają na procesor powiadomień.

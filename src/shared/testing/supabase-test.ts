@@ -18,6 +18,11 @@ export function adminClient(): SupabaseClient {
   return createClient(API_URL, SERVICE_KEY, noSession);
 }
 
+/** Klient bez sesji (rola anon), jak publiczne strony przed zalogowaniem. */
+export function anonClient(): SupabaseClient {
+  return createClient(API_URL, ANON_KEY, noSession);
+}
+
 export type TestUser = { id: string; email: string; db: SupabaseClient };
 
 /** Tworzy użytkownika i zwraca klienta zalogowanego jako on (RLS obowiązuje). */

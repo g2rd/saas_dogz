@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { safeNextPath } from "@/modules/core";
+import { LOGIN_NEXT_PREFIXES, safeNextPath } from "@/modules/core";
 import { AuthShell } from "../_components/auth-shell";
 import { loginAction } from "./actions";
 import { LoginForm } from "./login-form";
@@ -33,5 +33,5 @@ export default function LoginPage({ searchParams }: PageProps<"/login">) {
 async function LoginFormWithNext({ searchParams }: Pick<PageProps<"/login">, "searchParams">) {
   const { next } = await searchParams;
   const raw = Array.isArray(next) ? next[0] : next;
-  return <LoginForm action={loginAction} next={safeNextPath(raw)} />;
+  return <LoginForm action={loginAction} next={safeNextPath(raw, LOGIN_NEXT_PREFIXES, "")} />;
 }

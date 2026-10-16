@@ -1,7 +1,19 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Clock } from "./clock";
 
-/** Kontekst żądania przekazywany do każdego przypadku użycia. */
+/**
+ * Kontekst klienta w panelu `/portal`: zalogowana osoba z dostępem do jednej kartoteki klienta.
+ * Nie ma roli ani uprawnień personelu; dane chroni wyłącznie RLS (polityki dla klienta).
+ */
+export type ClientRequestContext = {
+  userId: string;
+  organizationId: string;
+  clientId: string;
+  db: SupabaseClient;
+  clock: Clock;
+};
+
+/** Kontekst żądania personelu przekazywany do każdego przypadku użycia. */
 export type RequestContext = {
   userId: string;
   organizationId: string;

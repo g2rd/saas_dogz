@@ -14,6 +14,12 @@ export function fromDbError(error: DbError): AppError {
       return appError("conflict", "Trener ma już zajęcia w tym czasie.", { reason: "overlap" });
     case "DT001":
       return appError("conflict", "Klient nie ma pakietu z wolnymi zajęciami.", { reason: "no_package" });
+    case "DT003":
+      return appError("conflict", "Zbyt wiele nieudanych prób. Spróbuj ponownie za kilka minut.", { reason: "throttled" });
+    case "DT004":
+      return appError("conflict", "To zaproszenie wygasło lub zostało już użyte.", { reason: "invitation_unusable" });
+    case "DT005":
+      return appError("conflict", "To zaproszenie jest przypisane do innego adresu e-mail.", { reason: "email_mismatch" });
     case "DT002":
       return appError("conflict", "Te zajęcia zostały już rozliczone lub odwołane.", { reason: "not_scheduled" });
     case "23505":

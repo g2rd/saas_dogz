@@ -1,6 +1,7 @@
 export type AppErrorCode =
   | "unauthenticated"
   | "no_organization"
+  | "no_client_access"
   | "forbidden"
   | "not_found"
   | "validation"

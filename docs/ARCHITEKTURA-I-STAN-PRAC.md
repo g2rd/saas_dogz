@@ -2,6 +2,39 @@
 
 Stan na 2026-10-16. Dokument opisuje, jak zbudowana jest aplikacja, co jest już zrobione i sprawdzone, co jest tylko zaprojektowane i co trzeba jeszcze zrobić. Źródłem wymagań jest plan v2.0 (JSON przekazany w rozmowie; nie ma go w repozytorium, patrz sekcja 9).
 
+## 0. Start nowej sesji: czytaj to najpierw
+
+**Zasada pracy (wymóg właściciela): ten plik jest źródłem prawdy o stanie projektu. Każda zmiana (etap, migracja, decyzja, znaleziony błąd, nowe zadanie) musi go aktualizować w tym samym commicie, tak żeby kolejna sesja wiedziała dokładnie, co jest zrobione i co zostało.** Przed zakończeniem każdej pracy zaktualizuj: tabelę etapów poniżej, sekcję 5 (co zrobione), sekcję 6 (wyniki testów), sekcję 8 (lista zadań), a decyzje projektowe zapisz w `docs/adr/`.
+
+### Stan na teraz
+
+| Etap demo (sekcja 10) | Status | Gałąź / commit |
+| --- | --- | --- |
+| Fundament, klienci, psy, rejestracja i reset hasła | ✅ zrobione, scalone do `main` | `main` |
+| 1. Pakiety i płatności | ✅ zrobione, scalone do `main` | `main` |
+| 2. Zajęcia (minimalne) i zużywanie pakietu | ✅ zrobione, scalone do `main` | `main` (3a8ef92) |
+| 3. Zaproszenia (link, QR, krótki kod) i panel klienta `/portal` | ✅ zrobione, scalone do `main` | `main` |
+| 4. Powiadomienia (w aplikacji, web push, e-mail, adapter SMS), odpowiedzi klienta („Odnów / Zapłać / Zakończ”) | ⏳ **następny krok** (plan w sekcji 11) | |
+| 5. PWA, dopracowanie mobilne, seed demo i „sterowanie demo” | ⏳ nie zaczęte | |
+
+Zdalne repozytorium: `https://github.com/g2rd/saas_dogz` (gałąź `main`). Wypychanie (`git push`) robimy wyłącznie na wyraźną prośbę właściciela; stan wypchnięcia jest w sekcji 5. Plan następnego etapu jest w sekcji 11.
+
+### Jak pracujemy (definicja „zrobione” dla etapu)
+1. Nowa gałąź na etap (`feat/...`), start od aktualnego `main`; scalanie do `main` tylko na prośbę właściciela (fast-forward, bez push).
+2. Migracja SQL z RLS (nowa tabela = polityki + test pgTAP w tej samej migracji); zapisy wielotabelowe jako funkcje SQL `security definer`, które same sprawdzają rolę i przynależność identyfikatorów do organizacji; wyścigi: blokada wiersza osobnym zapytaniem, dopiero potem odczyt salda/stanu.
+3. Domena z testami jednostkowymi, przypadki użycia z `authorize`, repozytoria, testy integracyjne na prawdziwej bazie (w tym wyścigi i izolacja organizacji).
+4. UI mobile-first, przeklikanie w przeglądarce (przy ukrytym oknie podglądu strumieniowana treść nie podmienia się sama; pomaga `$RV($RB)` w konsoli), poprawki znalezionych błędów.
+5. `npm run typecheck`, `lint`, `test`, `db:test`, `test:integration`, `check:boundaries`, `build` muszą przechodzić.
+6. ADR dla decyzji, aktualizacja tego pliku, commit z dopiskiem `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`.
+
+### Środowisko lokalne (Windows, PowerShell)
+- Narzędzia są zainstalowane w tej sesji: Node 24, Git, Docker Desktop (WSL2). W nowej powłoce dodaj do `PATH`: `C:\Program Files\nodejs`, `C:\Program Files\Git\cmd`, `C:\Program Files\Docker\Docker\resources\bin`. Używaj `npm.cmd` i `npx.cmd` (skrypty `.ps1` bywają kapryśne).
+- Baza lokalna: `npx.cmd supabase start -x studio,imgproxy,edge-runtime,logflare,vector,realtime,storage-api,postgres-meta` (Mailpit pod `http://127.0.0.1:54324`). Nowe migracje: `npx.cmd supabase migration up`. `supabase db reset` kasuje dane lokalne (konto `trener@example.test` trzeba wtedy utworzyć ponownie).
+- Dane deweloperskie: `npm run seed:dev` (tylko lokalnie; tworzy konto trenera `trener@example.test`, organizację, klientów, psy, pakiet i zajęcia; hasło z `SEED_PASSWORD` lub losowe wypisane raz; idempotentny).
+- Klucze lokalne trafiają do `.env.local` (poza gitem) z `npx.cmd supabase status -o env`; wzór w `.env.example`.
+- Serwer deweloperski: `npm run dev` (port 3000); dla podglądu w aplikacji Claude jest `.claude/launch.json` (poza gitem).
+- Opis commita z pliku: ścieżki w katalogu tymczasowym są za długie dla gita; zapisuj plik z opisem w krótkiej ścieżce lub w katalogu projektu i usuń po commicie (nie commituj go).
+
 ## 1. Cel produktu
 
 Platforma multi-tenant dla trenerów psów w Polsce: klienci i psy, kalendarz treningów, pakiety zajęć rozliczane z dziennika zużyć, płatności (należności, wpłaty, alokacje), zadania domowe z filmami i panel klienta (PWA). Model biznesowy: abonament (Start 49 zł, Pro 79 zł, Szkoła 119 zł netto, to hipotezy do walidacji). Strategia: wąski, dopracowany rdzeń do szybkiej sprzedaży, bez długu technologicznego, który wymusiłby przepisywanie przy setkach klientów.
@@ -102,7 +135,8 @@ Nawet gdy przypadek użycia ma błąd, RLS nie wpuści danych innej organizacji.
 | `profiles` | core | Profil 1:1 z `auth.users` (trigger tworzy przy rejestracji) |
 | `organizations`, `organization_settings` | core | Tenant i jego ustawienia (strefa, waluta, polityka odwołań, przypomnienia) |
 | `organization_members` | core | Personel i role. Admin nie może nadawać ani zmieniać roli `owner`. |
-| `invitations` | core | Zaproszenia personelu i klientów (tabela jest, przepływu nie ma) |
+| `invitations` | core | Zaproszenia: klientów (link, QR, krótki kod; tylko HMAC sekretów) w pełni działają; personelu (kolumny są, przepływu nie ma). `email` opcjonalny dla klientów, `client_package_id`, `code_hash`, `revoked_at`, `accepted_by` |
+| `invitation_lookup_failures` | core | Dziennik nieudanych prób odczytu zaproszeń: globalne ograniczenie zgadywania kodów (bez polityk RLS) |
 | `outbox_events` | core | Zdarzenia domenowe; bez polityk RLS, tylko `service_role` |
 | `audit_log` | core | Dziennik tylko do dopisywania (odczyt owner/admin; zapis tylko funkcjami `security definer`) |
 | `files` | core | Metadane plików Storage (tabela jest, uploadu nie ma) |
@@ -146,7 +180,13 @@ Funkcja `public.create_organization(name, slug)`: atomowo tworzy organizację, u
 
 6. **Zajęcia, etap 2 demo** (gałąź `feat/sessions`): migracja 0004 (`session_types`, `training_sessions` z wykluczeniem nakładających się terminów trenera, `session_attendees`, widok `v_session_details`, funkcje `schedule_session`, `complete_session`, `cancel_session`, pomocnik `app.pick_package`), moduł `scheduling` (strefa czasowa organizacji, polityka późnych odwołań, wybór pakietu: wskazany lub ten, który wygasa najwcześniej), ustawienia organizacji i lista trenerów w `core`, panel trenera (lista „Dziś” i „Najbliższe”, planowanie z wyborem klienta i psa, rodzaje zajęć, zakończenie z komunikatem „Zużyto 1 zajęcie, zostało N”, zakończenie bez pakietu z naliczeniem należności, odwoływanie, sekcja zajęć na karcie klienta, blok „Dziś” na pulpicie). Decyzje w [ADR 0006](adr/0006-sessions.md).
 
+7. **Zaproszenia i panel klienta, etap 3 demo** (gałąź `feat/invitations-portal`): migracja 0005 (rozszerzone `invitations`, `invitation_lookup_failures`, zatwierdzanie psów `approval_status` + trigger blokujący niezatwierdzone psy w pakietach i na zajęciach, polityki RLS dla klienta: organizacja, ustawienia, dodawanie psa jako „oczekujący”, funkcje `create_client_invitation`, `lookup_invitation` (publiczna), `accept_invitation`, `revoke_client_access`), moduł `invitations` (sekrety, HMAC z pieprzem `INVITATION_HASH_SECRET`, kod QR), moduł `portal` (model do odczytu dla klienta, dodawanie psa), `resolveLandingPath` (po zalogowaniu personel do `/app`, klient do `/portal`), UI: sekcja „Panel klienta” na karcie klienta (zaproszenie z QR, kodem i linkiem, odbieranie dostępu), zatwierdzanie psów (karta klienta i kafelek na pulpicie), publiczne `/invite` i `/invite/[secret]` (rejestracja z zaproszenia lub przyjęcie na istniejące konto), panel klienta `/portal` z dolną nawigacją (start z saldem „4 z 5 zajęć zostało”, płatność z terminem, zajęcia, płatności, psy), skrypt `npm run seed:dev`. Decyzje w [ADR 0007](adr/0007-invitations-portal.md).
+
+### Stan repozytorium zdalnego
+`https://github.com/g2rd/saas_dogz`: lokalny `main` obejmuje etapy 1-3. Wypchnięcie na zdalne `main` następuje na prośbę właściciela (zob. historię commitów; ten wiersz aktualizuj po każdym wypchnięciu).
+
 ### Funkcje widoczne dla użytkownika
+Zaproszenia klientów i panel klienta (saldo zajęć, płatności z terminami, zajęcia, dodawanie psów do zatwierdzenia),
 Zajęcia (planowanie, rozliczanie z pakietu, odwoływanie), pakiety i płatności (szablony, sprzedaż, wpłaty częściowe, nadpłaty, korekty, zaległości), rejestracja, reset hasła, logowanie, utworzenie organizacji przy pierwszym wejściu, lista klientów z wyszukiwaniem, dodanie/edycja/archiwizacja klienta, dodanie/edycja/archiwizacja psa, notatki o psie (prywatne lub widoczne dla klienta).
 
 ## 6. Weryfikacja (wyniki z tej sesji)
@@ -155,12 +195,12 @@ Zajęcia (planowanie, rozliczanie z pakietu, odwoływanie), pakiety i płatnośc
 | --- | --- | --- |
 | Typy | `npm run typecheck` | czysto |
 | Lint | `npm run lint` | czysto |
-| Testy jednostkowe (domena) | `npm test` | 110/110 |
+| Testy jednostkowe (domena) | `npm test` | 124/124 |
 | Granice modułów | `npm run check:boundaries` | brak naruszeń (65 modułów) |
 | Build produkcyjny | `npm run build` | przechodzi, trasy panelu to częściowy prerender |
 | Migracje | `supabase start` | obie zastosowane bez błędów |
-| Testy RLS (pgTAP) | `npm run db:test` | 53/53 |
-| Testy przypadków użycia na bazie (auth z Mailpit, pakiety, płatności, zajęcia, wyścigi) | `npm run test:integration` | 53/53, 8 powtórzeń bez błędu |
+| Testy RLS (pgTAP) | `npm run db:test` | 76/76 |
+| Testy przypadków użycia na bazie (auth z Mailpit, pakiety, płatności, zajęcia, zaproszenia, panel klienta, wyścigi) | `npm run test:integration` | 75/75, 6 powtórzeń bez błędu |
 
 Testy integracyjne pokrywają: tworzenie klienta z normalizacją, błędy walidacji pól, wyszukiwanie (także ze znakami sterującymi filtru), psy i notatki, odrzucenie daty urodzenia z przyszłości, archiwizację i przywracanie, izolację organizacji (także przy podmienionym `organizationId`), widok klienta z dostępem (tylko własne dane i notatki oznaczone jako widoczne) oraz ograniczenia roli `assistant`.
 
@@ -173,8 +213,12 @@ Znalezione i naprawione w tej rundzie:
 3. Na stronie psa pokazywało się „Nie podano" przy nieznanej płci (na liście klienta już nie). Naprawione.
 4. Mylący komunikat pustej listy, gdy wszyscy klienci są w archiwum. Naprawione.
 
+### Przeklikane w przeglądarce: etap 3
+Przepływ end-to-end: trener tworzy zaproszenie (link, kod QR, kod `G8SCF-U6JSX` z pakietem do potwierdzenia, e-mail z kartoteki), wylogowanie, strona `/invite` (zły kod daje błąd pola, poprawny wpisany małymi literami ze spacją przekierowuje), strona zaproszenia z nazwą szkoły, pakietem i zamaskowanym e-mailem (`a***@example.pl`), rejestracja ze złym e-mailem jest odrzucona bez zakładania konta (dane zostają, hasło nie), rejestracja z właściwym e-mailem tworzy konto i od razu przenosi do `/portal`, panel klienta (na telefonie 375 px bez poziomego przewijania: „4 z 5 zajęć zostało”, płatność 400 zł z terminem, najbliższe zajęcia, dolna nawigacja), dodanie psa „Rex” (status „Czeka na zatwierdzenie”), logowanie trenera bez adresu docelowego trafia do `/app` (według roli), kafelek „Psy do zatwierdzenia”, zatwierdzenie psa na karcie klienta.
+Uwaga o narzędziu: gdy okno podglądu jest ukryte, strumieniowana treść Next nie podmienia się sama; w konsoli pomaga `$RV($RB)`.
+
 ### Czego NIE zweryfikowano
-- Zaproszenia, panel klienta, edycja klienta i psa przez formularz, usuwanie notatki oraz archiwizacja psa nie były przeklikane (kod istnieje, sprawdzony tylko typami i buildem).
+- Edycja klienta i psa przez formularz, usuwanie notatki oraz archiwizacja psa nie były przeklikane; rejestracja z zaproszenia przy włączonym potwierdzeniu e-mail (link wraca na stronę zaproszenia) nie była przeklikana (lokalnie potwierdzenia są wyłączone); odrzucanie psa i odbieranie dostępu tylko testami integracyjnymi.
 - Widok mobilny i dostępność (tylko podgląd w oknie 1024 px).
 - Odświeżanie wygasłej sesji w `proxy.ts` (nie czekano na wygaśnięcie tokenu).
 - Wydajność RLS na dużych zbiorach, indeksy poza podstawowymi.
@@ -206,8 +250,8 @@ Kolejność odpowiada planowi v2.0 (Faza 1 = MVP do płatnego pilotażu).
 6. Strony `error.tsx` i `not-found.tsx` dla panelu, przełącznik organizacji (ciasteczko `dt_org` jest czytane, ale nic go nie ustawia).
 
 ### Faza 1: reszta MVP
-7. **Zaproszenia** personelu i klientów (przepływ na tabeli `invitations`, magic link, przyjęcie zaproszenia tworzy `organization_members` lub `client_access`).
-8. **Panel klienta (PWA):** trasa `(client)` / `/portal`, logowanie magic linkiem, najbliższe treningi, saldo pakietów i należności, zadania domowe, branding trenera, przełączanie między trenerami, manifest PWA.
+7. ~~Zaproszenia klientów~~ (zrobione w etapie 3). Zostało: zaproszenia **personelu** (przepływ na tabeli `invitations`, przyjęcie tworzy `organization_members`), magic link dla klientów, ograniczanie prób per IP (dziś tylko globalne w bazie).
+8. **Panel klienta (PWA):** podstawa jest zrobiona w etapie 3 (`/portal`: start, zajęcia, płatności, psy). Zostało: manifest PWA i service worker (etap 5), zadania domowe, branding trenera, przełącznik trenerów/organizacji (ciasteczko `dt_client` jest czytane, nic go nie ustawia), odpowiedzi klienta na powiadomienia (etap 4).
 9. **Kalendarz:** minimalna wersja jest zrobiona w etapie 2 demo (typy zajęć, zajęcia indywidualne, kolizje terminów trenera, zakończenie zużywające pakiet, odwoływanie z polityką, listy Dziś i Najbliższe). Zostało: widoki dzień/tydzień, edycja i przeniesienie terminu, `locations`, serie cykliczne (rrule), zajęcia grupowe z limitem miejsc, nieobecność (`no_show`), prywatne notatki z zajęć, kanał ICS, filtr po trenerze.
 10. ~~Pakiety~~ (zrobione w etapie 1 demo; zostało: anulowanie pakietu, wygasanie pakietu zadaniem dziennym z wpisem `expiry`, powiązanie z typami zajęć).
 11. ~~Płatności~~ (zrobione w etapie 1 demo; zostało: storno błędnie zaksięgowanej wpłaty, zwrot wpłaty, obsługa wielu walut u jednego klienta, płatności online).
@@ -267,7 +311,7 @@ Cel: aplikacja do pokazania trenerom, w której cały obieg „klient → pakiet
 7. **Powiadomienia w dwie strony:** gdy zostają 2 zajęcia, klient dostaje „zostały ostatnie zajęcia, co dalej?" z przyciskami **Odnów pakiet / Zapłać / Zakończ**; trener dostaje informację, że pakiet klienta się kończy i jaką decyzję podjął klient. Podobnie dla płatności (zbliża się termin, zaległość).
 
 ### 10.3. Decyzje projektowe
-- **Zaproszenie i kod:** tabela `invitations` już istnieje (`kind = client`, `client_id`, `token_hash`, `expires_at`); dodać powiązanie z pakietem i krótki kod. Przechowujemy tylko hash. Kod jednorazowy, z limitem prób.
+- **Zaproszenie i kod:** zrobione w etapie 3 (ADR 0007): link/QR + krótki kod, tylko HMAC w bazie, jednorazowe, 7 dni, powiązane z pakietem.
 - **Zatwierdzanie psów:** kolumna `dogs.approval_status` (`pending` | `approved`) i `created_by_client`. Polityka RLS: klient może dodać psa tylko do swojego klienta i tylko jako `pending`; edycja zatwierdzonego psa przez trenera. Skrzynka „do zatwierdzenia" w panelu trenera.
 - **Pakiety i płatności:** migracje z planu (`package_templates`, `client_packages`, `package_ledger`, `charges`, `payments`, `payment_allocations`, widoki), na gotowej domenie (`ledger.ts`, `charge-status.ts`). Na demo płatność to ewidencja przez trenera (gotówka, przelew, BLIK) i widoczność dla klienta; płatności online są osobnym dodatkiem (faza 3).
 - **Zajęcia (wersja minimalna):** `session_types`, `training_sessions`, `session_attendees` i akcja „oznacz jako odbyte" zużywająca zajęcie z pakietu atomowo (funkcja SQL). Pełny kalendarz (serie, grupy, polityka odwołań) później; na demo wystarczy lista „Dziś / Najbliższe".
@@ -277,12 +321,33 @@ Cel: aplikacja do pokazania trenerom, w której cały obieg „klient → pakiet
 ### 10.4. Kolejność wdrożenia (każdy etap: migracja z RLS, domena z testami, przypadki użycia, UI, testy na bazie, przeklikanie)
 1. ✅ **Pakiety i płatności** (trener sprzedaje pakiet, widzi saldo i należności, rejestruje wpłatę). Zrobione (sekcja 5, ADR 0005).
 2. ✅ **Zajęcia (minimalne)** i zużywanie pakietu. Zrobione (sekcja 5, ADR 0006).
-3. **Zaproszenia i panel klienta** (`/portal`, logowanie z zaproszenia, saldo, płatności, dodawanie psa, zatwierdzanie przez trenera).
-4. **Powiadomienia** (w aplikacji, web push, e-mail; reguły niskiego salda i płatności; odpowiedzi klienta; adapter SMS).
+3. ✅ **Zaproszenia i panel klienta** (`/portal`, logowanie z zaproszenia, saldo, płatności, dodawanie psa, zatwierdzanie przez trenera). Zrobione (sekcja 5, ADR 0007).
+4. ⏳ **Powiadomienia** (w aplikacji, web push, e-mail; reguły niskiego salda i płatności; odpowiedzi klienta; adapter SMS). Następny krok, plan w sekcji 11.
 5. **PWA i dopracowanie mobilne** (manifest, ikony, service worker, dolna nawigacja, widok „Dziś"), seed demo i sterowanie demo.
 
-### 10.5. Pytania do ustalenia przed startem
+### 10.5. Pytania do ustalenia przed startem (rozstrzygnięte 2026-10-16: płatność księguje trener, SMS w trybie podglądu, zaproszenie jako QR + link + krótki kod)
 - Czy na demo ma być **prawdziwy SMS**, czy wystarczą push, e-mail i podgląd SMS? (prawdziwy wymaga konta u dostawcy i budżetu)
 - Czy klient ma **płacić w aplikacji** (BLIK/karta), czy tylko widzieć, ile i kiedy ma zapłacić, a trener księguje wpłatę?
 - Na jakim telefonie prezentujemy (iPhone wymaga instalacji PWA dla push)?
 - Czy kod zaproszenia ma być **tylko QR/link**, czy też krótki kod do ręcznego wpisania?
+
+## 11. Plan następnego etapu: 4. Powiadomienia i decyzje klienta
+
+Cel (z wymagań właściciela): „monity po obu stronach, najlepiej na telefon (SMS lub push)”: trener dostaje informację, że klientowi kończy się pakiet lub że płatność jest po terminie; klient dostaje „zostały Ci ostatnie zajęcia, co robisz dalej: płacisz, odnawiasz czy kończysz”, z przyciskami odpowiedzi, które wracają do trenera.
+
+### Gotowe podstawy z poprzednich etapów
+- Zdarzenia w `outbox_events`: `client_package.low_balance` (saldo ≤ 2, przy zakończeniu i późnym odwołaniu zajęć), `training_session.scheduled|completed|canceled`, `payment.recorded`, `client.invited`, `invitation.accepted`, `client_package.created`, `organization.created`. Nikt ich jeszcze nie przetwarza.
+- Stałe i reguły: `LOW_BALANCE_THRESHOLD`, status należności „po terminie” (`chargeStatus`), widoki sald.
+- Panel klienta ma baner „Zostały Ci ostatnie zajęcia” bez akcji; trener ma kafelki „Kończące się pakiety” i „Płatności po terminie”.
+
+### Proponowany podział prac
+- [ ] Migracja 0006: `notifications` (w aplikacji), `notification_preferences`, `notification_log`, `push_subscriptions`, `client_requests` (odpowiedzi klienta: odnowienie, zakończenie współpracy, deklaracja płatności), RLS i pgTAP
+- [ ] Procesor outbox (`/api/cron/outbox`, zabezpieczony sekretem): pobieranie niedostarczonych zdarzeń z blokadą, idempotentne odbiorcy (klucz zdarzenia), ponawianie z licznikiem prób, alert przy zalegających
+- [ ] Reguły dzienne: niski stan pakietu, zbliżający się i minięty termin płatności, przypomnienie o zajęciach (24 h przed)
+- [ ] Adaptery za interfejsami: w aplikacji (dzwonek i licznik), web push (VAPID, `web-push`, subskrypcje z PWA), e-mail (Resend lokalnie Mailpit), `SmsSender` w trybie podglądu (log, bez wysyłki)
+- [ ] Odpowiedzi klienta na powiadomienia: przyciski „Odnów pakiet”, „Zapłacę”, „Kończę współpracę” tworzą `client_requests` i powiadomienie dla trenera; widok próśb u trenera
+- [ ] UI: dzwonek i lista powiadomień (trener i klient), preferencje kanałów, baner w portalu z akcjami
+- [ ] Testy (pgTAP, integracyjne z Mailpit, wyścigi procesora), przeklikanie, ADR 0008, aktualizacja tego pliku, commit
+- [ ] Decyzje do potwierdzenia z właścicielem przed startem: czy SMS na demo ma być prawdziwy (konto u dostawcy i budżet), czy wystarczy podgląd; czy prośby klienta mają wymagać akceptacji trenera
+
+Po etapie 4: etap 5 (PWA: manifest, ikony, service worker, dolna nawigacja trenera, widok „Dziś” jako ekran startowy na telefonie, seed demo i „sterowanie demo”).

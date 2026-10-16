@@ -1,6 +1,8 @@
 export { authorize, hasPermission } from "./application/authorize";
+export { resolveLandingPath } from "./application/landing";
 export {
   CALLBACK_NEXT_PREFIXES,
+  LOGIN_NEXT_PREFIXES,
   exchangeAuthCode,
   requestPasswordReset,
   signIn,

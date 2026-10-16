@@ -2,7 +2,7 @@ import { authorize } from "@/modules/core";
 import { isoDate } from "@/shared/dates";
 import { appError } from "@/shared/errors";
 import { parseInput } from "@/shared/form";
-import type { RequestContext } from "@/shared/context";
+import type { ClientRequestContext, RequestContext } from "@/shared/context";
 import { err, type Result } from "@/shared/result";
 import {
   dogInputSchema,
@@ -32,6 +32,37 @@ export async function listDogs(
   const allowed = authorize(ctx, "dogs.read");
   if (!allowed.ok) return allowed;
   return dogsRepository(ctx.db).listByClient(ctx.organizationId, clientId, options.includeArchived);
+}
+
+/** Psy dodane przez klientów, które czekają na zatwierdzenie. */
+export async function listPendingDogs(ctx: RequestContext): Promise<Result<Dog[]>> {
+  const allowed = authorize(ctx, "dogs.write");
+  if (!allowed.ok) return allowed;
+  return dogsRepository(ctx.db).listPending(ctx.organizationId);
+}
+
+export async function approveDog(ctx: RequestContext, id: string): Promise<Result<Dog>> {
+  const allowed = authorize(ctx, "dogs.write");
+  if (!allowed.ok) return allowed;
+  return dogsRepository(ctx.db).review(ctx.organizationId, id, "approved", ctx.userId, ctx.clock.now());
+}
+
+export async function rejectDog(ctx: RequestContext, id: string): Promise<Result<Dog>> {
+  const allowed = authorize(ctx, "dogs.write");
+  if (!allowed.ok) return allowed;
+  return dogsRepository(ctx.db).review(ctx.organizationId, id, "rejected", ctx.userId, ctx.clock.now());
+}
+
+/** Klient dodaje psa w panelu; pies czeka na zatwierdzenie trenera. Bez uprawnień personelu, chroni go RLS. */
+export async function proposeDog(ctx: ClientRequestContext, raw: unknown): Promise<Result<Dog>> {
+  const input = parseInput(dogInputSchema, raw);
+  if (!input.ok) return err(input.error);
+  if (input.value.birthDate && input.value.birthDate > isoDate(ctx.clock.now())) {
+    return err(
+      appError("validation", "Popraw zaznaczone pola.", { birthDate: ["Data urodzenia nie może być z przyszłości"] }),
+    );
+  }
+  return dogsRepository(ctx.db).insertProposed(ctx.organizationId, ctx.userId, ctx.clientId, input.value);
 }
 
 export async function listOrganizationDogs(ctx: RequestContext): Promise<Result<Dog[]>> {

@@ -1,0 +1,62 @@
+import { z } from "zod";
+import { emptyToNull, formText } from "@/shared/form";
+
+export const createInvitationInputSchema = z.object({
+  clientId: z.uuid(),
+  /** Adres, na który konto musi być założone; puste = zaproszenie przekazane osobiście (QR lub kod). */
+  email: formText(254)
+    .transform((v) => v.toLowerCase())
+    .refine((v) => v === "" || z.email().safeParse(v).success, "Niepoprawny adres e-mail")
+    .transform((v) => (v === "" ? null : v)),
+  /** Pakiet, który klient potwierdza przyjmując zaproszenie. */
+  packageId: z.preprocess(emptyToNull, z.uuid().nullable()),
+});
+
+export type CreateInvitationInput = z.output<typeof createInvitationInputSchema>;
+
+export type InvitationPackagePreview = {
+  name: string;
+  sessionsTotal: number;
+  priceMinor: number;
+  currency: string;
+};
+
+/** Publiczny podgląd zaproszenia: dla nieważnego tylko status. */
+export type InvitationPreview =
+  | {
+      status: "valid";
+      organizationName: string;
+      clientFirstName: string;
+      emailRequired: boolean;
+      emailHint: string | null;
+      /** Wynik porównania z podanym adresem; null, gdy nie podano adresu lub zaproszenie nie ma adresu. */
+      emailMatches: boolean | null;
+      package: InvitationPackagePreview | null;
+      expiresAt: Date;
+    }
+  | { status: "not_found" | "used" | "revoked" | "expired" };
+
+export type CreatedInvitation = {
+  invitationId: string;
+  /** Link do wysłania lub zakodowania w QR. */
+  link: string;
+  /** Krótki kod w formacie `ABCDE-FGHJK`. */
+  code: string;
+  /** Kod QR jako SVG (zawartość pochodzi z biblioteki, nie od użytkownika). */
+  qrSvg: string;
+  expiresAt: Date;
+};
+
+export type ClientAccessInfo = {
+  /** Konta z aktywnym dostępem do panelu tego klienta. */
+  accounts: { userId: string; relation: "owner" | "family"; since: Date }[];
+  /** Ostatnie zaproszenie, które nie zostało przyjęte ani unieważnione. */
+  pending: {
+    id: string;
+    email: string | null;
+    packageName: string | null;
+    createdAt: Date;
+    expiresAt: Date;
+    expired: boolean;
+  } | null;
+};

@@ -2,7 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { clientFullName, listClients } from "@/modules/clients";
-import { getOrganization, getRequestContext, hasPermission } from "@/modules/core";
+import { getOrganization, getRequestContext, hasPermission, resolveLandingPath } from "@/modules/core";
+import { createUserClient } from "@/shared/supabase/server";
+import { listPendingDogs } from "@/modules/dogs";
 import { listLowBalancePackages } from "@/modules/packages";
 import { listOverdueCharges } from "@/modules/payments";
 import { SESSION_STATUS_LABELS, formatSessionRange, getSessionAgenda } from "@/modules/scheduling";
@@ -29,6 +31,9 @@ async function DashboardContent() {
   if (!ctx.ok) {
     if (ctx.error.code === "unauthenticated") redirect("/login");
     if (ctx.error.code === "no_organization") {
+      // Klient bez organizacji ma panel w /portal; dopiero świeże konto zakłada organizację.
+      const db = await createUserClient();
+      if ((await resolveLandingPath(db)) === "/portal") redirect("/portal");
       return (
         <section className="mt-6 flex flex-col gap-4">
           <p className="text-zinc-600 dark:text-zinc-400">
@@ -44,12 +49,14 @@ async function DashboardContent() {
   const org = await getOrganization(ctx.value);
   const c = ctx.value;
 
-  const [low, overdue, clients, agenda] = await Promise.all([
+  const [low, overdue, clients, agenda, pendingDogs] = await Promise.all([
     hasPermission(c, "packages.read") ? listLowBalancePackages(c) : null,
     hasPermission(c, "payments.read") ? listOverdueCharges(c) : null,
     listClients(c),
     hasPermission(c, "sessions.read") ? getSessionAgenda(c, { upcomingDays: 0 }) : null,
+    hasPermission(c, "dogs.write") ? listPendingDogs(c) : null,
   ]);
+  const pendingDogList = pendingDogs?.ok ? pendingDogs.value : [];
   const todayAgenda = agenda?.ok ? agenda.value : null;
   const names = new Map((clients.ok ? clients.value : []).map((cl) => [cl.id, clientFullName(cl)]));
   const lowList = low?.ok ? low.value : [];
@@ -82,6 +89,28 @@ async function DashboardContent() {
           Szablony pakietów
         </Link>
       </div>
+
+      {pendingDogList.length > 0 ? (
+        <div>
+          <h2 className="mb-2 text-lg font-semibold">Psy do zatwierdzenia</h2>
+          <ul className="divide-y divide-zinc-200 rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+            {pendingDogList.map((dog) => (
+              <li key={dog.id}>
+                <Link
+                  href={`/app/clients/${dog.clientId}`}
+                  className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-900"
+                >
+                  <span>
+                    <span className="font-medium">{dog.name}</span>
+                    <span className="text-sm text-zinc-600 dark:text-zinc-400"> · {nameOf(dog.clientId)}</span>
+                  </span>
+                  <Badge tone="warning">Czeka na zatwierdzenie</Badge>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       {todayAgenda ? (
         <div>

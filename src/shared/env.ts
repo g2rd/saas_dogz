@@ -37,6 +37,19 @@ export function siteUrl(): string {
   throw new Error("NEXT_PUBLIC_SITE_URL is required in production");
 }
 
+const DEV_INVITATION_SECRET = "dev-only-invitation-secret-change-me-0000";
+
+/**
+ * Tajny pieprz do HMAC sekretów zaproszeń (token i krótki kod). Wyłącznie po stronie serwera.
+ * Na produkcji wymagany; lokalnie wartość domyślna.
+ */
+export function invitationHashSecret(): string {
+  const configured = process.env.INVITATION_HASH_SECRET;
+  if (configured) return z.string().min(24).parse(configured);
+  if (process.env.NODE_ENV !== "production") return DEV_INVITATION_SECRET;
+  throw new Error("INVITATION_HASH_SECRET is required in production");
+}
+
 export function hasSupabaseEnv(): boolean {
   return publicSchema.safeParse({
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,

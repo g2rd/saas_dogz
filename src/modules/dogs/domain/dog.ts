@@ -21,6 +21,14 @@ export const NOTE_KIND_LABELS: Record<NoteKind, string> = {
   other: "Inne",
 };
 
+export type ApprovalStatus = "pending" | "approved" | "rejected";
+
+export const APPROVAL_STATUS_LABELS: Record<ApprovalStatus, string> = {
+  pending: "Czeka na zatwierdzenie",
+  approved: "Zatwierdzony",
+  rejected: "Odrzucony",
+};
+
 export type Dog = {
   id: string;
   organizationId: string;
@@ -30,6 +38,9 @@ export type Dog = {
   /** Data w formacie YYYY-MM-DD. */
   birthDate: string | null;
   sex: DogSex;
+  /** Psy dodane przez klienta czekają na zatwierdzenie trenera i nie wchodzą do pakietów ani zajęć. */
+  approvalStatus: ApprovalStatus;
+  createdByClient: boolean;
   archivedAt: Date | null;
   createdAt: Date;
 };

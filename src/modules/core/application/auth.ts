@@ -11,7 +11,10 @@ import {
 import { safeNextPath } from "../domain/redirect";
 
 /** Ścieżki, na które może wskazywać `next` w linkach z e-maili (callback). */
-export const CALLBACK_NEXT_PREFIXES = ["/app", "/reset-password"] as const;
+export const CALLBACK_NEXT_PREFIXES = ["/app", "/portal", "/invite", "/reset-password"] as const;
+
+/** Ścieżki, na które może wskazywać `next` po zalogowaniu lub rejestracji. */
+export const LOGIN_NEXT_PREFIXES = ["/app", "/portal", "/invite"] as const;
 
 export type SignupOutcome = "signed_in" | "confirmation_required";
 
@@ -37,7 +40,7 @@ export async function signUp(
   const input = parseInput(signupSchema, raw);
   if (!input.ok) return err(input.error);
 
-  const next = safeNextPath(options.next);
+  const next = safeNextPath(options.next, LOGIN_NEXT_PREFIXES);
   const { data, error } = await db.auth.signUp({
     email: input.value.email,
     password: input.value.password,
