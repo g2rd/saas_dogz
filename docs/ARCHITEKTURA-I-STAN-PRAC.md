@@ -17,10 +17,10 @@ Stan na 2026-10-16. Dokument opisuje, jak zbudowana jest aplikacja, co jest już
 | 4. Powiadomienia (w aplikacji, web push, e-mail, adapter SMS), odpowiedzi klienta („Odnów / Zapłać / Zakończ”) | ⏳ **następny krok** (plan w sekcji 11) | |
 | 5. PWA, dopracowanie mobilne, seed demo i „sterowanie demo” | ⏳ nie zaczęte | |
 
-Zdalne repozytorium: `https://github.com/g2rd/saas_dogz`, gałąź `main` (stan po etapie 3 jest wypchnięty). Wypychanie (`git push`) robimy wyłącznie na wyraźną prośbę właściciela; szczegóły w sekcji 5. Plan następnego etapu jest w sekcji 11.
+Zdalne repozytorium: `https://github.com/g2rd/saas_dogz`. **Gałąź `dev` jest gałęzią integracyjną: tam trafiają wszystkie zmiany. `main` zawiera tylko to, co właściciel zatwierdził; do `main` wchodzimy dopiero po jego wyraźnym zatwierdzeniu (merge `dev` do `main` i push).** Stan wypchnięcia i szczegóły w sekcji 5. Plan następnego etapu jest w sekcji 11.
 
 ### Jak pracujemy (definicja „zrobione” dla etapu)
-1. Nowa gałąź na etap (`feat/...`), start od aktualnego `main`; scalanie do `main` tylko na prośbę właściciela (fast-forward, bez push).
+1. Przepływ gałęzi: nowa gałąź na etap (`feat/...`) startuje z `dev`; po zakończeniu etapu scalamy ją do `dev` i wypychamy `dev`. **`main` zmieniamy wyłącznie po zatwierdzeniu przez właściciela** (wtedy merge `dev` do `main` i push `main`). `git push` robimy tylko na prośbę właściciela; logowanie do GitHuba idzie przez przeglądarkę, więc push uruchamiaj w terminalu użytkownika (`run_in_terminal`).
 2. Migracja SQL z RLS (nowa tabela = polityki + test pgTAP w tej samej migracji); zapisy wielotabelowe jako funkcje SQL `security definer`, które same sprawdzają rolę i przynależność identyfikatorów do organizacji; wyścigi: blokada wiersza osobnym zapytaniem, dopiero potem odczyt salda/stanu.
 3. Domena z testami jednostkowymi, przypadki użycia z `authorize`, repozytoria, testy integracyjne na prawdziwej bazie (w tym wyścigi i izolacja organizacji).
 4. UI mobile-first, przeklikanie w przeglądarce (przy ukrytym oknie podglądu strumieniowana treść nie podmienia się sama; pomaga `$RV($RB)` w konsoli), poprawki znalezionych błędów.
@@ -182,7 +182,11 @@ Funkcja `public.create_organization(name, slug)`: atomowo tworzy organizację, u
 
 7. **Zaproszenia i panel klienta, etap 3 demo** (gałąź `feat/invitations-portal`): migracja 0005 (rozszerzone `invitations`, `invitation_lookup_failures`, zatwierdzanie psów `approval_status` + trigger blokujący niezatwierdzone psy w pakietach i na zajęciach, polityki RLS dla klienta: organizacja, ustawienia, dodawanie psa jako „oczekujący”, funkcje `create_client_invitation`, `lookup_invitation` (publiczna), `accept_invitation`, `revoke_client_access`), moduł `invitations` (sekrety, HMAC z pieprzem `INVITATION_HASH_SECRET`, kod QR), moduł `portal` (model do odczytu dla klienta, dodawanie psa), `resolveLandingPath` (po zalogowaniu personel do `/app`, klient do `/portal`), UI: sekcja „Panel klienta” na karcie klienta (zaproszenie z QR, kodem i linkiem, odbieranie dostępu), zatwierdzanie psów (karta klienta i kafelek na pulpicie), publiczne `/invite` i `/invite/[secret]` (rejestracja z zaproszenia lub przyjęcie na istniejące konto), panel klienta `/portal` z dolną nawigacją (start z saldem „4 z 5 zajęć zostało”, płatność z terminem, zajęcia, płatności, psy), skrypt `npm run seed:dev`. Decyzje w [ADR 0007](adr/0007-invitations-portal.md).
 
-### Stan repozytorium zdalnego
+### Stan repozytorium zdalnego (aktualizuj po każdym wypchnięciu)
+- `origin/main` = commit `19b334a`: etapy 1-3 (zatwierdzone przez właściciela).
+- `origin/dev`: gałąź integracyjna, zawiera `main` plus późniejsze zmiany (m.in. dokumentacja kont testowych i instrukcji zaproszeń, `0e23f19`).
+- Poniżej zapis historyczny wypchnięcia z 2026-10-16:
+
 `https://github.com/g2rd/saas_dogz`: `origin/main` zawiera etapy 1-3 (wypchnięte 2026-10-16 na prośbę właściciela, commit `75944e4` i kolejny z aktualizacją tego pliku). Gałęzie robocze `feat/*` są tylko lokalne (są już w `main`). Kolejne wypchnięcia robimy tylko na prośbę właściciela; ten wiersz aktualizuj po każdym wypchnięciu. Logowanie do GitHuba odbywa się przez Git Credential Manager w przeglądarce, więc `git push` uruchamiaj w terminalu użytkownika (narzędzie `run_in_terminal`), nie w powłoce Claude.
 
 ### Funkcje widoczne dla użytkownika
