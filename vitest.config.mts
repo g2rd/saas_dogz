@@ -7,7 +7,8 @@ export default defineConfig({
   },
   test: {
     include: ["src/**/*.test.ts"],
+    // Testy integracyjne wymagają lokalnego Supabase: `npm run test:integration`.
+    exclude: ["**/*.integration.test.ts", "node_modules/**"],
     environment: "node",
   },
 });
-
