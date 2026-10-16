@@ -41,6 +41,8 @@ export type Session = {
   dogName: string | null;
   attendance: AttendanceStatus | null;
   clientPackageId: string | null;
+  /** Kiedy zajęcia zakończono (do okna „Cofnij zakończenie”). */
+  completedAt: Date | null;
 };
 
 /** „10:00-11:00” w strefie organizacji. */

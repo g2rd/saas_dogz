@@ -137,6 +137,13 @@ export async function recordPayment(ctx: RequestContext, raw: unknown): Promise<
   });
 }
 
+/** Storno wpłaty: wpłata zostaje w historii jako anulowana, a należności wracają do stanu sprzed wpłaty. */
+export async function voidPayment(ctx: RequestContext, paymentId: string): Promise<Result<void>> {
+  const allowed = authorize(ctx, "payments.write");
+  if (!allowed.ok) return allowed;
+  return paymentsRepository(ctx.db).voidPayment(ctx.organizationId, paymentId);
+}
+
 /** Anuluje należność, na którą nic nie wpłacono. */
 export async function voidCharge(ctx: RequestContext, chargeId: string): Promise<Result<void>> {
   const allowed = authorize(ctx, "payments.write");

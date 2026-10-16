@@ -30,6 +30,7 @@ type PaymentRow = {
   paid_at: string;
   method: PaymentMethod;
   reference: string | null;
+  voided_at: string | null;
 };
 
 function toCharge(row: ChargeRow): Charge {
@@ -89,7 +90,7 @@ export function paymentsRepository(db: SupabaseClient) {
     async listPaymentsByClient(organizationId: string, clientId: string): Promise<Result<Payment[]>> {
       const { data, error } = await db
         .from("payments")
-        .select("id, client_id, amount_minor, currency, paid_at, method, reference")
+        .select("id, client_id, amount_minor, currency, paid_at, method, reference, voided_at")
         .eq("organization_id", organizationId)
         .eq("client_id", clientId)
         .order("paid_at", { ascending: false });
@@ -103,6 +104,7 @@ export function paymentsRepository(db: SupabaseClient) {
           paidAt: new Date(row.paid_at),
           method: row.method,
           reference: row.reference,
+          voidedAt: row.voided_at ? new Date(row.voided_at) : null,
         })),
       );
     },
@@ -139,6 +141,12 @@ export function paymentsRepository(db: SupabaseClient) {
       });
       if (error) return err(fromDbError(error));
       return ok(data as string);
+    },
+
+    async voidPayment(organizationId: string, paymentId: string): Promise<Result<void>> {
+      const { error } = await db.rpc("void_payment", { p_org: organizationId, p_payment: paymentId });
+      if (error) return err(fromDbError(error));
+      return ok(undefined);
     },
 
     async voidCharge(organizationId: string, chargeId: string): Promise<Result<void>> {

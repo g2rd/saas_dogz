@@ -68,6 +68,8 @@ const deps = (overrides: Partial<OutboxDeps> = {}): OutboxDeps => ({
 
 /** Przetwarza outbox, aż nie będzie nic do pobrania (zdarzenia zablokowane po błędzie czekają na odblokowanie). */
 async function drain(overrides: Partial<OutboxDeps> = {}, runDailyRules = false) {
+  // Zdarzenia z akcji trenera czekają 30 s (okno „Cofnij”); w testach zdejmujemy to opóźnienie
+  await adminClient().from("outbox_events").update({ not_before: null }).is("processed_at", null);
   for (let i = 0; i < 12; i++) {
     const run = await processOutbox(deps(overrides), { limit: 100, runDailyRules: runDailyRules && i === 0 });
     if (run.claimed === 0) return;

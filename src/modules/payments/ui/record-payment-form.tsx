@@ -1,8 +1,10 @@
 "use client";
 
+import { ConfirmSubmit } from "@/shared/ui/confirm";
+
 import { useActionState } from "react";
 import type { FormState } from "@/shared/form";
-import { FormMessage, SelectField, SubmitButton, TextField } from "@/shared/ui/form-fields";
+import { FormMessage, SelectField, TextField } from "@/shared/ui/form-fields";
 import { PAYMENT_METHODS, PAYMENT_METHOD_LABELS } from "../domain/payment";
 
 export type OpenChargeOption = { id: string; label: string };
@@ -57,7 +59,15 @@ export function RecordPaymentForm({
       <TextField label="Opis (opcjonalnie)" name="reference" defaultValue={v("reference")} errors={errors.reference} />
       <FormMessage state={state} />
       <div>
-        <SubmitButton>Zaksięguj wpłatę</SubmitButton>
+        <ConfirmSubmit
+          tone="primary"
+          title="Zaksięgować wpłatę?"
+          description="Wpłata zostanie zapisana i rozliczona z należnościami klienta. Klient dostanie powiadomienie po 30 sekundach. Pomyłkę poprawisz stornem wpłaty w historii wpłat."
+          confirmLabel="Zaksięguj"
+          pendingLabel="Zapisywanie..."
+        >
+          Zaksięguj wpłatę
+        </ConfirmSubmit>
       </div>
     </form>
   );

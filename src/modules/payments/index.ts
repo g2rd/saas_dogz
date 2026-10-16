@@ -5,6 +5,7 @@ export {
   listOverdueCharges,
   recordPayment,
   voidCharge,
+  voidPayment,
   type ChargeView,
   type RecordedPayment,
 } from "./application/payments";

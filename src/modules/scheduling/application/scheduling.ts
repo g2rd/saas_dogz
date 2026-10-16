@@ -247,6 +247,20 @@ export async function cancelSession(
   return repo.cancel(ctx.organizationId, sessionId, consume);
 }
 
+/** Cofa zakończenie zajęć (tego samego dnia): zajęcie wraca do pakietu, nieopłacona należność za zajęcia jest anulowana. */
+export async function undoCompleteSession(ctx: RequestContext, sessionId: string): Promise<Result<void>> {
+  const allowed = authorize(ctx, "sessions.write");
+  if (!allowed.ok) return allowed;
+  return sessionsRepository(ctx.db).undoComplete(ctx.organizationId, sessionId);
+}
+
+/** Przywraca odwołane zajęcia (zanim się zaczną): zajęcie wraca do pakietu, ogłoszenie wolnego terminu jest zamykane. */
+export async function restoreCanceledSession(ctx: RequestContext, sessionId: string): Promise<Result<void>> {
+  const allowed = authorize(ctx, "sessions.write");
+  if (!allowed.ok) return allowed;
+  return sessionsRepository(ctx.db).restore(ctx.organizationId, sessionId);
+}
+
 /** Czy odwołanie „teraz” byłoby według polityki późne (do podpowiedzi w interfejsie). */
 export async function previewCancelConsumes(ctx: RequestContext, session: Session): Promise<boolean> {
   const settings = await getOrganizationSettings(ctx);

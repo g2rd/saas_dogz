@@ -5,7 +5,7 @@ import { err, ok, type Result } from "@/shared/result";
 import type { AttendanceStatus, Session, SessionStatus } from "../domain/session";
 
 const COLUMNS =
-  "id, session_type_id, type_name, duration_minutes, default_price_minor, currency, trainer_id, trainer_name, starts_at, ends_at, location, status, client_summary, attendee_id, client_id, client_first_name, client_last_name, dog_id, dog_name, attendance, client_package_id";
+  "id, session_type_id, type_name, duration_minutes, default_price_minor, currency, trainer_id, trainer_name, starts_at, ends_at, location, status, client_summary, attendee_id, client_id, client_first_name, client_last_name, dog_id, dog_name, attendance, client_package_id, completed_at";
 
 type Row = {
   id: string;
@@ -29,6 +29,7 @@ type Row = {
   dog_name: string | null;
   attendance: AttendanceStatus | null;
   client_package_id: string | null;
+  completed_at: string | null;
 };
 
 function toSession(row: Row): Session {
@@ -53,6 +54,7 @@ function toSession(row: Row): Session {
     dogName: row.dog_name,
     attendance: row.attendance,
     clientPackageId: row.client_package_id,
+    completedAt: row.completed_at ? new Date(row.completed_at) : null,
   };
 }
 
@@ -164,6 +166,20 @@ export function sessionsRepository(db: SupabaseClient) {
       if (error) return err(fromDbError(error));
       const row = data as { consumed: boolean; package_id: string | null; balance_after: number | null };
       return ok({ consumed: row.consumed, packageId: row.package_id, balanceAfter: row.balance_after });
+    },
+
+    /** Cofnięcie zakończenia zajęć (do końca dnia). */
+    async undoComplete(organizationId: string, sessionId: string): Promise<Result<void>> {
+      const { error } = await db.rpc("undo_complete_session", { p_org: organizationId, p_session: sessionId });
+      if (error) return err(fromDbError(error));
+      return ok(undefined);
+    },
+
+    /** Przywrócenie odwołanych zajęć (przed ich rozpoczęciem). */
+    async restore(organizationId: string, sessionId: string): Promise<Result<void>> {
+      const { error } = await db.rpc("undo_cancel_session", { p_org: organizationId, p_session: sessionId });
+      if (error) return err(fromDbError(error));
+      return ok(undefined);
     },
   };
 }

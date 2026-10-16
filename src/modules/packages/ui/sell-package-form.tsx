@@ -1,9 +1,11 @@
 "use client";
 
+import { ConfirmSubmit } from "@/shared/ui/confirm";
+
 import { useActionState } from "react";
 import type { FormState } from "@/shared/form";
 import { formatMoney, money } from "@/shared/money";
-import { FormMessage, SelectField, SubmitButton, TextField } from "@/shared/ui/form-fields";
+import { FormMessage, SelectField, TextField } from "@/shared/ui/form-fields";
 
 export type SellTemplateOption = {
   id: string;
@@ -99,7 +101,15 @@ export function SellPackageForm({
       />
       <FormMessage state={state} />
       <div>
-        <SubmitButton pendingLabel="Sprzedawanie...">Sprzedaj pakiet</SubmitButton>
+        <ConfirmSubmit
+          tone="primary"
+          title="Sprzedać pakiet?"
+          description="Klient dostanie pakiet zajęć i powstanie należność za niego. Nieużyty pakiet możesz później anulować (razem z nieopłaconą należnością)."
+          confirmLabel="Sprzedaj pakiet"
+          pendingLabel="Sprzedawanie..."
+        >
+          Sprzedaj pakiet
+        </ConfirmSubmit>
       </div>
     </form>
   );

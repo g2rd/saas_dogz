@@ -21,6 +21,8 @@ export type Payment = {
   paidAt: Date;
   method: PaymentMethod;
   reference: string | null;
+  /** Wpłata anulowana (storno); zostaje w historii, ale nie liczy się do salda. */
+  voidedAt: Date | null;
 };
 
 export type Charge = {

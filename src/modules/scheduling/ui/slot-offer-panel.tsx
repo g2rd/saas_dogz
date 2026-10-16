@@ -1,7 +1,7 @@
+import { ConfirmSubmit } from "@/shared/ui/confirm";
 import { formatIsoDate } from "@/shared/dates";
 import { dateInZone, timeInZone } from "@/shared/time";
 import { Badge } from "@/shared/ui/badge";
-import { SubmitButton } from "@/shared/ui/form-fields";
 import type { SlotOffer } from "../domain/slots";
 
 /**
@@ -55,7 +55,23 @@ export function SlotOfferPanel({
                       </span>
                     </span>
                     <form action={acceptAction.bind(null, claim.id)}>
-                      <SubmitButton pendingLabel="Zapisywanie...">Wybierz</SubmitButton>
+                      <ConfirmSubmit
+                        tone="primary"
+                        title={`Wybrać: ${claim.clientName}?`}
+                        description={
+                          <>
+                            <p>
+                              Zajęcia {stamp(offer.startsAt)} zostaną zarezerwowane dla {claim.clientName}, a ta osoba dostanie
+                              komunikat „Miejsce jest dla Ciebie!”.
+                            </p>
+                            <p className="mt-2">Pozostałe osoby dostaną informację, że termin jest zajęty.</p>
+                          </>
+                        }
+                        confirmLabel="Wybierz i zarezerwuj"
+                        pendingLabel="Zapisywanie..."
+                      >
+                        Wybierz
+                      </ConfirmSubmit>
                     </form>
                   </li>
                 ))}
@@ -63,9 +79,15 @@ export function SlotOfferPanel({
             ) : null}
 
             <form action={closeAction.bind(null, offer.id)} className="mt-3">
-              <SubmitButton variant="secondary" pendingLabel="Zamykanie...">
+              <ConfirmSubmit
+                variant="secondary"
+                title="Zamknąć ogłoszenie?"
+                description="Ogłoszenie zniknie, a osoby, które zgłosiły „Biorę”, dostaną informację, że termin jest zajęty. Jeśli zamkniesz je w ciągu 30 sekund od ogłoszenia, nikt nie dostanie żadnego powiadomienia."
+                confirmLabel="Zamknij ogłoszenie"
+                pendingLabel="Zamykanie..."
+              >
                 Zamknij ogłoszenie
-              </SubmitButton>
+              </ConfirmSubmit>
             </form>
           </li>
         ))}

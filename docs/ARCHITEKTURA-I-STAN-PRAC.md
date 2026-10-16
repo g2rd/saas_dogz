@@ -196,6 +196,8 @@ Funkcja `public.create_organization(name, slug)`: atomowo tworzy organizację, u
 
 10. **Menu „Więcej” w portalu klienta** (`/portal/more`: włączanie i wyłączanie push na urządzeniu, wybór kanałów, instalacja, wylogowanie; karta „Włącz powiadomienia push” na starcie portalu), **jasny motyw, wolne terminy i lista chętnych** (gałęzie `feat/light-theme`, `feat/free-slots`, ADR 0010, migracja 0009): aplikacja jest tylko jasna (klasy `dark:` wyłączone, zielony kolor główny, czytelny czerwony przycisk „Odwołaj zajęcia”); lista chętnych klienta, ogłoszenie wolnego terminu przez trenera (odwołane zajęcia), „Biorę” w kolejności zgłoszeń, wybór osoby przez trenera z komunikatem „Miejsce jest dla Ciebie!” i „Termin został zajęty” dla pozostałych, prośba klienta „Nie mogę przyjść” (rodzaj `cancel`), sekcje „Wolne terminy” i „Odwołane terminy” u trenera oraz karta wolnych terminów w portalu.
 
+11. **Potwierdzenia i cofanie pomyłek** (gałąź `feat/undo-confirm`, ADR 0011, migracja 0010): wspólne okno potwierdzenia `ConfirmSubmit` (z opisem skutków, domyślnie „Anuluj”) na operacjach z poziomu A i B; okno 30 s przed wysłaniem powiadomień wywołanych przez trenera (`outbox_events.not_before`); odwrotności: „Cofnij zakończenie” (do końca dnia), „Przywróć zajęcia”, storno wpłaty, „Anuluj pakiet”; po cofnięciu klient dostaje informację korygującą tylko wtedy, gdy powiadomienie już wyszło.
+
 ### Stan repozytorium zdalnego (aktualizuj po każdym wypchnięciu)
 - `origin/main` = commit `19b334a`: etapy 1-3 (zatwierdzone przez właściciela).
 - `origin/dev`: gałąź integracyjna, zawiera `main` plus późniejsze zmiany; wypchnięta 2026-10-16 z etapem 4 (commit `8d37f74`). `main` nadal na etapach 1-3.
@@ -214,12 +216,12 @@ Zajęcia (planowanie, rozliczanie z pakietu, odwoływanie), pakiety i płatnośc
 | --- | --- | --- |
 | Typy | `npm run typecheck` | czysto |
 | Lint | `npm run lint` | czysto |
-| Testy jednostkowe (domena) | `npm test` | 161/161 (w tym symulacja service workera) |
+| Testy jednostkowe (domena) | `npm test` | 163/163 (w tym symulacja service workera) |
 | Granice modułów | `npm run check:boundaries` | brak naruszeń (185 modułów) |
 | Build produkcyjny | `npm run build` | przechodzi, trasy panelu to częściowy prerender |
 | Migracje | `supabase start` | obie zastosowane bez błędów |
-| Testy RLS (pgTAP) | `npm run db:test` | 153/153 (8 plików, w tym `notifications`, `member_invitations` i `free_slots`) |
-| Testy przypadków użycia na bazie (auth z Mailpit, pakiety, płatności, zajęcia, zaproszenia, panel klienta, powiadomienia, zaproszenia personelu, wyścigi) | `npm run test:integration` | 111/111 (8 plików) |
+| Testy RLS (pgTAP) | `npm run db:test` | 184/184 (9 plików, w tym `notifications`, `member_invitations`, `free_slots` i `undo`) |
+| Testy przypadków użycia na bazie (auth z Mailpit, pakiety, płatności, zajęcia, zaproszenia, panel klienta, powiadomienia, zaproszenia personelu, wyścigi) | `npm run test:integration` | 121/121 (9 plików) |
 
 Testy integracyjne pokrywają: tworzenie klienta z normalizacją, błędy walidacji pól, wyszukiwanie (także ze znakami sterującymi filtru), psy i notatki, odrzucenie daty urodzenia z przyszłości, archiwizację i przywracanie, izolację organizacji (także przy podmienionym `organizationId`), widok klienta z dostępem (tylko własne dane i notatki oznaczone jako widoczne) oraz ograniczenia roli `assistant`.
 
@@ -244,6 +246,9 @@ Produkcyjny build na `127.0.0.1`: manifest (`application/manifest+json`), `sw.js
 
 ### Przeklikane: wolne terminy
 Trener odwołał zajęcia Anny (przycisk „Odwołaj zajęcia” widoczny, sesja przeszła do „Odwołane terminy”), ogłosił wolny termin (sekcja „Wolne terminy”), klientka zapisała się na listę chętnych, zobaczyła ogłoszenie z wyborem psa i kliknęła „Biorę” („Zgłoszono. Czekasz na decyzję trenera.”). Przy emulowanym ciemnym trybie systemu aplikacja pozostaje jasna. Wybór osoby przez trenera, wycofanie, zamknięcie i powiadomienia sprawdzają testy integracyjne (nie klikano w przeglądarce). Uwaga: po przełączaniu gałęzi gitem Turbopack w `next dev` potrafi zostać przy starym CSS; pomaga usunięcie `.next/dev` i restart.
+
+### Przeklikane: potwierdzenia i cofanie
+Odwołanie zajęć: „Odwołaj zajęcia” otwiera okno z opisem skutków; „Anuluj” zamyka je bez zmian (zajęcia zostają zaplanowane), „Odwołaj zajęcia” w oknie odwołuje i pojawiają się „Ogłoś wolny termin” oraz „Przywróć zajęcia”; przywrócenie (z potwierdzeniem) wraca zajęcia do „Najbliższych”. Karty zajęć zakończonych dziś mają „Cofnij zakończenie”. Pozostałe potwierdzenia (wpłaty, pakiety, archiwizacje, dostęp) nie były klikane w przeglądarce; logikę cofania pokrywają testy pgTAP i integracyjne. Ponieważ powiadomienia trenera idą z opóźnieniem 30 s, na żywo pojawiają się z tym opóźnieniem.
 
 ### Czego NIE zweryfikowano
 - Edycja klienta i psa przez formularz, usuwanie notatki oraz archiwizacja psa nie były przeklikane; rejestracja z zaproszenia przy włączonym potwierdzeniu e-mail (link wraca na stronę zaproszenia) nie była przeklikana (lokalnie potwierdzenia są wyłączone); odrzucanie psa i odbieranie dostępu tylko testami integracyjnymi.

@@ -202,3 +202,20 @@ describe("planNotifications: wolne terminy", () => {
     expect(draft.link).toBe("/app/requests");
   });
 });
+
+describe("planNotifications: cofnięcia", () => {
+  const session = { id: "s1", startsAt: new Date("2030-03-01T09:00:00Z") };
+
+  it("przywrócone zajęcia informują klienta z datą", () => {
+    const [draft] = planNotifications(event("training_session.restored"), facts({ session }));
+    expect(draft).toMatchObject({ audience: "client", title: "Zajęcia przywrócone", link: "/portal/sessions" });
+    expect(draft.body).toContain("01.03.2030 o 10:00");
+  });
+
+  it("anulowana wpłata informuje klienta o kwocie, a niepoprawna kwota jest pomijana", () => {
+    const [draft] = planNotifications(event("payment.voided", { amount_minor: 5000, currency: "PLN" }), facts());
+    expect(draft).toMatchObject({ audience: "client", title: "Wpłata anulowana", link: "/portal/payments" });
+    expect(draft.body.replace(/\s/g, " ")).toContain("50,00");
+    expect(planNotifications(event("payment.voided", { amount_minor: 0 }), facts())).toEqual([]);
+  });
+});

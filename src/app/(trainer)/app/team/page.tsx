@@ -1,8 +1,8 @@
+import { ConfirmSubmit } from "@/shared/ui/confirm";
 import { Suspense } from "react";
 import { hasPermission } from "@/modules/core";
 import { MEMBER_ROLE_LABELS, MemberInviteForm, getTeam } from "@/modules/invitations";
 import { Badge } from "@/shared/ui/badge";
-import { SubmitButton } from "@/shared/ui/form-fields";
 import { requireContext } from "../../_lib/context";
 import { inviteMemberAction, revokeMemberInvitationAction } from "./actions";
 
@@ -70,9 +70,15 @@ async function Team() {
                       ) : null}
                     </span>
                     <form action={revokeMemberInvitationAction.bind(null, invitation.id)}>
-                      <SubmitButton variant="danger" pendingLabel="Odwoływanie...">
+                      <ConfirmSubmit
+                        variant="danger"
+                        title="Odwołać zaproszenie?"
+                        description={`Link wysłany do ${invitation.email} przestanie działać. Możesz zaprosić tę osobę ponownie.`}
+                        confirmLabel="Odwołaj zaproszenie"
+                        pendingLabel="Odwoływanie..."
+                      >
                         Odwołaj
-                      </SubmitButton>
+                      </ConfirmSubmit>
                     </form>
                   </li>
                 ))}

@@ -44,6 +44,8 @@ const deps = (): OutboxDeps => ({
 });
 
 async function drain() {
+  // Zdarzenia z akcji trenera czekają 30 s (okno „Cofnij”); w testach zdejmujemy to opóźnienie
+  await adminClient().from("outbox_events").update({ not_before: null }).is("processed_at", null);
   for (let i = 0; i < 10; i++) {
     const run = await processOutbox(deps(), { limit: 100, runDailyRules: false });
     if (run.claimed === 0) return;

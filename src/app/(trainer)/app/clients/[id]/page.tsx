@@ -1,3 +1,4 @@
+import { ConfirmSubmit } from "@/shared/ui/confirm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -65,9 +66,21 @@ async function ClientDetails({ params }: Pick<PageProps<"/app/clients/[id]">, "p
         </div>
         {canWrite ? (
           <form action={(client.archivedAt ? restoreClientAction : archiveClientAction).bind(null, id)}>
-            <SubmitButton variant={client.archivedAt ? "secondary" : "danger"} pendingLabel="Chwila...">
-              {client.archivedAt ? "Przywróć z archiwum" : "Archiwizuj"}
-            </SubmitButton>
+            {client.archivedAt ? (
+              <SubmitButton variant="secondary" pendingLabel="Chwila...">
+                Przywróć z archiwum
+              </SubmitButton>
+            ) : (
+              <ConfirmSubmit
+                variant="danger"
+                title="Zarchiwizować klienta?"
+                description="Klient zniknie z list i nie da się mu planować zajęć ani sprzedawać pakietów. Dane i historia zostają, a z archiwum możesz go przywrócić w każdej chwili."
+                confirmLabel="Archiwizuj"
+                pendingLabel="Chwila..."
+              >
+                Archiwizuj
+              </ConfirmSubmit>
+            )}
           </form>
         ) : null}
       </header>
@@ -109,9 +122,15 @@ async function ClientDetails({ params }: Pick<PageProps<"/app/clients/[id]">, "p
                       <SubmitButton pendingLabel="Zatwierdzanie...">Zatwierdź</SubmitButton>
                     </form>
                     <form action={rejectDogAction.bind(null, id, dog.id)}>
-                      <SubmitButton variant="secondary" pendingLabel="Odrzucanie...">
+                      <ConfirmSubmit
+                        variant="secondary"
+                        title="Odrzucić psa?"
+                        description="Pies dodany przez klienta zostanie odrzucony i nie będzie można go użyć w zajęciach ani pakietach. Klient może dodać go ponownie."
+                        confirmLabel="Odrzuć psa"
+                        pendingLabel="Odrzucanie..."
+                      >
                         Odrzuć
-                      </SubmitButton>
+                      </ConfirmSubmit>
                     </form>
                   </div>
                 ) : null}

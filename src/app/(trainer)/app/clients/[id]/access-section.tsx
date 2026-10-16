@@ -1,9 +1,9 @@
+import { ConfirmSubmit } from "@/shared/ui/confirm";
 import { hasPermission } from "@/modules/core";
 import { InviteForm, getClientAccessInfo } from "@/modules/invitations";
 import { listClientPackages } from "@/modules/packages";
 import { formatMoney, money } from "@/shared/money";
 import { Badge } from "@/shared/ui/badge";
-import { SubmitButton } from "@/shared/ui/form-fields";
 import { requireContext } from "../../../_lib/context";
 import { createInviteAction, deliverInviteAction, revokeAccessAction } from "./invite-actions";
 
@@ -45,9 +45,15 @@ export async function AccessSection({
                 </span>
               </span>
               <form action={revokeAccessAction.bind(null, clientId, account.userId)}>
-                <SubmitButton variant="danger" pendingLabel="Odbieranie...">
+                <ConfirmSubmit
+                  variant="danger"
+                  title="Odebrać dostęp do panelu?"
+                  description="Ta osoba przestanie widzieć saldo zajęć, płatności i terminy klienta. Aby wrócić, potrzebuje nowego zaproszenia."
+                  confirmLabel="Odbierz dostęp"
+                  pendingLabel="Odbieranie..."
+                >
                   Odbierz dostęp
-                </SubmitButton>
+                </ConfirmSubmit>
               </form>
             </li>
           ))}

@@ -7,8 +7,10 @@ import {
   cancelSession,
   completeSession,
   createSessionType,
+  restoreCanceledSession,
   restoreSessionType,
   scheduleSession,
+  undoCompleteSession,
   updateSessionType,
   type SessionActionState,
 } from "@/modules/scheduling";
@@ -75,6 +77,28 @@ export async function cancelSessionAction(
       ? `Zajęcia odwołane. Zajęcie z pakietu przepadło (późne odwołanie). Zostało ${result.value.balanceAfter}.`
       : "Zajęcia odwołane bez naliczenia.",
   };
+}
+
+/** Cofnięcie zakończenia zajęć (tylko tego samego dnia): zajęcie wraca do pakietu. */
+export async function undoCompleteSessionAction(
+  sessionId: string,
+): Promise<SessionActionState> {
+  const ctx = await requireContext();
+  const result = await undoCompleteSession(ctx, sessionId);
+  if (!result.ok) return { error: result.error.message };
+  refreshPanel();
+  return { message: "Cofnięto zakończenie zajęć. Zajęcie wróciło do pakietu." };
+}
+
+/** Przywrócenie odwołanych zajęć: zajęcie wraca do pakietu, ogłoszenie wolnego terminu jest zamykane. */
+export async function restoreSessionAction(
+  sessionId: string,
+): Promise<SessionActionState> {
+  const ctx = await requireContext();
+  const result = await restoreCanceledSession(ctx, sessionId);
+  if (!result.ok) return { error: result.error.message };
+  refreshPanel();
+  return { message: "Zajęcia przywrócone." };
 }
 
 // --- rodzaje zajęć ----------------------------------------------------------------------------------

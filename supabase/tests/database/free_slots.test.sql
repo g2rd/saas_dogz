@@ -115,6 +115,11 @@ select set_config('app.claim_marta', (public.claim_slot(
 
 select is((select count(*)::int from public.slot_claims), 1, 'a client sees only their own claim');
 
+-- Zgłoszenia w jednej transakcji testowej mają ten sam czas; wymuszamy kolejność Piotr, potem Marta
+reset role;
+update public.slot_claims set created_at = created_at - interval '1 minute' where id = current_setting('app.claim_piotr')::uuid;
+set local role authenticated;
+
 -- Trener widzi kolejkę i wybiera ---------------------------------------------------------------------------------------------------
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', true);
 select is(

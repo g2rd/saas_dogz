@@ -1,3 +1,4 @@
+import { ConfirmSubmit } from "@/shared/ui/confirm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -40,9 +41,21 @@ async function TemplateDetails({ params }: Pick<Props, "params">) {
           {archived ? <span className="ml-2 text-base text-zinc-500">(archiwum)</span> : null}
         </h1>
         <form action={(archived ? restoreTemplateAction : archiveTemplateAction).bind(null, id)}>
-          <SubmitButton variant={archived ? "secondary" : "danger"} pendingLabel="Chwila...">
-            {archived ? "Przywróć z archiwum" : "Archiwizuj"}
-          </SubmitButton>
+          {archived ? (
+            <SubmitButton variant="secondary" pendingLabel="Chwila...">
+              Przywróć z archiwum
+            </SubmitButton>
+          ) : (
+            <ConfirmSubmit
+                variant="danger"
+                title="Zarchiwizować szablon pakietu?"
+                description="Szablon zniknie z listy przy sprzedaży. Pakiety już sprzedane zostają bez zmian, a szablon możesz przywrócić."
+                confirmLabel="Archiwizuj"
+                pendingLabel="Chwila..."
+              >
+                Archiwizuj
+              </ConfirmSubmit>
+          )}
         </form>
       </header>
       <p className="text-sm text-zinc-600 dark:text-zinc-400">

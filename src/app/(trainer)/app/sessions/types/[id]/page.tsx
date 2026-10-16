@@ -1,3 +1,4 @@
+import { ConfirmSubmit } from "@/shared/ui/confirm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -43,9 +44,21 @@ async function TypeDetails({ params }: Pick<Props, "params">) {
         </h1>
         {canWrite ? (
           <form action={(archived ? restoreSessionTypeAction : archiveSessionTypeAction).bind(null, id)}>
-            <SubmitButton variant={archived ? "secondary" : "danger"} pendingLabel="Chwila...">
-              {archived ? "Przywróć z archiwum" : "Archiwizuj"}
-            </SubmitButton>
+            {archived ? (
+              <SubmitButton variant="secondary" pendingLabel="Chwila...">
+                Przywróć z archiwum
+              </SubmitButton>
+            ) : (
+              <ConfirmSubmit
+                variant="danger"
+                title="Zarchiwizować rodzaj zajęć?"
+                description="Rodzaj zniknie z listy przy planowaniu zajęć. Istniejące zajęcia zostają bez zmian, a rodzaj możesz przywrócić."
+                confirmLabel="Archiwizuj"
+                pendingLabel="Chwila..."
+              >
+                Archiwizuj
+              </ConfirmSubmit>
+            )}
           </form>
         ) : null}
       </header>

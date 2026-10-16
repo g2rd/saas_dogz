@@ -1,7 +1,9 @@
 "use client";
 
+import { ConfirmSubmit } from "@/shared/ui/confirm";
+
 import { useActionState } from "react";
-import { SubmitButton, TextField } from "@/shared/ui/form-fields";
+import { TextField } from "@/shared/ui/form-fields";
 
 export type AnnounceSlotState = { message?: string; error?: string };
 type Action = (prev: AnnounceSlotState, formData: FormData) => Promise<AnnounceSlotState>;
@@ -20,7 +22,15 @@ export function AnnounceSlotForm({ action }: { action: Action }) {
         </p>
         <TextField label="Notatka (opcjonalnie)" name="note" defaultValue={null} hint="Np. „Trening w parku, godzina 17:00”." />
         <div>
-          <SubmitButton pendingLabel="Ogłaszanie...">Wyślij ogłoszenie</SubmitButton>
+          <ConfirmSubmit
+            tone="primary"
+            title="Ogłosić wolny termin?"
+            description="Klienci zapisani na listę chętnych dostaną powiadomienie. Do 30 sekund możesz jeszcze zamknąć ogłoszenie bez wysyłania."
+            confirmLabel="Wyślij ogłoszenie"
+            pendingLabel="Ogłaszanie..."
+          >
+            Wyślij ogłoszenie
+          </ConfirmSubmit>
         </div>
       </form>
       {state.message ? (

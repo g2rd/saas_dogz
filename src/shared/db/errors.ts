@@ -26,6 +26,16 @@ export function fromDbError(error: DbError): AppError {
       return appError("conflict", "Ten termin jest już ogłoszony.", { reason: "offer_exists" });
     case "DT009":
       return appError("conflict", "To ogłoszenie nie jest już otwarte (termin zajęty lub zamknięty).", { reason: "offer_closed" });
+    case "DT010":
+      return appError("conflict", "Nie można cofnąć: należność jest już opłacona. Najpierw anuluj wpłatę.", { reason: "charge_paid" });
+    case "DT011":
+      return appError("conflict", "Pakiet był już używany, więc nie można go anulować. Użyj korekty salda.", { reason: "package_used" });
+    case "DT012":
+      return appError("conflict", "Cofnięcie zakończenia jest możliwe tylko do końca dnia. Użyj korekty salda pakietu.", { reason: "undo_window" });
+    case "DT013":
+      return appError("conflict", "Ten termin został już oddany innej osobie, więc zajęć nie można przywrócić.", { reason: "slot_filled" });
+    case "DT014":
+      return appError("conflict", "Ta wpłata jest już anulowana.", { reason: "already_voided" });
     case "DT006":
       return appError("conflict", "Ta osoba ma już dostęp do tej organizacji.", { reason: "already_member" });
     case "DT002":

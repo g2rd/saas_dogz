@@ -11,7 +11,8 @@ import {
 } from "@/modules/scheduling";
 import { formatMoney, money } from "@/shared/money";
 import { Badge } from "@/shared/ui/badge";
-import { cancelSessionAction, completeSessionAction } from "./actions";
+import { dateInZone } from "@/shared/time";
+import { cancelSessionAction, completeSessionAction, restoreSessionAction, undoCompleteSessionAction } from "./actions";
 import { announceSlotAction } from "./slot-actions";
 
 const STATUS_TONE: Record<SessionStatus, "neutral" | "success" | "warning"> = {
@@ -80,6 +81,14 @@ export function SessionCard({
           status={session.status}
           completeAction={completeSessionAction.bind(null, session.id)}
           cancelAction={cancelSessionAction.bind(null, session.id)}
+          undoCompleteAction={undoCompleteSessionAction.bind(null, session.id)}
+          restoreAction={restoreSessionAction.bind(null, session.id)}
+          canUndoComplete={
+            session.status === "completed" &&
+            session.completedAt !== null &&
+            dateInZone(session.completedAt, timezone) === dateInZone(now, timezone)
+          }
+          canRestore={session.status === "canceled" && session.startsAt > now}
           singlePriceLabel={formatMoney(money(session.defaultPriceMinor, session.currency))}
           canCharge={canCharge}
           cancelConsumesByPolicy={shouldConsumeOnCancel(session.startsAt, now, policy)}

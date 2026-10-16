@@ -1,8 +1,10 @@
 "use client";
 
+import { ConfirmSubmit } from "@/shared/ui/confirm";
+
 import { useActionState } from "react";
 import type { FormState } from "@/shared/form";
-import { FormMessage, SubmitButton, TextField } from "@/shared/ui/form-fields";
+import { FormMessage, TextField } from "@/shared/ui/form-fields";
 
 export function AdjustPackageForm({
   action,
@@ -27,7 +29,15 @@ export function AdjustPackageForm({
       <TextField label="Powód (opcjonalnie)" name="note" defaultValue={state.values?.note} errors={errors.note} />
       <FormMessage state={state} />
       <div>
-        <SubmitButton>Zapisz korektę</SubmitButton>
+        <ConfirmSubmit
+          tone="primary"
+          title="Zapisać korektę salda?"
+          description="Saldo pakietu zmieni się od razu, a wpis zostanie w historii (korekty nie da się usunąć, można ją tylko skorygować kolejnym wpisem)."
+          confirmLabel="Zapisz korektę"
+          pendingLabel="Zapisywanie..."
+        >
+          Zapisz korektę
+        </ConfirmSubmit>
       </div>
     </form>
   );

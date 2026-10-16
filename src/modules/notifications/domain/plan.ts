@@ -39,6 +39,8 @@ export const NOTIFIABLE_EVENT_TYPES = [
   "slot_claim.created",
   "slot_claim.accepted",
   "slot_claim.declined",
+  "training_session.restored",
+  "payment.voided",
 ] as const;
 
 export function isNotifiable(type: string): boolean {
@@ -200,6 +202,30 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
         body: `Zajęcia z ${fullDateTime(facts.session.startsAt, facts.timezone)} zostały odwołane.`,
         link: "/portal/sessions",
         data: { sessionId: facts.session.id },
+      });
+    }
+
+    case "training_session.restored": {
+      if (!facts.session) return [];
+      return toClient({
+        type: event.type,
+        title: "Zajęcia przywrócone",
+        body: `Zajęcia ${fullDateTime(facts.session.startsAt, facts.timezone)} jednak się odbędą. Przepraszamy za zamieszanie.`,
+        link: "/portal/sessions",
+        data: { sessionId: facts.session.id },
+      });
+    }
+
+    case "payment.voided": {
+      const amountMinor = Number(event.payload.amount_minor);
+      if (!Number.isFinite(amountMinor) || amountMinor <= 0) return [];
+      const currency = typeof event.payload.currency === "string" ? event.payload.currency : "PLN";
+      return toClient({
+        type: event.type,
+        title: "Wpłata anulowana",
+        body: `Trener anulował zaksięgowaną wpłatę ${formatMoney(money(amountMinor, currency))} (pomyłka w księgowaniu). Sprawdź płatności.`,
+        link: "/portal/payments",
+        data: {},
       });
     }
 

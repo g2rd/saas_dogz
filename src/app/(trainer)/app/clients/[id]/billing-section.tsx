@@ -1,3 +1,4 @@
+import { ConfirmSubmit } from "@/shared/ui/confirm";
 import Link from "next/link";
 import { hasPermission } from "@/modules/core";
 import {
@@ -24,9 +25,8 @@ import {
 import { formatIsoDate } from "@/shared/dates";
 import { formatMoney, money } from "@/shared/money";
 import { Badge } from "@/shared/ui/badge";
-import { SubmitButton } from "@/shared/ui/form-fields";
 import { requireContext } from "../../../_lib/context";
-import { recordPaymentAction, sellPackageAction, voidChargeAction } from "../../billing-actions";
+import { recordPaymentAction, sellPackageAction, voidChargeAction, voidPaymentAction } from "../../billing-actions";
 
 const PACKAGE_TONE: Record<PackageStatus, "success" | "neutral" | "warning" | "danger"> = {
   active: "success",
@@ -99,9 +99,15 @@ function ChargeRow({ clientId, charge, canWrite }: { clientId: string; charge: C
         <Badge tone={CHARGE_TONE[charge.status]}>{CHARGE_STATUS_LABELS[charge.status]}</Badge>
         {canVoid ? (
           <form action={voidChargeAction.bind(null, clientId, charge.id)}>
-            <SubmitButton variant="secondary" pendingLabel="Anulowanie...">
+            <ConfirmSubmit
+              variant="secondary"
+              title="Anulować należność?"
+              description="Należność zniknie z salda klienta. Można ją anulować tylko wtedy, gdy nic na nią nie wpłacono."
+              confirmLabel="Anuluj należność"
+              pendingLabel="Anulowanie..."
+            >
               Anuluj
-            </SubmitButton>
+            </ConfirmSubmit>
           </form>
         ) : null}
       </div>
@@ -221,7 +227,26 @@ export async function BillingSection({
                       {payment.paidAt.toLocaleDateString("pl-PL")} · {PAYMENT_METHOD_LABELS[payment.method]}
                       {payment.reference ? ` · ${payment.reference}` : ""}
                     </span>
-                    <strong>{fmt(payment.amountMinor, payment.currency)}</strong>
+                    <span className="flex items-center gap-3">
+                      <strong className={payment.voidedAt ? "text-zinc-400 line-through" : undefined}>
+                        {fmt(payment.amountMinor, payment.currency)}
+                      </strong>
+                      {payment.voidedAt ? (
+                        <Badge tone="warning">Anulowana</Badge>
+                      ) : canWritePayments ? (
+                        <form action={voidPaymentAction.bind(null, clientId, payment.id)}>
+                          <ConfirmSubmit
+                            variant="secondary"
+                            title="Anulować wpłatę?"
+                            description={`Wpłata ${fmt(payment.amountMinor, payment.currency)} zostanie anulowana (storno): zniknie z salda, a należności, które pokrywała, znowu będą do zapłaty. Wpłata zostaje w historii jako anulowana. Jeśli klient jeszcze nie dostał powiadomienia o wpłacie, nie dostanie go; w przeciwnym razie dostanie informację o anulowaniu.`}
+                            confirmLabel="Anuluj wpłatę"
+                            pendingLabel="Anulowanie..."
+                          >
+                            Anuluj wpłatę
+                          </ConfirmSubmit>
+                        </form>
+                      ) : null}
+                    </span>
                   </li>
                 ))}
               </ul>

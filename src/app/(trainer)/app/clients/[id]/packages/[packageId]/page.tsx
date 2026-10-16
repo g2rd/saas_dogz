@@ -1,3 +1,4 @@
+import { ConfirmSubmit } from "@/shared/ui/confirm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -14,7 +15,7 @@ import { formatIsoDate } from "@/shared/dates";
 import { formatMoney, money } from "@/shared/money";
 import { Badge } from "@/shared/ui/badge";
 import { requireContext } from "../../../../../_lib/context";
-import { adjustPackageAction } from "../../../../billing-actions";
+import { adjustPackageAction, cancelPackageAction } from "../../../../billing-actions";
 
 type Props = PageProps<"/app/clients/[id]/packages/[packageId]">;
 
@@ -77,6 +78,25 @@ async function PackageDetails({ params }: Pick<Props, "params">) {
           ))}
         </ul>
       </section>
+
+      {canWrite && pkg.status !== "canceled" && ledger.every((entry) => entry.reason === "purchase") ? (
+        <section>
+          <form action={cancelPackageAction.bind(null, clientId, packageId)} className="flex flex-col gap-2">
+            <div>
+              <ConfirmSubmit
+                variant="danger"
+                title="Anulować pakiet?"
+                description="Pakiet zostanie anulowany razem z jego nieopłaconą należnością. Można anulować tylko pakiet, z którego nie użyto jeszcze żadnych zajęć i za który klient nie zapłacił (jeśli zapłacił, najpierw anuluj wpłatę)."
+                confirmLabel="Anuluj pakiet"
+                pendingLabel="Anulowanie..."
+              >
+                Anuluj pakiet
+              </ConfirmSubmit>
+            </div>
+            <p className="text-sm text-zinc-500">Dostępne, dopóki pakiet nie został użyty.</p>
+          </form>
+        </section>
+      ) : null}
 
       {canWrite ? (
         <section>

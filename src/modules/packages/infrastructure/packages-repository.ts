@@ -155,6 +155,12 @@ export function packagesRepository(db: SupabaseClient) {
       return ok(data as string);
     },
 
+    async cancel(organizationId: string, packageId: string): Promise<Result<void>> {
+      const { error } = await db.rpc("cancel_package", { p_org: organizationId, p_package: packageId });
+      if (error) return err(fromDbError(error));
+      return ok(undefined);
+    },
+
     async adjust(
       organizationId: string,
       packageId: string,

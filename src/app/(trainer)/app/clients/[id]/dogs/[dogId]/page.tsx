@@ -1,3 +1,4 @@
+import { ConfirmSubmit } from "@/shared/ui/confirm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -67,9 +68,21 @@ async function DogDetails({ params }: Pick<Props, "params">) {
             <form
               action={(dog.archivedAt ? restoreDogAction : archiveDogAction).bind(null, clientId, dogId)}
             >
-              <SubmitButton variant={dog.archivedAt ? "secondary" : "danger"} pendingLabel="Chwila...">
-                {dog.archivedAt ? "Przywróć z archiwum" : "Archiwizuj"}
-              </SubmitButton>
+              {dog.archivedAt ? (
+                <SubmitButton variant="secondary" pendingLabel="Chwila...">
+                  Przywróć z archiwum
+                </SubmitButton>
+              ) : (
+                <ConfirmSubmit
+                variant="danger"
+                title="Zarchiwizować psa?"
+                description="Pies zniknie z list i nie da się go wybrać w zajęciach ani pakietach. Dane zostają, a z archiwum możesz go przywrócić."
+                confirmLabel="Archiwizuj"
+                pendingLabel="Chwila..."
+              >
+                Archiwizuj
+              </ConfirmSubmit>
+              )}
             </form>
           ) : null}
         </header>
@@ -96,9 +109,15 @@ async function DogDetails({ params }: Pick<Props, "params">) {
                   <p className="whitespace-pre-wrap">{note.content}</p>
                   {canWrite ? (
                     <form action={deleteDogNoteAction.bind(null, clientId, dogId, note.id)} className="mt-3">
-                      <SubmitButton variant="secondary" pendingLabel="Usuwanie...">
+                      <ConfirmSubmit
+                        variant="secondary"
+                        title="Usunąć notatkę?"
+                        description="Notatka zostanie usunięta na stałe. Tej operacji nie można cofnąć."
+                        confirmLabel="Usuń notatkę"
+                        pendingLabel="Usuwanie..."
+                      >
                         Usuń
-                      </SubmitButton>
+                      </ConfirmSubmit>
                     </form>
                   ) : null}
                 </li>

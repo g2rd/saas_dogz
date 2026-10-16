@@ -151,6 +151,13 @@ const adjustmentSchema = z.object({
   note: formText(300).transform((v) => (v === "" ? null : v)),
 });
 
+/** Anuluje nieużywany pakiet (razem z jego nieopłaconą należnością); użyty pakiet koryguje się saldem. */
+export async function cancelPackage(ctx: RequestContext, packageId: string): Promise<Result<void>> {
+  const allowed = authorize(ctx, "packages.write");
+  if (!allowed.ok) return allowed;
+  return packagesRepository(ctx.db).cancel(ctx.organizationId, packageId);
+}
+
 /** Ręczna korekta salda (np. zwrot zajęć); saldo nie może zejść poniżej zera. */
 export async function adjustPackage(
   ctx: RequestContext,

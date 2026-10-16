@@ -92,6 +92,7 @@ export function portalRepository(db: SupabaseClient, organizationId: string, cli
         .select("id, amount_minor, currency, paid_at, method")
         .eq("organization_id", organizationId)
         .eq("client_id", clientId)
+        .is("voided_at", null)
         .order("paid_at", { ascending: false })
         .limit(50);
       if (error) return err(fromDbError(error));
