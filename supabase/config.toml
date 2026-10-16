@@ -22,6 +22,10 @@ minimum_password_length = 8
 enable_signup = true
 enable_confirmations = false
 
+[auth.rate_limit]
+# Lokalnie luźno, żeby testy e-maili (reset hasła, potwierdzenie) nie trafiały w limit.
+email_sent = 1000
+
 [storage]
 enabled = true
 file_size_limit = "50MiB"

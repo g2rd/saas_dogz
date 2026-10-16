@@ -1,48 +1,37 @@
-"use client";
+import Link from "next/link";
+import { Suspense } from "react";
+import { safeNextPath } from "@/modules/core";
+import { AuthShell } from "../_components/auth-shell";
+import { loginAction } from "./actions";
+import { LoginForm } from "./login-form";
 
-import { useActionState } from "react";
-import { login, type LoginState } from "./actions";
-
-export default function LoginPage() {
-  const [state, action, pending] = useActionState<LoginState, FormData>(login, {});
-
+export default function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-4">
-      <h1 className="text-2xl font-semibold">Logowanie</h1>
-      <form action={action} className="flex flex-col gap-4">
-        <label className="flex flex-col gap-1 text-sm">
-          E-mail
-          <input
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            className="h-11 rounded-lg border border-zinc-300 bg-transparent px-3 dark:border-zinc-700"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
-          Hasło
-          <input
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            className="h-11 rounded-lg border border-zinc-300 bg-transparent px-3 dark:border-zinc-700"
-          />
-        </label>
-        {state.error ? (
-          <p role="alert" className="text-sm text-red-600">
-            {state.error}
-          </p>
-        ) : null}
-        <button
-          type="submit"
-          disabled={pending}
-          className="h-11 rounded-full bg-foreground font-medium text-background disabled:opacity-60"
-        >
-          {pending ? "Logowanie..." : "Zaloguj się"}
-        </button>
-      </form>
-    </main>
+    <AuthShell
+      title="Logowanie"
+      footer={
+        <>
+          <Link href="/forgot-password" className="underline">
+            Nie pamiętasz hasła?
+          </Link>
+          <span>
+            Nie masz konta?{" "}
+            <Link href="/signup" className="underline">
+              Załóż konto
+            </Link>
+          </span>
+        </>
+      }
+    >
+      <Suspense fallback={<p className="text-zinc-500">Ładowanie...</p>}>
+        <LoginFormWithNext searchParams={searchParams} />
+      </Suspense>
+    </AuthShell>
   );
+}
+
+async function LoginFormWithNext({ searchParams }: Pick<PageProps<"/login">, "searchParams">) {
+  const { next } = await searchParams;
+  const raw = Array.isArray(next) ? next[0] : next;
+  return <LoginForm action={loginAction} next={safeNextPath(raw)} />;
 }

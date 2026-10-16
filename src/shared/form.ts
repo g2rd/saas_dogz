@@ -8,10 +8,12 @@ export type FormState = {
   values?: Record<string, string>;
 };
 
+/** Wartości do odtworzenia w formularzu po błędzie; haseł nigdy nie odsyłamy z powrotem do HTML. */
 function formValues(formData: FormData): Record<string, string> {
   const values: Record<string, string> = {};
   for (const [key, value] of formData.entries()) {
-    if (typeof value === "string" && !key.startsWith("$ACTION")) values[key] = value;
+    if (typeof value !== "string" || key.startsWith("$ACTION") || /password/i.test(key)) continue;
+    values[key] = value;
   }
   return values;
 }

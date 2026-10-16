@@ -1,26 +1,14 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { z } from "zod";
+import { safeNextPath, signIn } from "@/modules/core";
+import { toFormState, type FormState } from "@/shared/form";
 import { createUserClient } from "@/shared/supabase/server";
 
-const schema = z.object({
-  email: z.email(),
-  password: z.string().min(1),
-});
+export async function loginAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const db = await createUserClient();
+  const result = await signIn(db, Object.fromEntries(formData));
+  if (!result.ok) return toFormState(result.error, formData);
 
-export type LoginState = { error?: string };
-
-export async function login(_prev: LoginState, formData: FormData): Promise<LoginState> {
-  const parsed = schema.safeParse({
-    email: formData.get("email"),
-    password: formData.get("password"),
-  });
-  if (!parsed.success) return { error: "Podaj poprawny e-mail i hasło." };
-
-  const supabase = await createUserClient();
-  const { error } = await supabase.auth.signInWithPassword(parsed.data);
-  if (error) return { error: "Nieprawidłowy e-mail lub hasło." };
-
-  redirect("/app");
+  redirect(safeNextPath(formData.get("next")));
 }

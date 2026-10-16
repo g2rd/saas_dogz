@@ -141,8 +141,10 @@ Funkcja `public.create_organization(name, slug)`: atomowo tworzy organizację, u
 2. **Klienci i psy** (`feat/clients-dogs`, 8ad149b): migracja 0002, domena (normalizacja telefonu i e-maila, wiek psa, oczyszczanie frazy wyszukiwania), repozytoria, przypadki użycia, kreator pierwszej organizacji, panel trenera (lista z wyszukiwaniem i archiwum, dodawanie/edycja/archiwizacja klienta i psa, notatki o psie, wylogowanie), ADR 0004.
 3. **Testy integracyjne i dokumentacja** (trzeci commit na `feat/clients-dogs`): testy integracyjne na prawdziwej bazie (`*.integration.test.ts`, `vitest.integration.config.mts`, `src/shared/testing/*`), skrypt `test:integration`, ten dokument.
 
+4. **Rejestracja i odzyskiwanie hasła** (gałąź `feat/signup-password-reset`): rejestracja trenera (`/signup`, z obsługą potwierdzenia e-mail), reset hasła (`/forgot-password`, `/reset-password`, trasa `/auth/callback` wymieniająca kod PKCE na sesję), parametr `next` po zalogowaniu z walidacją (`safeNextPath`: tylko ścieżki względne wewnątrz `/app`, odrzuca `//host`, `\`, `..`, znaki sterujące), adres aplikacji w linkach z e-maili z konfiguracji (`NEXT_PUBLIC_SITE_URL`, nie z nagłówka Host, żeby nie dało się podstawić linku resetującego), jeden komunikat dla złego e-maila i złego hasła, brak wycieku istnienia konta przy resecie, hasła nigdy nie wracają do HTML formularza.
+
 ### Funkcje widoczne dla użytkownika
-Logowanie, utworzenie organizacji przy pierwszym wejściu, lista klientów z wyszukiwaniem, dodanie/edycja/archiwizacja klienta, dodanie/edycja/archiwizacja psa, notatki o psie (prywatne lub widoczne dla klienta).
+Rejestracja, reset hasła, logowanie, utworzenie organizacji przy pierwszym wejściu, lista klientów z wyszukiwaniem, dodanie/edycja/archiwizacja klienta, dodanie/edycja/archiwizacja psa, notatki o psie (prywatne lub widoczne dla klienta).
 
 ## 6. Weryfikacja (wyniki z tej sesji)
 
@@ -150,12 +152,12 @@ Logowanie, utworzenie organizacji przy pierwszym wejściu, lista klientów z wys
 | --- | --- | --- |
 | Typy | `npm run typecheck` | czysto |
 | Lint | `npm run lint` | czysto |
-| Testy jednostkowe (domena) | `npm test` | 41/41 |
+| Testy jednostkowe (domena) | `npm test` | 57/57 |
 | Granice modułów | `npm run check:boundaries` | brak naruszeń (65 modułów) |
 | Build produkcyjny | `npm run build` | przechodzi, trasy panelu to częściowy prerender |
 | Migracje | `supabase start` | obie zastosowane bez błędów |
 | Testy RLS (pgTAP) | `npm run db:test` | 14/14 |
-| Testy przypadków użycia na bazie | `npm run test:integration` | 8/8 |
+| Testy przypadków użycia na bazie (w tym auth z Mailpit) | `npm run test:integration` | 16/16 |
 
 Testy integracyjne pokrywają: tworzenie klienta z normalizacją, błędy walidacji pól, wyszukiwanie (także ze znakami sterującymi filtru), psy i notatki, odrzucenie daty urodzenia z przyszłości, archiwizację i przywracanie, izolację organizacji (także przy podmienionym `organizationId`), widok klienta z dostępem (tylko własne dane i notatki oznaczone jako widoczne) oraz ograniczenia roli `assistant`.
 
@@ -193,8 +195,8 @@ Uwagi praktyczne (Windows): w PowerShell `npx` bywa kapryśne, użyj `npx.cmd`; 
 Kolejność odpowiada planowi v2.0 (Faza 1 = MVP do płatnego pilotażu).
 
 ### Najbliższe (domknięcie tego, co jest)
-1. Dokończyć przeklikanie: edycja klienta i psa, usuwanie notatki, archiwizacja psa, widok mobilny. Po zalogowaniu przechodzić na adres z parametru `next` (dziś zawsze `/app`; trzeba walidować, że to ścieżka względna wewnątrz `/app`).
-2. Strona rejestracji trenera i reset hasła (jest tylko logowanie). Okres próbny 14 dni bez karty.
+1. Dokończyć przeklikanie: edycja klienta i psa, usuwanie notatki, archiwizacja psa, widok mobilny. Przeklikać też ścieżkę rejestracji z włączonym potwierdzeniem e-mail (`enable_confirmations = true`); lokalnie sprawdzono tylko wariant bez potwierdzenia.
+2. Okres próbny 14 dni bez karty (rejestracja i reset hasła są gotowe), akceptacja regulaminu przy rejestracji (wymaga `legal_documents` i `consents`), ograniczanie liczby prób logowania i rejestracji.
 3. Wygenerować typy bazy (`npm run db:types`, zapis w UTF-8 bez BOM) i przepisać repozytoria na typy generowane.
 4. Dodać `.gitattributes` (końce linii; Git ostrzega o LF→CRLF), `Dependabot`, przejrzeć `npm audit`.
 5. Scalić `feat/clients-dogs` do `main` po przeklikaniu panelu.
@@ -241,4 +243,43 @@ Kolejność odpowiada planowi v2.0 (Faza 1 = MVP do płatnego pilotażu).
 - **Klucz `service_role` omija RLS.** Wolno go używać tylko w zadaniach w tle, webhookach i panelu administratora (reguła w dependency-cruiser pilnuje tras UI).
 - **Koszty wideo** (przechowywanie i transfer) to główne ryzyko kosztowe; potrzebne limity według planu, kompresja i retencja zanim ruszy moduł zadań domowych.
 - **Jedna osoba w projekcie:** ADR-y, testy i automatyzacja wdrożeń są tym, co ogranicza ryzyko.
-- Lokalny stos Supabase uruchomiony w tej sesji działa w Dockerze na tym komputerze; zatrzymanie: `npx supabase stop`.
+- Lokalny stos Supabase uruchomiony w tej sesji działa w Dockerze na tym komputerze; zatrzymanie: `npx supabase stop`. Poczta lokalna (Mailpit) jest pod `http://127.0.0.1:54324`.
+
+## 10. Plan demo (mobile-first)
+
+Cel: aplikacja do pokazania trenerom, w której cały obieg „klient → pakiet → zajęcia → płatność → powiadomienia" działa na telefonie.
+
+### 10.1. Rodzaj aplikacji
+**PWA** (instalowalna aplikacja webowa) na obecnym Next.js, z jednym kodem dla trenera i klienta. Dla demo to najlepszy wybór: otwiera się z linku lub kodu QR bez sklepu z aplikacjami, instaluje się na ekranie głównym, obsługuje powiadomienia push. Aplikacja natywna (React Native/Expo) wchodzi dopiero, gdy PWA nie wystarczy (obecność w sklepach, niezawodny push na iOS); architektura (`/api/v1`, moduły bez zależności od frameworka) to dopuszcza.
+- **Mobile-first:** panel klienta (`/portal`) projektowany najpierw na telefon (dolna nawigacja: Pakiet, Zajęcia, Psy, Płatności; duże elementy dotykowe). Panel trenera ma widok „Dziś" jako ekran startowy na telefonie, a pełne zarządzanie wygodne na komputerze.
+- **Ograniczenie iOS:** web push działa tylko po dodaniu PWA do ekranu głównego (iOS 16.4+). Na demo trzeba to pokazać lub użyć Androida.
+
+### 10.2. Docelowy przepływ demo
+1. Trener dodaje klienta i **sprzedaje mu pakiet** (np. 10 zajęć, cena, termin płatności, ważność). Powstaje należność.
+2. System generuje **zaproszenie**: link i kod QR (plus krótki kod do wpisania), ważne 7 dni, z informacją o pakiecie. Trener pokazuje QR klientowi na telefonie.
+3. Klient otwiera zaproszenie, **ustawia hasło** (lub loguje się linkiem), potwierdza pakiet. Powstaje `client_access`, a potwierdzenie jest zapisane (zgoda).
+4. Klient **dodaje swojego psa**; pies ma status „do zatwierdzenia", dopóki trener go nie zatwierdzi. Pies dodany przez trenera jest od razu zatwierdzony. Trener może dodawać klientów i psy sam.
+5. Klient widzi: **ile zajęć zostało**, kiedy i ile musi **zapłacić**, najbliższe zajęcia.
+6. Trener oznacza zajęcia jako odbyte, więc z pakietu schodzi 1 jednostka (wpis w dzienniku).
+7. **Powiadomienia w dwie strony:** gdy zostają 2 zajęcia, klient dostaje „zostały ostatnie zajęcia, co dalej?" z przyciskami **Odnów pakiet / Zapłać / Zakończ**; trener dostaje informację, że pakiet klienta się kończy i jaką decyzję podjął klient. Podobnie dla płatności (zbliża się termin, zaległość).
+
+### 10.3. Decyzje projektowe
+- **Zaproszenie i kod:** tabela `invitations` już istnieje (`kind = client`, `client_id`, `token_hash`, `expires_at`); dodać powiązanie z pakietem i krótki kod. Przechowujemy tylko hash. Kod jednorazowy, z limitem prób.
+- **Zatwierdzanie psów:** kolumna `dogs.approval_status` (`pending` | `approved`) i `created_by_client`. Polityka RLS: klient może dodać psa tylko do swojego klienta i tylko jako `pending`; edycja zatwierdzonego psa przez trenera. Skrzynka „do zatwierdzenia" w panelu trenera.
+- **Pakiety i płatności:** migracje z planu (`package_templates`, `client_packages`, `package_ledger`, `charges`, `payments`, `payment_allocations`, widoki), na gotowej domenie (`ledger.ts`, `charge-status.ts`). Na demo płatność to ewidencja przez trenera (gotówka, przelew, BLIK) i widoczność dla klienta; płatności online są osobnym dodatkiem (faza 3).
+- **Zajęcia (wersja minimalna):** `session_types`, `training_sessions`, `session_attendees` i akcja „oznacz jako odbyte" zużywająca zajęcie z pakietu atomowo (funkcja SQL). Pełny kalendarz (serie, grupy, polityka odwołań) później; na demo wystarczy lista „Dziś / Najbliższe".
+- **Powiadomienia:** reguły dzienne i zdarzenia z outbox (`client_package.low_balance`, `charge.due`, `charge.overdue`); kanały za interfejsami: w aplikacji (tabela `notifications`, dzwonek), **web push** (VAPID, `web-push`), e-mail (Resend). **SMS** jako adapter `SmsSender` (polski dostawca, np. SMSAPI): płatny dodatek z marżą, na demo w trybie podglądu lub jeden prawdziwy SMS na numer prezentera. Odpowiedzi klienta na powiadomienie („odnów", „zakończ") tworzą zdarzenia dla trenera.
+- **Tryb demo:** organizacja z realistycznymi danymi (seed) oraz panel „sterowanie demo": przewiń czas (symuluj koniec pakietu, zaległą płatność) i wyślij powiadomienie testowe, żeby pokazać pełny obieg na żywo bez czekania.
+
+### 10.4. Kolejność wdrożenia (każdy etap: migracja z RLS, domena z testami, przypadki użycia, UI, testy na bazie, przeklikanie)
+1. **Pakiety i płatności** (trener sprzedaje pakiet, widzi saldo i należności, rejestruje wpłatę).
+2. **Zajęcia (minimalne)** i zużywanie pakietu.
+3. **Zaproszenia i panel klienta** (`/portal`, logowanie z zaproszenia, saldo, płatności, dodawanie psa, zatwierdzanie przez trenera).
+4. **Powiadomienia** (w aplikacji, web push, e-mail; reguły niskiego salda i płatności; odpowiedzi klienta; adapter SMS).
+5. **PWA i dopracowanie mobilne** (manifest, ikony, service worker, dolna nawigacja, widok „Dziś"), seed demo i sterowanie demo.
+
+### 10.5. Pytania do ustalenia przed startem
+- Czy na demo ma być **prawdziwy SMS**, czy wystarczą push, e-mail i podgląd SMS? (prawdziwy wymaga konta u dostawcy i budżetu)
+- Czy klient ma **płacić w aplikacji** (BLIK/karta), czy tylko widzieć, ile i kiedy ma zapłacić, a trener księguje wpłatę?
+- Na jakim telefonie prezentujemy (iPhone wymaga instalacji PWA dla push)?
+- Czy kod zaproszenia ma być **tylko QR/link**, czy też krótki kod do ręcznego wpisania?

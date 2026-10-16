@@ -26,6 +26,17 @@ export function serverEnv() {
   });
 }
 
+/**
+ * Publiczny adres aplikacji, używany w linkach z e-maili (potwierdzenie konta, reset hasła).
+ * Celowo nie pochodzi z nagłówka Host, bo ten można podstawić (atak na link resetujący).
+ */
+export function siteUrl(): string {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL;
+  if (configured) return z.url().parse(configured).replace(/\/+$/, "");
+  if (process.env.NODE_ENV !== "production") return "http://localhost:3000";
+  throw new Error("NEXT_PUBLIC_SITE_URL is required in production");
+}
+
 export function hasSupabaseEnv(): boolean {
   return publicSchema.safeParse({
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
