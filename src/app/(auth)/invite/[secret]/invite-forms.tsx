@@ -33,10 +33,13 @@ export function InviteSignupForm({
   action,
   secret,
   emailHint,
+  basePath = "/invite",
 }: {
   action: SignupAction;
   secret: string;
   emailHint: string | null;
+  /** Początek adresu strony zaproszenia (powrót po zalogowaniu): `/invite` albo `/join`. */
+  basePath?: string;
 }) {
   const [state, formAction] = useActionState(action, {});
   const errors = state.fieldErrors ?? {};
@@ -80,7 +83,7 @@ export function InviteSignupForm({
       <FormMessage state={state} />
       {state.existingAccount ? (
         <p className="text-sm">
-          <Link href={`/login?next=${encodeURIComponent(`/invite/${secret}`)}`} className="underline">
+          <Link href={`/login?next=${encodeURIComponent(`${basePath}/${secret}`)}`} className="underline">
             Zaloguj się na istniejące konto
           </Link>{" "}
           i wróć do zaproszenia.

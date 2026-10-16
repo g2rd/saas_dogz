@@ -56,3 +56,21 @@ export function hasSupabaseEnv(): boolean {
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   }).success;
 }
+
+/**
+ * Konfiguracja kanałów powiadomień (wszystko opcjonalne; brak klucza = kanał w trybie podglądu).
+ * Lokalnie e-maile trafiają do Mailpit (`supabase start`), push i SMS są pomijane lub w podglądzie.
+ */
+export function notificationEnv() {
+  const production = process.env.NODE_ENV === "production";
+  return {
+    /** Sekret zabezpieczający `/api/cron/outbox` (Vercel Cron wysyła go jako `Authorization: Bearer`). */
+    cronSecret: process.env.CRON_SECRET || null,
+    vapidPublicKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || null,
+    vapidPrivateKey: process.env.VAPID_PRIVATE_KEY || null,
+    vapidSubject: process.env.VAPID_SUBJECT || "mailto:kontakt@dogtrainer.local",
+    resendApiKey: process.env.RESEND_API_KEY || null,
+    emailFrom: process.env.EMAIL_FROM || "DogTrainer <powiadomienia@dogtrainer.local>",
+    mailpitUrl: process.env.MAILPIT_URL || (production ? null : "http://127.0.0.1:54324"),
+  };
+}

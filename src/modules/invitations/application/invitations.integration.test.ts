@@ -14,6 +14,7 @@ import {
 } from "@/modules/portal/application/portal";
 import { scheduleSession, createSessionType } from "@/modules/scheduling/application/scheduling";
 import { systemClock } from "@/shared/clock";
+import { waitForEmailTo } from "@/shared/testing/mailpit";
 import type { ClientRequestContext, RequestContext } from "@/shared/context";
 import { addDaysIso, isoDate } from "@/shared/dates";
 import {
@@ -26,6 +27,7 @@ import {
 import {
   acceptInvitation,
   createClientInvitation,
+  deliverClientInvitation,
   getClientAccessInfo,
   lookupInvitation,
   revokeClientAccess,
@@ -345,5 +347,108 @@ describe("revoking access", () => {
 
     const info = value(await getClientAccessInfo(ctx, annaId));
     expect(info.accounts).toHaveLength(0);
+  });
+});
+
+describe("delivering invitations to the client", () => {
+  const recipient = `anna-${crypto.randomUUID().slice(0, 8)}@example.test`;
+  const sms: { to: string; text: string }[] = [];
+  const fakeSender = {
+    email: { send: async () => ({ status: "sent" as const }) },
+    sms: {
+      send: async (to: string, text: string) => {
+        sms.push({ to, text });
+        return { status: "preview" as const };
+      },
+    },
+  };
+
+  it("sends the link and code by e-mail (Mailpit) to the address on the invitation", async () => {
+    const created = value(await createClientInvitation(ctx, { clientId: annaId, packageId, email: recipient }));
+    const result = value(
+      await deliverClientInvitation(ctx, { clientId: annaId, channel: "email", link: created.link, code: created.code }),
+    );
+    expect(result).toMatchObject({ channel: "email", preview: false });
+    expect(result.recipient).toBe(`${recipient.slice(0, 1)}***@example.test`);
+
+    const mail = await waitForEmailTo(recipient);
+    expect(mail.subject).toContain("Szkoła Zaproszeń");
+    expect(mail.text).toContain(created.link);
+    expect(mail.text).toContain(created.code);
+  });
+
+  it("sends an SMS preview to the phone from the client record", async () => {
+    await adminClient().from("clients").update({ phone: "+48600100300" }).eq("id", annaId);
+    const created = value(await createClientInvitation(ctx, { clientId: annaId, packageId, email: "" }));
+    const result = value(
+      await deliverClientInvitation(ctx, { clientId: annaId, channel: "sms", link: created.link, code: created.code }, fakeSender),
+    );
+    expect(result).toMatchObject({ channel: "sms", preview: true });
+    expect(sms).toHaveLength(1);
+    expect(sms[0].to).toBe("+48600100300");
+    expect(sms[0].text).toContain(created.link);
+  });
+
+  it("refuses links and codes that do not match a pending invitation", async () => {
+    const created = value(await createClientInvitation(ctx, { clientId: annaId, packageId, email: "" }));
+
+    const wrongCode = await deliverClientInvitation(
+      ctx,
+      { clientId: annaId, channel: "sms", link: created.link, code: "AAAAA-AAAAA" },
+      fakeSender,
+    );
+    expect(wrongCode.ok).toBe(false);
+
+    const foreignLink = await deliverClientInvitation(
+      ctx,
+      { clientId: annaId, channel: "sms", link: `https://evil.example/invite/${"a".repeat(43)}`, code: created.code },
+      fakeSender,
+    );
+    expect(foreignLink.ok).toBe(false);
+
+    const otherClient = await deliverClientInvitation(
+      ctx,
+      { clientId: piotrId, channel: "sms", link: created.link, code: created.code },
+      fakeSender,
+    );
+    expect(otherClient.ok).toBe(false);
+
+    // Nowe zaproszenie unieważnia poprzednie, więc stare nie może już być wysłane
+    value(await createClientInvitation(ctx, { clientId: annaId, packageId, email: "" }));
+    const revoked = await deliverClientInvitation(
+      ctx,
+      { clientId: annaId, channel: "sms", link: created.link, code: created.code },
+      fakeSender,
+    );
+    expect(revoked.ok).toBe(false);
+    expect(sms).toHaveLength(1);
+  });
+
+  it("requires the client to have an address or phone, and the right role", async () => {
+    const lonely = value(await createClient(ctx, { firstName: "Bez", lastName: "Kontaktu" })).id;
+    const created = value(await createClientInvitation(ctx, { clientId: lonely, packageId: "", email: "" }));
+
+    const noPhone = await deliverClientInvitation(
+      ctx,
+      { clientId: lonely, channel: "sms", link: created.link, code: created.code },
+      fakeSender,
+    );
+    expect(noPhone.ok).toBe(false);
+    if (!noPhone.ok) expect(noPhone.error.code).toBe("validation");
+
+    const noEmail = await deliverClientInvitation(
+      ctx,
+      { clientId: lonely, channel: "email", link: created.link, code: created.code },
+      fakeSender,
+    );
+    expect(noEmail.ok).toBe(false);
+
+    const asAssistant = await deliverClientInvitation(
+      contextFor(assistant, orgA, "assistant"),
+      { clientId: lonely, channel: "sms", link: created.link, code: created.code },
+      fakeSender,
+    );
+    expect(asAssistant.ok).toBe(false);
+    if (!asAssistant.ok) expect(asAssistant.error.code).toBe("forbidden");
   });
 });

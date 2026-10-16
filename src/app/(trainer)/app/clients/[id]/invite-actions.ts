@@ -3,7 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { approveDog, rejectDog } from "@/modules/dogs";
-import { createClientInvitation, revokeClientAccess, type InviteActionState } from "@/modules/invitations";
+import {
+  createClientInvitation,
+  deliverClientInvitation,
+  revokeClientAccess,
+  type DeliverActionState,
+  type InviteActionState,
+} from "@/modules/invitations";
 import { toFormState } from "@/shared/form";
 import { requireContext } from "../../../_lib/context";
 
@@ -20,6 +26,26 @@ export async function createInviteAction(
   revalidatePath(`/app/clients/${clientId}`);
   const { link, code, qrSvg, expiresAt } = result.value;
   return { created: { link, code, qrSvg, expiresAt: expiresAt.toISOString() } };
+}
+
+/** Wysyła klientowi zaproszenie (e-mail lub SMS w podglądzie); serwer sam weryfikuje link i kod. */
+export async function deliverInviteAction(
+  clientId: string,
+  _prev: DeliverActionState,
+  formData: FormData,
+): Promise<DeliverActionState> {
+  const ctx = await requireContext();
+  const result = await deliverClientInvitation(ctx, { ...Object.fromEntries(formData), clientId });
+  if (!result.ok) return { error: result.error.message };
+  const { channel, recipient, preview } = result.value;
+  return {
+    message:
+      channel === "email"
+        ? `Wysłano e-mail na adres ${recipient}.`
+        : preview
+          ? `SMS do ${recipient} w trybie podglądu: treść zapisana w logu serwera, nic nie wysłano.`
+          : `Wysłano SMS na numer ${recipient}.`,
+  };
 }
 
 export async function revokeAccessAction(clientId: string, userId: string) {

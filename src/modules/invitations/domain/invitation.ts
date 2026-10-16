@@ -60,3 +60,44 @@ export type ClientAccessInfo = {
     expired: boolean;
   } | null;
 };
+
+export const MEMBER_ROLES = ["admin", "trainer", "assistant"] as const;
+export type MemberRole = (typeof MEMBER_ROLES)[number];
+
+export const MEMBER_ROLE_LABELS: Record<MemberRole | "owner", string> = {
+  owner: "Właściciel",
+  admin: "Administrator",
+  trainer: "Trener",
+  assistant: "Asystent",
+};
+
+export const createMemberInvitationSchema = z.object({
+  email: formText(254)
+    .transform((v) => v.toLowerCase())
+    .refine((v) => z.email().safeParse(v).success, "Podaj poprawny adres e-mail"),
+  role: z.enum(MEMBER_ROLES, { error: "Wybierz rolę" }),
+});
+
+export type CreatedMemberInvitation = {
+  invitationId: string;
+  link: string;
+  expiresAt: Date;
+  /** Czy wiadomość z zaproszeniem została wysłana na podany adres. */
+  emailSent: boolean;
+};
+
+export type MemberInvitationPreview =
+  | {
+      status: "valid";
+      organizationName: string;
+      role: MemberRole;
+      emailHint: string;
+      emailMatches: boolean | null;
+      expiresAt: Date;
+    }
+  | { status: "not_found" | "used" | "revoked" | "expired" };
+
+export type TeamOverview = {
+  members: { userId: string; name: string; role: MemberRole | "owner"; status: "active" | "suspended"; isYou: boolean }[];
+  pending: { id: string; email: string; role: MemberRole; expiresAt: Date; expired: boolean }[];
+};

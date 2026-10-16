@@ -9,6 +9,58 @@ export type InviteActionState = FormState & {
   created?: { link: string; code: string; qrSvg: string; expiresAt: string };
 };
 
+/** Wynik wysyłki zaproszenia klientowi. */
+export type DeliverActionState = { message?: string; error?: string };
+
+function DeliverButtons({
+  action,
+  link,
+  code,
+  canEmail,
+  canSms,
+}: {
+  action: (prev: DeliverActionState, formData: FormData) => Promise<DeliverActionState>;
+  link: string;
+  code: string;
+  canEmail: boolean;
+  canSms: boolean;
+}) {
+  const [state, formAction] = useActionState(action, {});
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="text-sm text-zinc-600 dark:text-zinc-400">Wyślij klientowi link i kod</p>
+      <div className="flex flex-wrap gap-2">
+        {(["email", "sms"] as const).map((channel) => (
+          <form key={channel} action={formAction}>
+            <input type="hidden" name="channel" value={channel} />
+            <input type="hidden" name="link" value={link} />
+            <input type="hidden" name="code" value={code} />
+            <SubmitButton variant="secondary" pendingLabel="Wysyłanie...">
+              {channel === "email" ? "Wyślij e-mailem" : "Wyślij SMS (podgląd)"}
+            </SubmitButton>
+          </form>
+        ))}
+      </div>
+      {!canEmail || !canSms ? (
+        <p className="text-sm text-zinc-500">
+          {!canEmail ? "Brak e-maila klienta w kartotece. " : ""}
+          {!canSms ? "Brak numeru telefonu klienta w kartotece." : ""}
+        </p>
+      ) : null}
+      {state.message ? (
+        <p role="status" className="text-sm text-emerald-700 dark:text-emerald-400">
+          {state.message}
+        </p>
+      ) : null}
+      {state.error ? (
+        <p role="alert" className="text-sm text-red-600">
+          {state.error}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 function CopyButton({ text, label }: { text: string; label: string }) {
   const [copied, setCopied] = useState(false);
   return (
@@ -32,12 +84,17 @@ function CopyButton({ text, label }: { text: string; label: string }) {
 
 export function InviteForm({
   action,
+  deliverAction,
   packages,
   defaultEmail,
+  canSms,
 }: {
   action: (prev: InviteActionState, formData: FormData) => Promise<InviteActionState>;
+  deliverAction: (prev: DeliverActionState, formData: FormData) => Promise<DeliverActionState>;
   packages: { id: string; label: string }[];
   defaultEmail: string | null;
+  /** Czy klient ma numer telefonu w kartotece. */
+  canSms: boolean;
 }) {
   const [state, formAction] = useActionState(action, {});
   const errors = state.fieldErrors ?? {};
@@ -105,8 +162,16 @@ export function InviteForm({
             </div>
           </div>
 
+          <DeliverButtons
+            action={deliverAction}
+            link={state.created.link}
+            code={state.created.code}
+            canEmail={Boolean(v("email", defaultEmail ?? ""))}
+            canSms={canSms}
+          />
+
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            Ważne do {new Date(state.created.expiresAt).toLocaleDateString("pl-PL")}. Nowe zaproszenie unieważnia to.
+            Ważne do{new Date(state.created.expiresAt).toLocaleDateString("pl-PL")}. Nowe zaproszenie unieważnia to.
           </p>
         </div>
       ) : null}

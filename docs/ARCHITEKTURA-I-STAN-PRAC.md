@@ -14,8 +14,8 @@ Stan na 2026-10-16. Dokument opisuje, jak zbudowana jest aplikacja, co jest już
 | 1. Pakiety i płatności | ✅ zrobione, scalone do `main` | `main` |
 | 2. Zajęcia (minimalne) i zużywanie pakietu | ✅ zrobione, scalone do `main` | `main` (3a8ef92) |
 | 3. Zaproszenia (link, QR, krótki kod) i panel klienta `/portal` | ✅ zrobione, scalone do `main` | `main` |
-| 4. Powiadomienia (w aplikacji, web push, e-mail, adapter SMS), odpowiedzi klienta („Odnów / Zapłać / Zakończ”) | ⏳ **następny krok** (plan w sekcji 11) | |
-| 5. PWA, dopracowanie mobilne, seed demo i „sterowanie demo” | ⏳ nie zaczęte | |
+| 4. Powiadomienia (w aplikacji, web push, e-mail, adapter SMS w podglądzie), odpowiedzi klienta („Odnów / Zapłać / Zakończ”), wysyłka zaproszeń, zaproszenia personelu | ✅ zrobione i przeklikane, scalone do `dev` (nie do `main`; czeka na zatwierdzenie właściciela), ADR 0008 | `dev` (`feat/notifications`) |
+| 5. PWA, dopracowanie mobilne, seed demo i „sterowanie demo” | ⏳ **następny krok** (plan w sekcji 11) | |
 
 Zdalne repozytorium: `https://github.com/g2rd/saas_dogz`. **Gałąź `dev` jest gałęzią integracyjną: tam trafiają wszystkie zmiany. `main` zawiera tylko to, co właściciel zatwierdził; do `main` wchodzimy dopiero po jego wyraźnym zatwierdzeniu (merge `dev` do `main` i push).** Stan wypchnięcia i szczegóły w sekcji 5. Plan następnego etapu jest w sekcji 11.
 
@@ -53,7 +53,9 @@ Platforma multi-tenant dla trenerów psów w Polsce: klienci i psy, kalendarz tr
 | Jakość | ESLint, dependency-cruiser (granice modułów) | |
 | Środowisko lokalne | Node 24.20, npm 11, Git 2.55, Docker Desktop 4.95 + WSL2, Supabase CLI 2.121 (z npm) | Zainstalowane w tej sesji przez winget. |
 
-Nie ma jeszcze: Stripe, Fakturowni, Resend, Sentry, PostHog, next-intl, React Hook Form, CI, hostingu (patrz sekcja 8).
+Powiadomienia: `web-push` (VAPID), e-mail przez adapter (Resend po ustawieniu `RESEND_API_KEY`, lokalnie Mailpit), SMS w podglądzie (ADR 0008).
+
+Nie ma jeszcze: Stripe, Fakturowni, konta Resend (adapter jest, brak klucza), prawdziwego SMS-a, Sentry, PostHog, next-intl, React Hook Form, CI, hostingu (patrz sekcja 8).
 
 ## 3. Architektura
 
@@ -122,7 +124,7 @@ Nawet gdy przypadek użycia ma błąd, RLS nie wpuści danych innej organizacji.
 - Statusy: `text` z `CHECK` zamiast enumów PostgreSQL; statusy wyliczalne (np. należność) liczone, nie przechowywane.
 - Brak twardego usuwania: `archived_at`. Trwałe usuwanie tylko procedurami RODO jako `service_role`.
 - Operacje atomowe jako funkcje PostgreSQL (`create_organization`), wołane przez `rpc()`.
-- Zdarzenia domenowe: tabela `outbox_events` zapisywana w tej samej transakcji co zmiana (na razie zapisuje `organization.created`; nikt jeszcze nie przetwarza).
+- Zdarzenia domenowe: tabela `outbox_events` zapisywana w tej samej transakcji co zmiana; przetwarza ją `runOutbox()` (moduł `notifications`, trasa `/api/cron/outbox`, lokalnie pętla w `next dev`), idempotentnie (ADR 0008).
 - Next 16 z Cache Components: strony są cienkie i synchroniczne, a praca zależna od żądania (`cookies`, `params`, `searchParams`) siedzi w komponentach pod `<Suspense>`. Efekt: częściowy prerender (statyczna powłoka, strumieniowana treść).
 - Import `cookies()` w kliencie serwerowym następuje przed odczytem zmiennych środowiskowych, żeby prerender się wstrzymywał, a nie padał.
 
@@ -144,6 +146,11 @@ Nawet gdy przypadek użycia ma błąd, RLS nie wpuści danych innej organizacji.
 | `client_access` | clients | Konta z dostępem do panelu klienta |
 | `dogs` | dogs | Profil psa |
 | `dog_notes` | dogs | Notatki zdrowotne/behawioralne/szczepienia; prywatne domyślnie, klient widzi tylko `visible_to_client` |
+| `notifications` | notifications | Skrzynka w aplikacji (dzwonek); zapis tylko `service_role`, użytkownik zmienia wyłącznie `read_at`; unikalny `(recipient_user_id, dedupe_key)` |
+| `notification_preferences` | notifications | Kanały użytkownika (push, e-mail, SMS); domyślnie push i e-mail |
+| `notification_log` | notifications | Dostarczenia per kanał (`sent`/`failed`/`skipped`/`preview`), unikalne `(notification_id, channel)`; bez polityk RLS |
+| `push_subscriptions` | notifications | Subskrypcje web push urządzeń użytkownika |
+| `client_requests` | notifications | Odpowiedzi klienta (`renew`/`pay`/`end`), tylko informacja dla trenera; zapis funkcją `create_client_request` |
 
 Funkcja `public.create_organization(name, slug)`: atomowo tworzy organizację, ustawienia, członkostwo `owner`, zdarzenie w outbox i wpis w audycie.
 
@@ -152,7 +159,7 @@ Funkcja `public.create_organization(name, slug)`: atomowo tworzy organizację, u
 - Kalendarz (reszta): `locations`, `session_series`, `session_private_notes`. (`session_types`, `training_sessions`, `session_attendees` są po etapie 2 demo.)
 - Pakiety (reszta): `package_template_session_types` (po module zajęć).
 - Zadania domowe: `exercise_library`, `homework_templates`, `homework_assignments`, `homework_submissions`, `homework_comments`.
-- Powiadomienia: `notifications`, `notification_preferences`, `notification_log`.
+- ~~Powiadomienia~~ (zrobione w etapie 4: `notifications`, `notification_preferences`, `notification_log`, `push_subscriptions`, `client_requests`).
 - Rozliczenia SaaS: `plans`, `plan_entitlements`, `subscriptions`, `entitlement_overrides`, `billing_events`.
 - Platforma i RODO: `platform_admins`, `admin_access_grants`, `legal_documents`, `consents`, `data_requests`, `import_jobs`.
 - Kursy (faza 4): `courses`, `course_modules`, `course_lessons`, `course_enrollments`, `lesson_progress`.
@@ -182,6 +189,8 @@ Funkcja `public.create_organization(name, slug)`: atomowo tworzy organizację, u
 
 7. **Zaproszenia i panel klienta, etap 3 demo** (gałąź `feat/invitations-portal`): migracja 0005 (rozszerzone `invitations`, `invitation_lookup_failures`, zatwierdzanie psów `approval_status` + trigger blokujący niezatwierdzone psy w pakietach i na zajęciach, polityki RLS dla klienta: organizacja, ustawienia, dodawanie psa jako „oczekujący”, funkcje `create_client_invitation`, `lookup_invitation` (publiczna), `accept_invitation`, `revoke_client_access`), moduł `invitations` (sekrety, HMAC z pieprzem `INVITATION_HASH_SECRET`, kod QR), moduł `portal` (model do odczytu dla klienta, dodawanie psa), `resolveLandingPath` (po zalogowaniu personel do `/app`, klient do `/portal`), UI: sekcja „Panel klienta” na karcie klienta (zaproszenie z QR, kodem i linkiem, odbieranie dostępu), zatwierdzanie psów (karta klienta i kafelek na pulpicie), publiczne `/invite` i `/invite/[secret]` (rejestracja z zaproszenia lub przyjęcie na istniejące konto), panel klienta `/portal` z dolną nawigacją (start z saldem „4 z 5 zajęć zostało”, płatność z terminem, zajęcia, płatności, psy), skrypt `npm run seed:dev`. Decyzje w [ADR 0007](adr/0007-invitations-portal.md).
 
+8. **Powiadomienia, etap 4 demo** (gałąź `feat/notifications`): migracja 0006 (`notifications`, `notification_preferences`, `notification_log`, `push_subscriptions`, `client_requests`, funkcje `create_client_request`, `claim_outbox_events`, `enqueue_daily_notification_events`, blokada i deduplikacja w `outbox_events`) i 0007 (zaproszenia personelu: `create_member_invitation`, `lookup_member_invitation`, `accept_member_invitation`, `revoke_member_invitation`). Moduł `notifications`: domena (`planNotifications`: zdarzenie → powiadomienia z treścią po polsku, odmiana „zajęcie/zajęcia/zajęć”, odbiorcy klient/personel), procesor `processOutbox`/`runOutbox` (blokada partii, idempotencja powiadomień i dostarczeń, ponowienia do 5 prób, licznik zalegających), adaptery `EmailSender` (Resend lub Mailpit), `PushSender` (web push VAPID, usuwa wygasłe subskrypcje), `SmsSender` (podgląd w logu), trasa `/api/cron/outbox` (sekret `CRON_SECRET`), pętla deweloperska co 10 s (`src/instrumentation-node.ts`), `npm run outbox:run`. Reguły dzienne: zbliżający się termin płatności, zaległość (raz na tydzień zaległości), przypomnienie o zajęciach (`reminder_hours_before`). UI: dzwonek z licznikiem i skrzynka (`/app/notifications`, `/portal/notifications`), ustawienia kanałów i włączanie push na urządzeniu (`.../settings`, `public/sw.js`), baner „Zostały Ci N zajęć” w portalu z przyciskami **Odnów pakiet / Zapłacę / Kończę współpracę** (także „Zapłacę” przy należności), widok `Prośby klientów` u trenera (`/app/requests`, licznik w nagłówku, oznaczanie jako obejrzane). Moduł `invitations`: wysyłka zaproszenia klientowi e-mailem i SMS-em (serwer weryfikuje link i kod z HMAC), zaproszenia personelu (`/app/team`, publiczne `/join/<token>`, rejestracja z zaproszenia lub przyjęcie na istniejące konto). Decyzje w [ADR 0008](adr/0008-notifications.md).
+
 ### Stan repozytorium zdalnego (aktualizuj po każdym wypchnięciu)
 - `origin/main` = commit `19b334a`: etapy 1-3 (zatwierdzone przez właściciela).
 - `origin/dev`: gałąź integracyjna, zawiera `main` plus późniejsze zmiany (m.in. dokumentacja kont testowych i instrukcji zaproszeń, `0e23f19`).
@@ -190,6 +199,7 @@ Funkcja `public.create_organization(name, slug)`: atomowo tworzy organizację, u
 `https://github.com/g2rd/saas_dogz`: `origin/main` zawiera etapy 1-3 (wypchnięte 2026-10-16 na prośbę właściciela, commit `75944e4` i kolejny z aktualizacją tego pliku). Gałęzie robocze `feat/*` są tylko lokalne (są już w `main`). Kolejne wypchnięcia robimy tylko na prośbę właściciela; ten wiersz aktualizuj po każdym wypchnięciu. Logowanie do GitHuba odbywa się przez Git Credential Manager w przeglądarce, więc `git push` uruchamiaj w terminalu użytkownika (narzędzie `run_in_terminal`), nie w powłoce Claude.
 
 ### Funkcje widoczne dla użytkownika
+Powiadomienia po obu stronach (dzwonek, e-mail, push, SMS w podglądzie) z odpowiedziami klienta, wysyłka zaproszeń e-mailem i SMS-em, zespół i zaproszenia personelu,
 Zaproszenia klientów i panel klienta (saldo zajęć, płatności z terminami, zajęcia, dodawanie psów do zatwierdzenia),
 Zajęcia (planowanie, rozliczanie z pakietu, odwoływanie), pakiety i płatności (szablony, sprzedaż, wpłaty częściowe, nadpłaty, korekty, zaległości), rejestracja, reset hasła, logowanie, utworzenie organizacji przy pierwszym wejściu, lista klientów z wyszukiwaniem, dodanie/edycja/archiwizacja klienta, dodanie/edycja/archiwizacja psa, notatki o psie (prywatne lub widoczne dla klienta).
 
@@ -199,12 +209,12 @@ Zajęcia (planowanie, rozliczanie z pakietu, odwoływanie), pakiety i płatnośc
 | --- | --- | --- |
 | Typy | `npm run typecheck` | czysto |
 | Lint | `npm run lint` | czysto |
-| Testy jednostkowe (domena) | `npm test` | 124/124 |
-| Granice modułów | `npm run check:boundaries` | brak naruszeń (65 modułów) |
+| Testy jednostkowe (domena) | `npm test` | 151/151 |
+| Granice modułów | `npm run check:boundaries` | brak naruszeń (185 modułów) |
 | Build produkcyjny | `npm run build` | przechodzi, trasy panelu to częściowy prerender |
 | Migracje | `supabase start` | obie zastosowane bez błędów |
-| Testy RLS (pgTAP) | `npm run db:test` | 76/76 |
-| Testy przypadków użycia na bazie (auth z Mailpit, pakiety, płatności, zajęcia, zaproszenia, panel klienta, wyścigi) | `npm run test:integration` | 75/75, 6 powtórzeń bez błędu |
+| Testy RLS (pgTAP) | `npm run db:test` | 125/125 (7 plików, w tym `notifications` i `member_invitations`) |
+| Testy przypadków użycia na bazie (auth z Mailpit, pakiety, płatności, zajęcia, zaproszenia, panel klienta, powiadomienia, zaproszenia personelu, wyścigi) | `npm run test:integration` | 100/100 (7 plików) |
 
 Testy integracyjne pokrywają: tworzenie klienta z normalizacją, błędy walidacji pól, wyszukiwanie (także ze znakami sterującymi filtru), psy i notatki, odrzucenie daty urodzenia z przyszłości, archiwizację i przywracanie, izolację organizacji (także przy podmienionym `organizationId`), widok klienta z dostępem (tylko własne dane i notatki oznaczone jako widoczne) oraz ograniczenia roli `assistant`.
 
@@ -221,9 +231,13 @@ Znalezione i naprawione w tej rundzie:
 Przepływ end-to-end: trener tworzy zaproszenie (link, kod QR, kod `G8SCF-U6JSX` z pakietem do potwierdzenia, e-mail z kartoteki), wylogowanie, strona `/invite` (zły kod daje błąd pola, poprawny wpisany małymi literami ze spacją przekierowuje), strona zaproszenia z nazwą szkoły, pakietem i zamaskowanym e-mailem (`a***@example.pl`), rejestracja ze złym e-mailem jest odrzucona bez zakładania konta (dane zostają, hasło nie), rejestracja z właściwym e-mailem tworzy konto i od razu przenosi do `/portal`, panel klienta (na telefonie 375 px bez poziomego przewijania: „4 z 5 zajęć zostało”, płatność 400 zł z terminem, najbliższe zajęcia, dolna nawigacja), dodanie psa „Rex” (status „Czeka na zatwierdzenie”), logowanie trenera bez adresu docelowego trafia do `/app` (według roli), kafelek „Psy do zatwierdzenia”, zatwierdzenie psa na karcie klienta.
 Uwaga o narzędziu: gdy okno podglądu jest ukryte, strumieniowana treść Next nie podmienia się sama; w konsoli pomaga `$RV($RB)`.
 
+### Przeklikane w przeglądarce: etap 4
+Lokalny Supabase + `npm run dev` (pętla outbox włączona): zdarzenie niskiego salda wstawione do `outbox_events` zamieniło się w ciągu kilku sekund na powiadomienie trenera (dzwonek z licznikiem „1”, skrzynka, kliknięcie oznacza jako przeczytane i przechodzi na kartę klienta) i na powiadomienie klientki Anny; oba e-maile pojawiły się w Mailpit. Panel klienta na telefonie (375 px): baner „Zostały Ci 2 zajęcia” z przyciskami „Odnów pakiet”, „Zapłacę”, „Kończę współpracę”; po kliknięciu „Odnów pakiet” komunikat „Wysłano trenerowi” i przycisk znika; u trenera licznik „Prośby 1” i dzwonek, widok `/app/requests` (klient, rodzaj, pakiet, czas), „Oznacz jako obejrzaną” przenosi prośbę do obejrzanych. Zespół: `/app/team`, zaproszenie `nowy.trener@example.test` jako Trener (e-mail wysłany, link widoczny raz), strona `/join/<token>` pokazuje organizację i rolę z zamaskowanym adresem, rejestracja z zaproszenia tworzy konto i od razu przenosi do `/app` w organizacji trenera. Strona ustawień powiadomień ładuje się bez błędów w konsoli i logu serwera.
+
 ### Czego NIE zweryfikowano
 - Edycja klienta i psa przez formularz, usuwanie notatki oraz archiwizacja psa nie były przeklikane; rejestracja z zaproszenia przy włączonym potwierdzeniu e-mail (link wraca na stronę zaproszenia) nie była przeklikana (lokalnie potwierdzenia są wyłączone); odrzucanie psa i odbieranie dostępu tylko testami integracyjnymi.
-- Widok mobilny i dostępność (tylko podgląd w oknie 1024 px).
+- Widok mobilny i dostępność (poza stroną startową portalu z etapu 4, sprawdzoną w 375 px).
+- Etap 4: faktyczne włączenie web push na telefonie (zgoda przeglądarki, wysyłka do prawdziwego urządzenia; klucze VAPID są tylko lokalne), przyciski „Wyślij e-mailem”/„Wyślij SMS” w przeglądarce (są testy integracyjne), strony `/portal/notifications*` i `/app/notifications/settings` po zmianie preferencji, zaproszenie personelu z włączonym potwierdzeniem e-mail, harmonogram cron na produkcji.
 - Odświeżanie wygasłej sesji w `proxy.ts` (nie czekano na wygaśnięcie tokenu).
 - Wydajność RLS na dużych zbiorach, indeksy poza podstawowymi.
 - `npm audit` zgłosił 5 podatności o wysokiej wadze w zależnościach scaffoldu; nie były przeglądane.
@@ -238,6 +252,8 @@ npm run dev
 ```
 
 Testy: `npm test` (jednostkowe), `npm run db:test` (pgTAP), `npm run test:integration` (przypadki użycia na bazie), `npm run check:boundaries`, `npm run typecheck`, `npm run lint`.
+
+Powiadomienia lokalnie: `npm run dev` sam przetwarza outbox co 10 s (wyłączenie: `OUTBOX_DEV_POLL=off`), e-maile trafiają do Mailpit (`http://127.0.0.1:54324`, HTTP API, port SMTP nie jest wystawiony), SMS jest tylko w logu serwera. Ręczne uruchomienie przez trasę cron: ustaw `CRON_SECRET` w `.env.local` i wywołaj `npm run outbox:run`. Klucze VAPID do web push: `npx web-push generate-vapid-keys` (publiczny w `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, prywatny w `VAPID_PRIVATE_KEY`). Test integracyjny powiadomień oznacza wszystkie niezałatwione zdarzenia innych organizacji jako przetworzone, więc na lokalnej bazie z danymi deweloperskimi zniknie z nich ewentualna kolejka. Zmienne opisuje `.env.example`.
 
 Uwagi praktyczne (Windows): w PowerShell `npx` bywa kapryśne, użyj `npx.cmd`; długie ścieżki w katalogu tymczasowym psują `git commit -F`, więc plik z opisem trzymaj w krótkiej ścieżce; pakiet `supabase` z npm wymaga zatwierdzenia skryptów instalacyjnych (`npm rebuild supabase`).
 
@@ -257,11 +273,11 @@ Po resecie bazy: trenera i dane odtwarza `SEED_EMAIL=trener@example.test SEED_PA
 1. Zaloguj się jako trener, otwórz kartę klienta (`Klienci`, wybrany klient), sekcja **Panel klienta**, `Zaproś klienta do panelu`.
 2. Wybierz pakiet do potwierdzenia (domyślnie najnowszy aktywny) i ewentualnie e-mail klienta (podpowiada się z kartoteki). Z e-mailem tylko konto z tym adresem przyjmie zaproszenie; bez e-maila przyjmie je każdy, kto ma kod lub link.
 3. `Utwórz zaproszenie`: pojawią się **kod QR**, **krótki kod** (np. `G8SCF-U6JSX`) i **link**. Są widoczne tylko teraz (po odświeżeniu strony ich nie odzyskasz, trzeba utworzyć nowe zaproszenie, które unieważnia poprzednie). Ważne 7 dni.
-4. **Przekaż je klientowi samodzielnie**: pokaż QR na ekranie, przeczytaj kod, wklej link w wiadomości (komunikator, SMS z telefonu trenera, e-mail). Aplikacja **nie wysyła jeszcze zaproszeń automatycznie** (to etap 4, patrz sekcja 11).
+4. **Wyślij je klientowi**: pod kodem QR są przyciski `Wyślij e-mailem` (adres z zaproszenia lub kartoteki; lokalnie wiadomość trafia do Mailpit) i `Wyślij SMS (podgląd)` (numer z kartoteki; SMS tylko w logu serwera). Można też pokazać QR, przeczytać kod lub wkleić link samodzielnie.
 5. Klient skanuje QR lub otwiera link (albo wchodzi na `/invite` i wpisuje kod), zakłada konto (imię, e-mail, hasło) i od razu trafia do panelu `/portal`. Kto ma już konto: `Zaloguj się` na stronie zaproszenia, potem `Przyjmij zaproszenie`.
 6. Na karcie klienta pojawi się „Konto z dostępem do panelu” z przyciskiem `Odbierz dostęp`.
 
-Czego jeszcze nie ma: automatycznej wysyłki zaproszenia e-mailem lub SMS-em, zaproszeń dla **personelu** (dodawanie kolejnych trenerów i asystentów), magic linku dla klientów oraz powiadomień (etap 4).
+Czego jeszcze nie ma: magic linku dla klientów i prawdziwego SMS-a (adapter SMSAPI). Zaproszenia personelu: `Zespół` w nagłówku → `Zaproś do zespołu` (e-mail i rola, link `/join/<token>` ważny 7 dni, wysyłany e-mailem).
 ## 8. Do zrobienia
 
 Kolejność odpowiada planowi v2.0 (Faza 1 = MVP do płatnego pilotażu).
@@ -275,13 +291,13 @@ Kolejność odpowiada planowi v2.0 (Faza 1 = MVP do płatnego pilotażu).
 6. Strony `error.tsx` i `not-found.tsx` dla panelu, przełącznik organizacji (ciasteczko `dt_org` jest czytane, ale nic go nie ustawia).
 
 ### Faza 1: reszta MVP
-7. ~~Zaproszenia klientów~~ (zrobione w etapie 3). Zostało: zaproszenia **personelu** (przepływ na tabeli `invitations`, przyjęcie tworzy `organization_members`), magic link dla klientów, ograniczanie prób per IP (dziś tylko globalne w bazie).
-8. **Panel klienta (PWA):** podstawa jest zrobiona w etapie 3 (`/portal`: start, zajęcia, płatności, psy). Zostało: manifest PWA i service worker (etap 5), zadania domowe, branding trenera, przełącznik trenerów/organizacji (ciasteczko `dt_client` jest czytane, nic go nie ustawia), odpowiedzi klienta na powiadomienia (etap 4).
+7. ~~Zaproszenia klientów~~ i ~~zaproszenia personelu~~ (zrobione w etapach 3 i 4, `/app/team`, `/join/<token>`). Zostało: magic link dla klientów, ograniczanie prób per IP (dziś tylko globalne w bazie), zmiana roli i zawieszanie członków, przełącznik organizacji.
+8. **Panel klienta (PWA):** podstawa jest zrobiona w etapie 3 (`/portal`: start, zajęcia, płatności, psy), a w etapie 4 powiadomienia i odpowiedzi klienta. Zostało: manifest PWA i pełny service worker (etap 5; `public/sw.js` obsługuje na razie tylko push), zadania domowe, branding trenera, przełącznik trenerów/organizacji (ciasteczko `dt_client` jest czytane, nic go nie ustawia).
 9. **Kalendarz:** minimalna wersja jest zrobiona w etapie 2 demo (typy zajęć, zajęcia indywidualne, kolizje terminów trenera, zakończenie zużywające pakiet, odwoływanie z polityką, listy Dziś i Najbliższe). Zostało: widoki dzień/tydzień, edycja i przeniesienie terminu, `locations`, serie cykliczne (rrule), zajęcia grupowe z limitem miejsc, nieobecność (`no_show`), prywatne notatki z zajęć, kanał ICS, filtr po trenerze.
 10. ~~Pakiety~~ (zrobione w etapie 1 demo; zostało: anulowanie pakietu, wygasanie pakietu zadaniem dziennym z wpisem `expiry`, powiązanie z typami zajęć).
 11. ~~Płatności~~ (zrobione w etapie 1 demo; zostało: storno błędnie zaksięgowanej wpłaty, zwrot wpłaty, obsługa wielu walut u jednego klienta, płatności online).
 12. **Zadania domowe:** biblioteka ćwiczeń, szablony, przydzielanie, przesyłanie krótkich filmów (upload bezpośrednio do Storage z podpisanym URL, limity według planu, retencja). Wymaga włączenia usługi Storage w lokalnym Supabase.
-13. **Powiadomienia e-mail:** procesor `outbox_events` (Vercel Cron), Resend + szablony React Email, przypomnienia o treningach, kończące się pakiety, zaległości. Odbiorcy idempotentni.
+13. ~~Powiadomienia e-mail~~ (zrobione w etapie 4, ADR 0008). Zostało: szablony React Email (dziś prosty HTML), kanał dzienny/wieczorny (cisza nocna), harmonogram produkcyjny dla `/api/cron/outbox`, adapter SMS (SMSAPI), test push na prawdziwym telefonie, alert o zalegających zdarzeniach w monitoringu.
 14. **Plany i uprawnienia:** `plans`, `plan_entitlements`, `subscriptions`, `entitlement_overrides`; funkcje `can(org, feature)` i `limit(org, klucz)`; tryb tylko do odczytu po trialu; oferta Founding Member.
 15. **Import klientów** z CSV/Excela (`import_jobs`).
 16. **Zgodność (RODO):** `legal_documents`, `consents` (w tym zgoda na wizerunek w filmach), eksport danych klienta i organizacji, usuwanie i retencja, faktyczne zapisy do `audit_log` z przypadków użycia.
@@ -347,7 +363,7 @@ Cel: aplikacja do pokazania trenerom, w której cały obieg „klient → pakiet
 1. ✅ **Pakiety i płatności** (trener sprzedaje pakiet, widzi saldo i należności, rejestruje wpłatę). Zrobione (sekcja 5, ADR 0005).
 2. ✅ **Zajęcia (minimalne)** i zużywanie pakietu. Zrobione (sekcja 5, ADR 0006).
 3. ✅ **Zaproszenia i panel klienta** (`/portal`, logowanie z zaproszenia, saldo, płatności, dodawanie psa, zatwierdzanie przez trenera). Zrobione (sekcja 5, ADR 0007).
-4. ⏳ **Powiadomienia** (w aplikacji, web push, e-mail; reguły niskiego salda i płatności; odpowiedzi klienta; adapter SMS). Następny krok, plan w sekcji 11.
+4. ✅ **Powiadomienia** (w aplikacji, web push, e-mail; reguły niskiego salda i płatności; odpowiedzi klienta; adapter SMS w podglądzie), wysyłka zaproszeń i zaproszenia personelu. Zrobione (sekcja 5, ADR 0008).
 5. **PWA i dopracowanie mobilne** (manifest, ikony, service worker, dolna nawigacja, widok „Dziś"), seed demo i sterowanie demo.
 
 ### 10.5. Pytania do ustalenia przed startem (rozstrzygnięte 2026-10-16: płatność księguje trener, SMS w trybie podglądu, zaproszenie jako QR + link + krótki kod)
@@ -356,25 +372,28 @@ Cel: aplikacja do pokazania trenerom, w której cały obieg „klient → pakiet
 - Na jakim telefonie prezentujemy (iPhone wymaga instalacji PWA dla push)?
 - Czy kod zaproszenia ma być **tylko QR/link**, czy też krótki kod do ręcznego wpisania?
 
-## 11. Plan następnego etapu: 4. Powiadomienia i decyzje klienta
+## 11. Plan następnego etapu: 5. PWA, dopracowanie mobilne, seed demo i „sterowanie demo”
 
-Cel (z wymagań właściciela): „monity po obu stronach, najlepiej na telefon (SMS lub push)”: trener dostaje informację, że klientowi kończy się pakiet lub że płatność jest po terminie; klient dostaje „zostały Ci ostatnie zajęcia, co robisz dalej: płacisz, odnawiasz czy kończysz”, z przyciskami odpowiedzi, które wracają do trenera.
+Cel: aplikacja do pokazania trenerom na telefonie (instalowalna z linku lub QR), z realistycznymi danymi i panelem, który pozwala w minutę przejść cały obieg „klient → pakiet → zajęcia → płatność → powiadomienia” bez czekania na czas.
 
 ### Gotowe podstawy z poprzednich etapów
-- Zdarzenia w `outbox_events`: `client_package.low_balance` (saldo ≤ 2, przy zakończeniu i późnym odwołaniu zajęć), `training_session.scheduled|completed|canceled`, `payment.recorded`, `client.invited`, `invitation.accepted`, `client_package.created`, `organization.created`. Nikt ich jeszcze nie przetwarza.
-- Stałe i reguły: `LOW_BALANCE_THRESHOLD`, status należności „po terminie” (`chargeStatus`), widoki sald.
-- Panel klienta ma baner „Zostały Ci ostatnie zajęcia” bez akcji; trener ma kafelki „Kończące się pakiety” i „Płatności po terminie”.
+- Cały obieg biznesowy i powiadomienia po obu stronach działają (etapy 1-4). `public/sw.js` obsługuje już push i kliknięcie w powiadomienie; ustawienia powiadomień rejestrują go tylko przy włączaniu push.
+- Panel klienta ma dolną nawigację i jest projektowany pod 375 px; panel trenera jest dziś widokiem „desktop first”.
+- Lokalne klucze VAPID i `CRON_SECRET` są w `.env.local`; na produkcji trzeba je wygenerować osobno (`npx web-push generate-vapid-keys`).
 
 ### Proponowany podział prac
-- [ ] Migracja 0006: `notifications` (w aplikacji), `notification_preferences`, `notification_log`, `push_subscriptions`, `client_requests` (odpowiedzi klienta: odnowienie, zakończenie współpracy, deklaracja płatności), RLS i pgTAP
-- [ ] Procesor outbox (`/api/cron/outbox`, zabezpieczony sekretem): pobieranie niedostarczonych zdarzeń z blokadą, idempotentne odbiorcy (klucz zdarzenia), ponawianie z licznikiem prób, alert przy zalegających
-- [ ] Wysyłka zaproszenia klientowi po utworzeniu: przyciski `Wyślij e-mailem` (adapter e-mail, lokalnie Mailpit) i `Wyślij SMS` (adapter `SmsSender` w trybie podglądu); link i kod wysyłane razem, bez zapisywania sekretu w bazie (sekret jest tylko w odpowiedzi tworzącej zaproszenie)
-- [ ] Zaproszenia personelu (dodawanie trenerów i asystentów do organizacji) na tej samej tabeli `invitations`
-- [ ] Reguły dzienne: niski stan pakietu, zbliżający się i minięty termin płatności, przypomnienie o zajęciach (24 h przed)
-- [ ] Adaptery za interfejsami: w aplikacji (dzwonek i licznik), web push (VAPID, `web-push`, subskrypcje z PWA), e-mail (Resend lokalnie Mailpit), `SmsSender` w trybie podglądu (log, bez wysyłki)
-- [ ] Odpowiedzi klienta na powiadomienia: przyciski „Odnów pakiet”, „Zapłacę”, „Kończę współpracę” tworzą `client_requests` i powiadomienie dla trenera; widok próśb u trenera
-- [ ] UI: dzwonek i lista powiadomień (trener i klient), preferencje kanałów, baner w portalu z akcjami
-- [ ] Testy (pgTAP, integracyjne z Mailpit, wyścigi procesora), przeklikanie, ADR 0008, aktualizacja tego pliku, commit
-- [ ] Decyzje do potwierdzenia z właścicielem przed startem: czy SMS na demo ma być prawdziwy (konto u dostawcy i budżet), czy wystarczy podgląd; czy prośby klienta mają wymagać akceptacji trenera
+- [ ] Manifest PWA (`app/manifest.ts`: nazwa, kolory, `start_url`, `display: standalone`), ikony (192/512, maskable), pełny service worker (cache powłoki, strona offline) rozszerzający `public/sw.js`, baner „Dodaj do ekranu głównego” (na iOS push działa tylko po instalacji, 16.4+)
+- [ ] Panel trenera na telefonie: widok „Dziś” jako ekran startowy, dolna nawigacja (Dziś, Klienci, Zajęcia, Prośby, Więcej), duże pola dotykowe; przeklikanie w 375 px
+- [ ] Seed demo (`npm run seed:demo`, tylko lokalnie lub dla organizacji demo): organizacja z kilkoma klientami i psami, pakiety w różnych stanach (świeży, kończący się, wyczerpany), płatności (opłacona, zbliżający się termin, zaległa), zajęcia dziś i w przyszłości, konto klienta; idempotentny
+- [ ] „Sterowanie demo” (panel tylko dla organizacji oznaczonej jako demo): przewiń czas (symuluj koniec pakietu, zaległą płatność, zajęcia za 24 h), wyślij powiadomienie testowe, uruchom outbox od razu, zresetuj dane demo
+- [ ] Produkcyjny harmonogram dla `/api/cron/outbox` (Vercel Cron co minutę wymaga planu Pro; alternatywnie zewnętrzny harmonogram), alert przy `stuck > 0`
+- [ ] Prawdziwy adapter SMS (SMSAPI) za interfejsem `SmsSender`, jeśli właściciel zdecyduje o budżecie; test web push na prawdziwym telefonie
+- [ ] Testy, przeklikanie, ADR 0009, aktualizacja tego pliku, commit
+- [ ] Decyzje do potwierdzenia z właścicielem przed startem: na jakim telefonie prezentujemy (iPhone wymaga instalacji PWA dla push); czy panel „sterowanie demo” ma być dostępny na produkcji dla jednej organizacji demo
 
-Po etapie 4: etap 5 (PWA: manifest, ikony, service worker, dolna nawigacja trenera, widok „Dziś” jako ekran startowy na telefonie, seed demo i „sterowanie demo”).
+### Do zrobienia przy okazji (wynik etapu 4)
+- Przeklikać `/portal/notifications*` i ustawienia po zmianie preferencji oraz przyciski wysyłki zaproszeń w przeglądarce (są testy integracyjne).
+- Pole waluty w zdarzeniu `payment.recorded` (dziś powiadomienie zakłada PLN).
+- Cisza nocna i podsumowanie dzienne zamiast pojedynczych powiadomień, gdy ich będzie dużo.
+
+Po etapie 5: faza 1 MVP (sekcja 8): zadania domowe, plany i uprawnienia, RODO, CI i środowiska.

@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { logoutAction } from "./actions";
+import { HeaderBadges } from "./header-badges";
 
 export default function TrainerLayout({ children }: LayoutProps<"/app">) {
   return (
@@ -12,6 +14,9 @@ export default function TrainerLayout({ children }: LayoutProps<"/app">) {
           <Link href="/app/sessions">Zajęcia</Link>
           <Link href="/app/clients">Klienci</Link>
           <Link href="/app/packages">Pakiety</Link>
+          <Suspense fallback={null}>
+            <HeaderBadges />
+          </Suspense>
           <form action={logoutAction} className="ml-auto">
             <button type="submit" className="text-zinc-600 dark:text-zinc-400">
               Wyloguj

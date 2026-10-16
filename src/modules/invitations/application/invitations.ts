@@ -1,5 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { authorize } from "@/modules/core";
+import { z } from "zod";
+import type { EmailSender, SmsSender } from "@/modules/notifications";
+import { authorize, getOrganization } from "@/modules/core";
+import { createEmailSender, createSmsSender } from "@/modules/notifications";
 import type { RequestContext } from "@/shared/context";
 import { invitationHashSecret, siteUrl } from "@/shared/env";
 import { appError } from "@/shared/errors";
@@ -19,6 +22,7 @@ import {
   invitationExpiry,
   normalizeSecret,
 } from "../domain/secrets";
+import { composeInvitationMessage } from "../domain/message";
 import { invitationsRepository } from "../infrastructure/invitations-repository";
 import { renderQrSvg } from "../infrastructure/qr";
 
@@ -100,4 +104,85 @@ export async function acceptInvitation(
     return err(appError("not_found", "Nie znaleziono zaproszenia. Sprawdź kod lub link."));
   }
   return result;
+}
+
+export type InvitationChannel = "email" | "sms";
+
+const deliverInputSchema = z.object({
+  clientId: z.uuid(),
+  channel: z.enum(["email", "sms"]),
+  link: z.string().min(1).max(500),
+  code: z.string().min(1).max(40),
+});
+
+const maskEmail = (value: string) => value.replace(/^(.).*(@.*)$/, "$1***$2");
+const maskPhone = (value: string) => `${value.slice(0, 3)}***${value.slice(-2)}`;
+
+/**
+ * Wysyła klientowi zaproszenie e-mailem lub SMS-em (SMS w trybie podglądu). Serwer sam weryfikuje link i kod
+ * z bazą (HMAC), więc nie da się nim wysłać dowolnej treści ani zaproszenia nieważnego lub cudzego.
+ * Adres: e-mail z zaproszenia albo z kartoteki; numer z kartoteki.
+ */
+export async function deliverClientInvitation(
+  ctx: RequestContext,
+  raw: unknown,
+  sender: { email: EmailSender; sms: SmsSender } = { email: createEmailSender(), sms: createSmsSender() },
+): Promise<Result<{ channel: InvitationChannel; recipient: string; preview: boolean }>> {
+  const allowed = authorize(ctx, "clients.write");
+  if (!allowed.ok) return allowed;
+
+  const input = parseInput(deliverInputSchema, raw);
+  if (!input.ok) return err(input.error);
+
+  const prefix = `${siteUrl()}/invite/`;
+  const token = input.value.link.startsWith(prefix) ? normalizeSecret(input.value.link.slice(prefix.length)) : null;
+  const code = normalizeSecret(input.value.code);
+  if (!token || !code) return err(malformed());
+
+  const pepper = invitationHashSecret();
+  const found = await invitationsRepository(ctx.db).findDeliverable(
+    ctx.organizationId,
+    input.value.clientId,
+    hashSecret(token, pepper),
+    ctx.clock.now(),
+  );
+  if (!found.ok) return found;
+  const invitation = found.value;
+  if (!invitation || invitation.codeHash !== hashSecret(code, pepper)) {
+    return err(appError("not_found", "To zaproszenie jest już nieważne. Utwórz nowe."));
+  }
+
+  const organization = await getOrganization(ctx);
+  if (!organization.ok) return organization;
+
+  const message = composeInvitationMessage({
+    organizationName: organization.value.name,
+    clientFirstName: invitation.clientFirstName,
+    link: input.value.link,
+    code: formatCode(code),
+    expiresAt: invitation.expiresAt,
+    packageName: invitation.packageName,
+  });
+
+  if (input.value.channel === "email") {
+    const to = invitation.email ?? invitation.clientEmail;
+    if (!to) return err(appError("validation", "Klient nie ma adresu e-mail. Uzupełnij go w kartotece."));
+    try {
+      const outcome = await sender.email.send({ to, subject: message.subject, text: message.text, html: message.html });
+      if (outcome.status === "skipped") {
+        return err(appError("internal", `E-mail nie został wysłany: ${outcome.detail ?? "brak konfiguracji"}.`));
+      }
+    } catch {
+      return err(appError("internal", "Nie udało się wysłać e-maila. Spróbuj ponownie albo przekaż link osobiście."));
+    }
+    return ok({ channel: "email", recipient: maskEmail(to), preview: false });
+  }
+
+  if (!invitation.clientPhone) return err(appError("validation", "Klient nie ma numeru telefonu. Uzupełnij go w kartotece."));
+  try {
+    const outcome = await sender.sms.send(invitation.clientPhone, message.sms);
+    return ok({ channel: "sms", recipient: maskPhone(invitation.clientPhone), preview: outcome.status === "preview" });
+  } catch {
+    return err(appError("internal", "Nie udało się wysłać SMS-a."));
+  }
 }

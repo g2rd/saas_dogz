@@ -20,6 +20,8 @@ export function fromDbError(error: DbError): AppError {
       return appError("conflict", "To zaproszenie wygasło lub zostało już użyte.", { reason: "invitation_unusable" });
     case "DT005":
       return appError("conflict", "To zaproszenie jest przypisane do innego adresu e-mail.", { reason: "email_mismatch" });
+    case "DT006":
+      return appError("conflict", "Ta osoba ma już dostęp do tej organizacji.", { reason: "already_member" });
     case "DT002":
       return appError("conflict", "Te zajęcia zostały już rozliczone lub odwołane.", { reason: "not_scheduled" });
     case "23505":

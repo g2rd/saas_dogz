@@ -141,7 +141,7 @@ async function ClientDetails({ params }: Pick<PageProps<"/app/clients/[id]">, "p
       </Suspense>
 
       <Suspense fallback={<p className="text-zinc-500">Ładowanie panelu klienta...</p>}>
-        <AccessSection clientId={id} clientEmail={client.email} />
+        <AccessSection clientId={id} clientEmail={client.email} clientPhone={client.phone} />
       </Suspense>
 
       {canWrite ? (

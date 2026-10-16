@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { RequestButtons, listMyOpenRequests, sessionsWord } from "@/modules/notifications";
 import { getPortalOverview, type PortalPackage, type PortalSession } from "@/modules/portal";
 import { formatIsoDate } from "@/shared/dates";
 import { formatMoney, money } from "@/shared/money";
 import { dateInZone, formatDateHeadingTitle, timeInZone } from "@/shared/time";
 import { Badge } from "@/shared/ui/badge";
 import { requirePortalContext } from "../_lib/context";
+import { respondAction } from "./notifications/actions";
 
 export default function PortalHome() {
   return (
@@ -64,6 +66,9 @@ async function Overview() {
   if (!result.ok) throw new Error(result.error.message);
   const overview = result.value;
   const charge = overview.nextCharge;
+  const openRequests = await listMyOpenRequests(ctx);
+  const sentFor = (match: (r: { packageId: string | null; chargeId: string | null }) => boolean) =>
+    (openRequests.ok ? openRequests.value : []).filter(match).map((r) => r.kind);
 
   return (
     <div className="flex flex-col gap-6">
@@ -72,17 +77,28 @@ async function Overview() {
         <p className="text-zinc-600 dark:text-zinc-400">{overview.organizationName}</p>
       </div>
 
-      {overview.lowBalance.length > 0 ? (
+      {overview.lowBalance.map((pkg) => (
         <div
+          key={pkg.id}
           role="status"
           className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm dark:border-amber-800 dark:bg-amber-950/40"
         >
           <p className="font-medium">
-            Zostały Ci ostatnie zajęcia ({overview.lowBalance.map((p) => p.balance).join(", ")}).
+            {pkg.balance <= 0
+              ? "Twój pakiet się skończył."
+              : pkg.balance === 1
+                ? "Zostało Ci ostatnie zajęcie."
+                : `Zostały Ci ${pkg.balance} ${sessionsWord(pkg.balance)}.`}
           </p>
-          <p className="mt-1">Porozmawiaj z trenerem o kolejnym pakiecie, żeby nie przerywać treningów.</p>
+          <p className="mt-1">Pakiet „{pkg.name}”. Co robisz dalej? Trener dostanie Twoją odpowiedź.</p>
+          <RequestButtons
+            action={respondAction}
+            kinds={["renew", "pay", "end"]}
+            packageId={pkg.id}
+            alreadySent={sentFor((r) => r.packageId === pkg.id)}
+          />
         </div>
-      ) : null}
+      ))}
 
       <section aria-labelledby="packages-heading">
         <h2 id="packages-heading" className="mb-3 text-lg font-semibold">
@@ -134,6 +150,14 @@ async function Overview() {
         ) : (
           <p className="rounded-2xl border border-zinc-200 p-5 dark:border-zinc-800">Wszystko opłacone. Dziękujemy!</p>
         )}
+        {charge ? (
+          <RequestButtons
+            action={respondAction}
+            kinds={["pay"]}
+            chargeId={charge.id}
+            alreadySent={sentFor((r) => r.chargeId === charge.id)}
+          />
+        ) : null}
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
           Wpłatę księguje trener po jej otrzymaniu, więc saldo zmieni się chwilę po płatności.
         </p>
