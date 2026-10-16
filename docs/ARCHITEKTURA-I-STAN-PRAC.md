@@ -15,7 +15,8 @@ Stan na 2026-10-16. Dokument opisuje, jak zbudowana jest aplikacja, co jest już
 | 2. Zajęcia (minimalne) i zużywanie pakietu | ✅ zrobione, scalone do `main` | `main` (3a8ef92) |
 | 3. Zaproszenia (link, QR, krótki kod) i panel klienta `/portal` | ✅ zrobione, scalone do `main` | `main` |
 | 4. Powiadomienia (w aplikacji, web push, e-mail; SMS usunięty 2026-10-16), odpowiedzi klienta („Odnów / Zapłać / Zakończ”), wysyłka zaproszeń, zaproszenia personelu | ✅ zrobione i przeklikane, scalone do `dev` (nie do `main`; czeka na zatwierdzenie właściciela), ADR 0008 | `dev` (`feat/notifications`) |
-| 5. PWA, dopracowanie mobilne, seed demo i „sterowanie demo” | ⏳ **następny krok** (plan w sekcji 11) | |
+| 5. PWA i panel trenera na telefonie (manifest, ikony, service worker, instalacja, dolna nawigacja, „Dziś”) | ✅ zrobione, scalone do `dev`, ADR 0009; nieprzetestowane na prawdziwym telefonie | `dev` (`feat/pwa`) |
+| 5b. Test na telefonach, staging z HTTPS, seed demo, „sterowanie demo”, import CSV; **2 tygodnie testów bez płatności** | ⏳ **następny krok** (plan w sekcji 11) | |
 
 Zdalne repozytorium: `https://github.com/g2rd/saas_dogz`. **Gałąź `dev` jest gałęzią integracyjną: tam trafiają wszystkie zmiany. `main` zawiera tylko to, co właściciel zatwierdził; do `main` wchodzimy dopiero po jego wyraźnym zatwierdzeniu (merge `dev` do `main` i push).** Stan wypchnięcia i szczegóły w sekcji 5. Plan następnego etapu jest w sekcji 11.
 
@@ -191,6 +192,8 @@ Funkcja `public.create_organization(name, slug)`: atomowo tworzy organizację, u
 
 8. **Powiadomienia, etap 4 demo** (gałąź `feat/notifications`): migracja 0006 (`notifications`, `notification_preferences`, `notification_log`, `push_subscriptions`, `client_requests`, funkcje `create_client_request`, `claim_outbox_events`, `enqueue_daily_notification_events`, blokada i deduplikacja w `outbox_events`) i 0007 (zaproszenia personelu: `create_member_invitation`, `lookup_member_invitation`, `accept_member_invitation`, `revoke_member_invitation`). Moduł `notifications`: domena (`planNotifications`: zdarzenie → powiadomienia z treścią po polsku, odmiana „zajęcie/zajęcia/zajęć”, odbiorcy klient/personel), procesor `processOutbox`/`runOutbox` (blokada partii, idempotencja powiadomień i dostarczeń, ponowienia do 5 prób, licznik zalegających), adaptery `EmailSender` (Resend lub Mailpit), `PushSender` (web push VAPID, usuwa wygasłe subskrypcje), `SmsSender` (podgląd w logu), trasa `/api/cron/outbox` (sekret `CRON_SECRET`), pętla deweloperska co 10 s (`src/instrumentation-node.ts`), `npm run outbox:run`. Reguły dzienne: zbliżający się termin płatności, zaległość (raz na tydzień zaległości), przypomnienie o zajęciach (`reminder_hours_before`). UI: dzwonek z licznikiem i skrzynka (`/app/notifications`, `/portal/notifications`), ustawienia kanałów i włączanie push na urządzeniu (`.../settings`, `public/sw.js`), baner „Zostały Ci N zajęć” w portalu z przyciskami **Odnów pakiet / Zapłacę / Kończę współpracę** (także „Zapłacę” przy należności), widok `Prośby klientów` u trenera (`/app/requests`, licznik w nagłówku, oznaczanie jako obejrzane). Moduł `invitations`: wysyłka zaproszenia klientowi e-mailem i SMS-em (serwer weryfikuje link i kod z HMAC), zaproszenia personelu (`/app/team`, publiczne `/join/<token>`, rejestracja z zaproszenia lub przyjęcie na istniejące konto). Decyzje w [ADR 0008](adr/0008-notifications.md).
 
+9. **PWA i telefon, etap 5 (część PWA)** (gałąź `feat/pwa`, ADR 0009) oraz **usunięcie SMS** (gałąź `feat/remove-sms`, migracja 0008): `app/manifest.ts`, ikony w `public/icons` (skrypt `generate-icons.mjs`), `/start`, rozszerzony `public/sw.js`, `offline.html`, `PwaRegister` i `InstallPrompt`, dolna nawigacja trenera i strona `/app/more`, ekran „Dziś” jako start na telefonie, instalacja w ustawieniach push dla iPhone'a, `viewport-fit=cover`. Decyzje i ograniczenia w [ADR 0009](adr/0009-pwa.md).
+
 ### Stan repozytorium zdalnego (aktualizuj po każdym wypchnięciu)
 - `origin/main` = commit `19b334a`: etapy 1-3 (zatwierdzone przez właściciela).
 - `origin/dev`: gałąź integracyjna, zawiera `main` plus późniejsze zmiany; wypchnięta 2026-10-16 z etapem 4 (commit `8d37f74`). `main` nadal na etapach 1-3.
@@ -209,7 +212,7 @@ Zajęcia (planowanie, rozliczanie z pakietu, odwoływanie), pakiety i płatnośc
 | --- | --- | --- |
 | Typy | `npm run typecheck` | czysto |
 | Lint | `npm run lint` | czysto |
-| Testy jednostkowe (domena) | `npm test` | 151/151 |
+| Testy jednostkowe (domena) | `npm test` | 157/157 (w tym symulacja service workera) |
 | Granice modułów | `npm run check:boundaries` | brak naruszeń (185 modułów) |
 | Build produkcyjny | `npm run build` | przechodzi, trasy panelu to częściowy prerender |
 | Migracje | `supabase start` | obie zastosowane bez błędów |
@@ -233,6 +236,9 @@ Uwaga o narzędziu: gdy okno podglądu jest ukryte, strumieniowana treść Next 
 
 ### Przeklikane w przeglądarce: etap 4
 Lokalny Supabase + `npm run dev` (pętla outbox włączona): zdarzenie niskiego salda wstawione do `outbox_events` zamieniło się w ciągu kilku sekund na powiadomienie trenera (dzwonek z licznikiem „1”, skrzynka, kliknięcie oznacza jako przeczytane i przechodzi na kartę klienta) i na powiadomienie klientki Anny; oba e-maile pojawiły się w Mailpit. Panel klienta na telefonie (375 px): baner „Zostały Ci 2 zajęcia” z przyciskami „Odnów pakiet”, „Zapłacę”, „Kończę współpracę”; po kliknięciu „Odnów pakiet” komunikat „Wysłano trenerowi” i przycisk znika; u trenera licznik „Prośby 1” i dzwonek, widok `/app/requests` (klient, rodzaj, pakiet, czas), „Oznacz jako obejrzaną” przenosi prośbę do obejrzanych. Zespół: `/app/team`, zaproszenie `nowy.trener@example.test` jako Trener (e-mail wysłany, link widoczny raz), strona `/join/<token>` pokazuje organizację i rolę z zamaskowanym adresem, rejestracja z zaproszenia tworzy konto i od razu przenosi do `/app` w organizacji trenera. Strona ustawień powiadomień ładuje się bez błędów w konsoli i logu serwera.
+
+### Przeklikane: etap 5 (PWA)
+Produkcyjny build na `127.0.0.1`: manifest (`application/manifest+json`), `sw.js` (`application/javascript`), meta `theme-color`, `apple-touch-icon`, `viewport-fit=cover`, `/start` przekierowuje niezalogowanego na `/login`. Panel trenera w 375 px: ekran „Dziś” na górze, dolna nawigacja z pięcioma pozycjami, strona „Więcej” bez poziomego przewijania. Service worker sprawdzony symulacją (6 testów: strona offline, cache zasobów, ignorowanie POST/API/cudzych domen, push, bezpieczne kliknięcie). **Nie** sprawdzono rejestracji service workera w przeglądarce (wbudowana przeglądarka Claude go nie obsługuje, a Chrome z rozszerzeniem nie miał dostępu do adresu lokalnego), instalacji ani push na telefonie.
 
 ### Czego NIE zweryfikowano
 - Edycja klienta i psa przez formularz, usuwanie notatki oraz archiwizacja psa nie były przeklikane; rejestracja z zaproszenia przy włączonym potwierdzeniu e-mail (link wraca na stronę zaproszenia) nie była przeklikana (lokalnie potwierdzenia są wyłączone); odrzucanie psa i odbieranie dostępu tylko testami integracyjnymi.
@@ -374,28 +380,24 @@ Cel: aplikacja do pokazania trenerom, w której cały obieg „klient → pakiet
 - Na jakim telefonie prezentujemy (iPhone wymaga instalacji PWA dla push)?
 - Czy kod zaproszenia ma być **tylko QR/link**, czy też krótki kod do ręcznego wpisania?
 
-## 11. Plan następnego etapu: 5. PWA, dopracowanie mobilne, seed demo i „sterowanie demo”
+## 11. Plan następnego etapu: 5 (reszta). Test na telefonach, seed demo i „sterowanie demo”
 
-Cel: aplikacja do pokazania trenerom na telefonie (instalowalna z linku lub QR), z realistycznymi danymi i panelem, który pozwala w minutę przejść cały obieg „klient → pakiet → zajęcia → płatność → powiadomienia” bez czekania na czas.
+Decyzja właściciela (2026-10-16): **na początek dajemy aplikację do testowania na 2 tygodnie, bez płatności; opłaty wprowadzamy, gdy komuś się spodoba.** Freemium (2 klientów za darmo), plany i Stripe Billing odkładamy (analiza nakładu: [WDROZENIE-PRODUKCYJNE.md](WDROZENIE-PRODUKCYJNE.md), sekcja 7). SMS: rezygnacja. Natywna aplikacja: po walidacji.
 
-### Gotowe podstawy z poprzednich etapów
-- Cały obieg biznesowy i powiadomienia po obu stronach działają (etapy 1-4). `public/sw.js` obsługuje już push i kliknięcie w powiadomienie; ustawienia powiadomień rejestrują go tylko przy włączaniu push.
-- Panel klienta ma dolną nawigację i jest projektowany pod 375 px; panel trenera jest dziś widokiem „desktop first”.
-- Lokalne klucze VAPID i `CRON_SECRET` są w `.env.local`; na produkcji trzeba je wygenerować osobno (`npx web-push generate-vapid-keys`).
+### Zrobione w etapie 5 (część PWA, gałąź `feat/pwa`, ADR 0009)
+Manifest, ikony, `/start`, service worker (push, strona offline, cache zasobów statycznych), baner instalacji (Android i instrukcja iOS), dolna nawigacja trenera, ekran „Dziś”, strona „Więcej”, instrukcja instalacji w ustawieniach push na iPhonie.
 
-### Proponowany podział prac
-- [ ] Manifest PWA (`app/manifest.ts`: nazwa, kolory, `start_url`, `display: standalone`), ikony (192/512, maskable), pełny service worker (cache powłoki, strona offline) rozszerzający `public/sw.js`, baner „Dodaj do ekranu głównego” (na iOS push działa tylko po instalacji, 16.4+)
-- [ ] Panel trenera na telefonie: widok „Dziś” jako ekran startowy, dolna nawigacja (Dziś, Klienci, Zajęcia, Prośby, Więcej), duże pola dotykowe; przeklikanie w 375 px
-- [ ] Seed demo (`npm run seed:demo`, tylko lokalnie lub dla organizacji demo): organizacja z kilkoma klientami i psami, pakiety w różnych stanach (świeży, kończący się, wyczerpany), płatności (opłacona, zbliżający się termin, zaległa), zajęcia dziś i w przyszłości, konto klienta; idempotentny
-- [ ] „Sterowanie demo” (panel tylko dla organizacji oznaczonej jako demo): przewiń czas (symuluj koniec pakietu, zaległą płatność, zajęcia za 24 h), wyślij powiadomienie testowe, uruchom outbox od razu, zresetuj dane demo
-- [ ] Produkcyjny harmonogram dla `/api/cron/outbox` (Vercel Cron co minutę wymaga planu Pro; alternatywnie zewnętrzny harmonogram), alert przy `stuck > 0`
-- [ ] Test web push na prawdziwym telefonie (SMS: rezygnacja)
-- [ ] Testy, przeklikanie, ADR 0009, aktualizacja tego pliku, commit
-- [ ] Decyzje do potwierdzenia z właścicielem przed startem: na jakim telefonie prezentujemy (iPhone wymaga instalacji PWA dla push); czy panel „sterowanie demo” ma być dostępny na produkcji dla jednej organizacji demo
+### Do zrobienia, żeby oddać aplikację testerom na 2 tygodnie
+- [ ] **Wdrożenie staging z HTTPS** (Vercel + osobny projekt Supabase w UE, własna domena, migracje z CI): bez HTTPS nie da się przetestować instalacji PWA ani push na telefonie. Krok 8-11 z `WDROZENIE-PRODUKCYJNE.md`.
+- [ ] **Konto Resend i domena nadawcy** (SPF/DKIM) oraz własny SMTP w Supabase Auth; klucze VAPID produkcyjne; `CRON_SECRET`; `INVITATION_HASH_SECRET`.
+- [ ] **Harmonogram `/api/cron/outbox`** (co minutę) i alert, gdy trasa zwraca 500.
+- [ ] **Test PWA i push na prawdziwych telefonach** (Android Chrome i iPhone Safari z instalacją do ekranu głównego): instalacja, ikona, `/start`, push, kliknięcie powiadomienia, strona offline. Do tej pory zweryfikowane tylko symulacją (`service-worker.test.ts`), manifestem i nagłówkami.
+- [ ] **Seed demo** (`npm run seed:demo`) i **„sterowanie demo”** (przewijanie czasu, powiadomienie testowe, uruchomienie outboxu): potrzebne, żeby tester zobaczył obieg bez czekania na dane.
+- [ ] **Minimum prawne na testy** (krótki regulamin testów i polityka prywatności, zgoda na dane): testerzy wpisują dane klientów i psów (RODO).
+- [ ] **Kopie zapasowe i monitoring minimum** (dzienne kopie Supabase, Sentry w wersji darmowej, monitor dostępności).
+- [ ] **Import klientów z CSV**: bez tego trener z kilkudziesięcioma klientami nie przetestuje realnego użycia.
+- [ ] **Zbieranie opinii**: prosty formularz lub rozmowy po tygodniu i po dwóch; kryterium „komuś się spodobało” ustalone z góry (np. dodał klientów, sprzedał pakiet, klient użył panelu).
+- [ ] Przejrzeć podstrony pod tryb `standalone` (linki powrotu), ADR 0010 po teście na telefonach, aktualizacja tego pliku.
 
-### Do zrobienia przy okazji (wynik etapu 4)
-- Przeklikać `/portal/notifications*` i ustawienia po zmianie preferencji oraz przyciski wysyłki zaproszeń w przeglądarce (są testy integracyjne).
-- Pole waluty w zdarzeniu `payment.recorded` (dziś powiadomienie zakłada PLN).
-- Cisza nocna i podsumowanie dzienne zamiast pojedynczych powiadomień, gdy ich będzie dużo.
-
-Po etapie 5: faza 1 MVP (sekcja 8): zadania domowe, plany i uprawnienia, RODO, CI i środowiska.
+### Po okresie testowym (jeśli testerom się spodoba)
+Plany i limity, Stripe Billing (rozliczenia ręczne wystarczą dla pierwszych kilku płacących), regulamin i VAT, zadania domowe, kalendarz poza minimum (patrz `WDROZENIE-PRODUKCYJNE.md`, fazy C-F).

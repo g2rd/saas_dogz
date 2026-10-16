@@ -6,7 +6,7 @@ import { PortalNav } from "./portal-nav";
 export default function PortalLayout({ children }: LayoutProps<"/portal">) {
   return (
     <div className="mx-auto flex min-h-screen max-w-xl flex-col">
-      <header className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
+      <header className="flex items-center justify-between border-b border-zinc-200 px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))] dark:border-zinc-800">
         <span className="font-semibold">DogTrainer</span>
         <div className="flex items-center gap-2">
           <Suspense fallback={null}>

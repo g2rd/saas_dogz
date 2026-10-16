@@ -42,7 +42,7 @@ function urlBase64ToUint8Array(base64: string): Uint8Array<ArrayBuffer> {
   return bytes;
 }
 
-type PushStatus = "checking" | "unsupported" | "denied" | "off" | "on";
+type PushStatus = "checking" | "needs-install" | "unsupported" | "denied" | "off" | "on";
 
 /**
  * Włączanie web push na tym urządzeniu: rejestruje service worker, prosi o zgodę i zapisuje subskrypcję.
@@ -64,6 +64,14 @@ export function PushToggle({
   useEffect(() => {
     let cancelled = false;
     async function check() {
+      const ua = navigator.userAgent;
+      const ios = /iPhone|iPad|iPod/.test(ua) || (ua.includes("Macintosh") && navigator.maxTouchPoints > 1);
+      const standalone =
+        window.matchMedia("(display-mode: standalone)").matches || (navigator as { standalone?: boolean }).standalone === true;
+      if (ios && !standalone) {
+        if (!cancelled) setStatus("needs-install");
+        return;
+      }
       if (!vapidPublicKey || !("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
         if (!cancelled) setStatus("unsupported");
         return;
@@ -135,10 +143,14 @@ export function PushToggle({
   return (
     <div className="flex flex-col gap-2 rounded-2xl border border-zinc-200 p-4 dark:border-zinc-800">
       <p className="font-medium">To urządzenie</p>
-      {status === "unsupported" ? (
+      {status === "needs-install" ? (
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          Ta przeglądarka nie obsługuje powiadomień push lub serwer nie ma ich skonfigurowanych. Na iPhonie dodaj najpierw
-          aplikację do ekranu głównego.
+          Na iPhonie powiadomienia push działają dopiero po dodaniu aplikacji do ekranu głównego: stuknij{" "}
+          <strong>Udostępnij</strong>, potem <strong>Do ekranu początkowego</strong>, otwórz aplikację z ikony i wróć tutaj.
+        </p>
+      ) : status === "unsupported" ? (
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          Ta przeglądarka nie obsługuje powiadomień push lub serwer nie ma ich skonfigurowanych.
         </p>
       ) : status === "denied" ? (
         <p className="text-sm text-zinc-600 dark:text-zinc-400">

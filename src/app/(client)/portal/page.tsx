@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { RequestButtons, listMyOpenRequests, sessionsWord } from "@/modules/notifications";
 import { getPortalOverview, type PortalPackage, type PortalSession } from "@/modules/portal";
 import { formatIsoDate } from "@/shared/dates";
+import { InstallPrompt } from "@/shared/ui/pwa";
 import { formatMoney, money } from "@/shared/money";
 import { dateInZone, formatDateHeadingTitle, timeInZone } from "@/shared/time";
 import { Badge } from "@/shared/ui/badge";
@@ -76,6 +77,8 @@ async function Overview() {
         <h1 className="text-2xl font-semibold">Cześć, {overview.clientFirstName}</h1>
         <p className="text-zinc-600 dark:text-zinc-400">{overview.organizationName}</p>
       </div>
+
+      <InstallPrompt />
 
       {overview.lowBalance.map((pkg) => (
         <div
