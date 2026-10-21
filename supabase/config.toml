@@ -29,3 +29,8 @@ email_sent = 1000
 [storage]
 enabled = true
 file_size_limit = "50MiB"
+
+[auth.mfa.totp]
+# Weryfikacja dwuetapowa (TOTP) dla panelu właściciela /admin; na hostowanym Supabase jest domyślnie włączona.
+enroll_enabled = true
+verify_enabled = true

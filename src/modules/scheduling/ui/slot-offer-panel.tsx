@@ -1,8 +1,8 @@
-import { ConfirmSubmit } from "@/shared/ui/confirm";
 import { formatIsoDate } from "@/shared/dates";
 import { dateInZone, timeInZone } from "@/shared/time";
 import { Badge } from "@/shared/ui/badge";
 import type { SlotOffer } from "../domain/slots";
+import { AcceptClaimForm, CloseOfferForm, type SlotActionState } from "./slot-offer-forms";
 
 /**
  * Otwarte ogłoszenia wolnych terminów z kolejką zgłoszeń „Biorę” (od pierwszego zgłoszonego).
@@ -16,8 +16,8 @@ export function SlotOfferPanel({
 }: {
   offers: SlotOffer[];
   timezone: string;
-  acceptAction: (claimId: string) => Promise<void>;
-  closeAction: (offerId: string) => Promise<void>;
+  acceptAction: (claimId: string) => Promise<SlotActionState>;
+  closeAction: (offerId: string) => Promise<SlotActionState>;
 }) {
   if (offers.length === 0) return null;
   const stamp = (at: Date) => `${formatIsoDate(dateInZone(at, timezone))} ${timeInZone(at, timezone)}`;
@@ -54,41 +54,17 @@ export function SlotOfferPanel({
                         {claim.dogName ? ` · ${claim.dogName}` : ""} · zgłosił(a) się {timeInZone(claim.createdAt, timezone)}
                       </span>
                     </span>
-                    <form action={acceptAction.bind(null, claim.id)}>
-                      <ConfirmSubmit
-                        tone="primary"
-                        title={`Wybrać: ${claim.clientName}?`}
-                        description={
-                          <>
-                            <p>
-                              Zajęcia {stamp(offer.startsAt)} zostaną zarezerwowane dla {claim.clientName}, a ta osoba dostanie
-                              komunikat „Miejsce jest dla Ciebie!”.
-                            </p>
-                            <p className="mt-2">Pozostałe osoby dostaną informację, że termin jest zajęty.</p>
-                          </>
-                        }
-                        confirmLabel="Wybierz i zarezerwuj"
-                        pendingLabel="Zapisywanie..."
-                      >
-                        Wybierz
-                      </ConfirmSubmit>
-                    </form>
+                                    <AcceptClaimForm
+                      action={acceptAction.bind(null, claim.id)}
+                      clientName={claim.clientName}
+                      when={stamp(offer.startsAt)}
+                    />
                   </li>
                 ))}
               </ol>
             ) : null}
 
-            <form action={closeAction.bind(null, offer.id)} className="mt-3">
-              <ConfirmSubmit
-                variant="secondary"
-                title="Zamknąć ogłoszenie?"
-                description="Ogłoszenie zniknie, a osoby, które zgłosiły „Biorę”, dostaną informację, że termin jest zajęty. Jeśli zamkniesz je w ciągu 30 sekund od ogłoszenia, nikt nie dostanie żadnego powiadomienia."
-                confirmLabel="Zamknij ogłoszenie"
-                pendingLabel="Zamykanie..."
-              >
-                Zamknij ogłoszenie
-              </ConfirmSubmit>
-            </form>
+            <CloseOfferForm action={closeAction.bind(null, offer.id)} />
           </li>
         ))}
       </ul>

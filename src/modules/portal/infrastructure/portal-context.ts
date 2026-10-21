@@ -4,6 +4,7 @@ import { systemClock } from "@/shared/clock";
 import type { ClientRequestContext } from "@/shared/context";
 import { appError } from "@/shared/errors";
 import { err, ok, type Result } from "@/shared/result";
+import { loadOrgAccess } from "@/modules/core";
 import { createUserClient } from "@/shared/supabase/server";
 
 export const CLIENT_COOKIE = "dt_client";
@@ -29,8 +30,13 @@ export async function getPortalContext(): Promise<Result<ClientRequestContext>> 
   const rows = (data ?? []) as { organization_id: string; client_id: string }[];
   if (rows.length === 0) return err(appError("no_client_access", "To konto nie ma dostępu do panelu klienta."));
 
+  // Szkoła zawieszona przez właściciela platformy: klient widzi komunikat zamiast pustego panelu
+  const states = await loadOrgAccess(db, [...new Set(rows.map((row) => row.organization_id))]);
+  const usable = rows.filter((row) => states.get(row.organization_id)?.access);
+  if (usable.length === 0) return err(appError("org_suspended", "Szkoła jest chwilowo niedostępna."));
+
   const preferred = (await cookies()).get(CLIENT_COOKIE)?.value;
-  const access = rows.find((row) => row.client_id === preferred) ?? rows[0];
+  const access = usable.find((row) => row.client_id === preferred) ?? usable[0];
 
   return ok({
     userId,
@@ -38,5 +44,6 @@ export async function getPortalContext(): Promise<Result<ClientRequestContext>> 
     clientId: access.client_id,
     db,
     clock: systemClock,
+    access: states.get(access.organization_id)?.access ?? undefined,
   });
 }

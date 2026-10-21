@@ -16,9 +16,12 @@ Oznaczenia: 🧑 robisz Ty (konta, DNS, decyzje, rozmowy), 🤖 robi się w kodz
 
 ## 1. Co trzeba zbudować w kodzie przed startem (🤖, blokujące)
 
+> **Stan na 2026-10-21:** punkty 1.1 i 1.2 (panel `/admin`, blokada, kody beta, MFA) są zrobione i przetestowane lokalnie (ADR 0012, migracja 0011). Do zrobienia zostały 1.3-1.6. Opisy poniżej to specyfikacja; różnice względem wykonania są oznaczone „Zrobione:”.
+
 Bez punktów 1.1-1.3 nie spełnisz wymagań „wgląd i blokowanie” ani „zamknięta rejestracja”. Łącznie orientacyjnie 4-7 dni pracy (z testami i ADR), punkty 1.4-1.6 szybciej.
 
-### 1.1. Panel właściciela `/admin` (wgląd i zawieszanie dostępu)
+### 1.1. Panel właściciela `/admin` (wgląd i zawieszanie dostępu) ✅
+**Zrobione:** dostęp = to samo logowanie (e-mail + hasło) co reszta aplikacji, konto z wpisem w `platform_admins` (nadajesz skryptem `npm run admin:grant -- twoj@adres` albo SQL-em), a na produkcji dodatkowo weryfikacja dwuetapowa TOTP (`/admin/mfa`; wyłączysz tylko świadomie `ADMIN_REQUIRE_MFA=0`). Zalecane osobne konto właściciela. Osoby spoza listy dostają 404. Status w `organizations.status`, termin w `access_until`; pasek w aplikacji trenera, ekran `/suspended`; e-mail do właścicieli szkoły przy zmianie statusu; automat końca dostępu w cronie. Poniższe punkty „Dane” i „Egzekwowanie” opisują zrobione rozwiązanie (nazwy funkcji i kolumn mogą się nieznacznie różnić: źródłem prawdy jest migracja 0011).
 **Dane (migracja 0011):**
 - `platform_admins (user_id)`: kto jest właścicielem platformy (RLS: odczyt tylko dla siebie; zapis wyłącznie `service_role`).
 - Kolumny w `organizations`: `status` (`trial` | `active` | `read_only` | `suspended`), `access_until timestamptz` (koniec testu lub opłaconego okresu), `suspended_reason text`, `status_changed_at`, `notes` (Twoje notatki: telefon, uwagi).
@@ -45,7 +48,8 @@ from organizations o order by o.created_at desc;
 ```
 a zablokowanie osoby: w Supabase → Authentication → Users → zablokuj (ban) użytkownika. To rozwiązanie awaryjne: nie zawiesza klientów szkoły i nie ma historii.
 
-### 1.2. Zamknięta rejestracja kodem beta
+### 1.2. Zamknięta rejestracja kodem beta ✅
+**Zrobione:** kody w `/admin/codes` (etykieta, liczba użyć, ważność w dniach; jawny kod pokazany raz), przełącznik „Zamknij rejestrację” (domyślnie rejestracja jest **otwarta**, żeby nie psuć środowiska lokalnego: zamknij ją na środowisku testerów), pole „Kod zaproszenia” w `/signup`, wyzwalacz na `auth.users` blokujący także bezpośrednie wywołania API. Klienci i zespół rejestrują się z zaproszeń trenera bez kodu.
 ⚠️ Samo ukrycie formularza nie wystarczy: punkt końcowy rejestracji Supabase jest publiczny (klucz `anon` jest w przeglądarce). Dlatego walidacja musi być **w bazie**:
 - Tabela `beta_codes (code_hash, max_uses, used_count, expires_at, label)` i wyzwalacz `before insert` na `auth.users`, który przepuszcza rejestrację tylko, gdy `raw_user_meta_data` zawiera ważny `beta_code` **albo** skrót ważnego, oczekującego zaproszenia (`invite_hash`: klienci zakładają konta z zaproszenia trenera, personel z zaproszenia do zespołu). Inaczej wyjątek.
 - Formularz `/signup` dostaje pole „Kod zaproszenia”, a `signUp` przekazuje je w metadanych; strony `/invite` i `/join` przekazują skrót zaproszenia.
@@ -94,7 +98,7 @@ Trener z 30-100 klientami nie wpisze ich ręcznie, więc test bez importu da zaf
 5. **Authentication → Providers → Email:** włącz „Confirm email” (potwierdzenie adresu). Po wdrożeniu przeklikaj rejestrację z potwierdzeniem: zaproszenie klienta i zespołu wracają na swoją stronę po kliknięciu linku (nie było testowane lokalnie).
 6. **Authentication → SMTP Settings (własny SMTP):** użyj Resend (host `smtp.resend.com`, użytkownik `resend`, hasło = klucz API, nadawca `powiadomienia@twojadomena.pl`; nazwy pól i porty zweryfikuj w dokumentacji Resend). Bez własnego SMTP domyślny serwer Supabase ma bardzo niskie limity i e-maile (reset hasła) nie będą dochodzić.
 7. **Kopie zapasowe:** w planie Pro są dzienne kopie; sprawdź w Database → Backups, że działają. ✅ Zrób **jeden test odtworzenia** na osobnym projekcie przed startem (kopia, której nie odtworzono, nie istnieje).
-8. Utwórz swoje konto właściciela (przez rejestrację z kodem beta, którego pierwszego wygenerujesz SQL-em) i dodaj do `platform_admins` (w SQL Editorze: `insert into platform_admins (user_id) select id from auth.users where email = '<twój e-mail>';`).
+8. Utwórz swoje konto właściciela (rejestracja jest jeszcze otwarta, więc zrób ją zwykłym formularzem **przed** zamknięciem naboru), nadaj mu uprawnienia (`npm run admin:grant -- <twój e-mail>` z `NEXT_PUBLIC_SUPABASE_URL` i `SUPABASE_SERVICE_ROLE_KEY` ustawionymi tylko na czas polecenia, albo w SQL Editorze: `insert into platform_admins (user_id) select id from auth.users where email = '<twój e-mail>';`), zaloguj się, skonfiguruj weryfikację dwuetapową w `/admin/mfa` i dopiero wtedy zamknij rejestrację w `/admin/codes`. Wygenerowane tam kody rozdajesz testerom.
 
 ## 4. Resend i DNS (🧑)
 

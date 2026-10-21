@@ -27,12 +27,15 @@ export default function MorePage() {
 
 async function Links() {
   const ctx = await requireContext();
+  // Właściciel platformy widzi skrót do panelu /admin (zwykły trener nie ma tej pozycji)
+  const { data: platformAdmin } = await ctx.db.from("platform_admins").select("user_id").eq("user_id", ctx.userId).maybeSingle();
   const items = [
     { href: "/app/packages", label: "Szablony pakietów", show: hasPermission(ctx, "packages.read") },
     { href: "/app/sessions/types", label: "Rodzaje zajęć", show: hasPermission(ctx, "sessions.read") },
     { href: "/app/team", label: "Zespół", show: hasPermission(ctx, "members.read") },
     { href: "/app/notifications", label: "Powiadomienia", show: true },
     { href: "/app/notifications/settings", label: "Ustawienia powiadomień i push", show: true },
+    { href: "/admin", label: "Panel właściciela platformy", show: Boolean(platformAdmin) },
   ].filter((item) => item.show);
 
   return (

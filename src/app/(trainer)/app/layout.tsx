@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { logoutAction } from "./actions";
+import { AccessBanner } from "./access-banner";
 import { BottomNavSlot } from "./bottom-nav-slot";
 import { HeaderBadges } from "./header-badges";
 
@@ -29,6 +30,9 @@ export default function TrainerLayout({ children }: LayoutProps<"/app">) {
           </span>
         </nav>
       </header>
+      <Suspense fallback={null}>
+        <AccessBanner />
+      </Suspense>
       <div className="mx-auto w-full max-w-4xl flex-1 px-4 py-6 pb-28 md:py-8 md:pb-8">{children}</div>
       <Suspense fallback={null}>
         <BottomNavSlot />

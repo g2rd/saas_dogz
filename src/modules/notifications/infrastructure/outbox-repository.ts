@@ -22,6 +22,11 @@ export function outboxRepository(db: SupabaseClient) {
       return must(await db.rpc("enqueue_daily_notification_events", { p_now: now.toISOString() }), "enqueue") as number;
     },
 
+    /** Szkoły z upłyniętym terminem dostępu przechodzą w tryb „tylko do odczytu” (właściciele dostają powiadomienie). */
+    async expireAccess(): Promise<number> {
+      return must(await db.rpc("expire_organization_access"), "expireAccess") as number;
+    },
+
     async claim(limit: number): Promise<OutboxEvent[]> {
       const rows = must(await db.rpc("claim_outbox_events", { p_limit: limit }), "claim") as EventRow[];
       return rows.map((row) => ({
@@ -59,6 +64,30 @@ export function outboxRepository(db: SupabaseClient) {
       const orgId = event.organizationId;
       if (!orgId) return null;
       const payload = event.payload;
+
+      // Zmiana statusu szkoły przez właściciela platformy: wiadomość dla właścicieli i administratorów, bez klienta
+      if (event.type === "organization.status_changed") {
+        const staff = must(
+          await db.from("organization_members").select("user_id, role").eq("organization_id", orgId).eq("status", "active"),
+          "members",
+        ) as { user_id: string; role: string }[];
+        const settings = must(
+          await db.from("organization_settings").select("timezone").eq("organization_id", orgId).maybeSingle(),
+          "settings",
+        ) as { timezone: string } | null;
+        return {
+          clientId: null,
+          clientName: "",
+          clientUserIds: [],
+          staffUserIds: staff.filter((m) => m.role === "owner" || m.role === "admin").map((m) => m.user_id),
+          timezone: settings?.timezone ?? "Europe/Warsaw",
+          package: null,
+          charge: null,
+          session: null,
+          request: null,
+          offer: null,
+        };
+      }
 
       let clientId = str(payload.client_id);
       let request: EventFacts["request"] = null;

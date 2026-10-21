@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { signUp } from "@/modules/core";
-import { acceptMemberInvitation, lookupMemberInvitation } from "@/modules/invitations";
+import { acceptMemberInvitation, invitationProofHash, lookupMemberInvitation } from "@/modules/invitations";
 import { siteUrl } from "@/shared/env";
 import { toFormState } from "@/shared/form";
 import { createUserClient } from "@/shared/supabase/server";
@@ -47,7 +47,11 @@ export async function joinSignupAction(token: string, _prev: InviteState, formDa
     };
   }
 
-  const signedUp = await signUp(db, Object.fromEntries(formData), { siteUrl: siteUrl(), next: `/join/${token}` });
+  const signedUp = await signUp(db, Object.fromEntries(formData), {
+    siteUrl: siteUrl(),
+    next: `/join/${token}`,
+    inviteHash: invitationProofHash(token),
+  });
   if (!signedUp.ok) {
     if (signedUp.error.code === "conflict") return { ...toFormState(signedUp.error, formData), existingAccount: true };
     return toFormState(signedUp.error, formData);

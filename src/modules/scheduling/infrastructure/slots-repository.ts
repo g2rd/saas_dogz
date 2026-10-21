@@ -54,6 +54,8 @@ export function slotsRepository(db: SupabaseClient, organizationId: string) {
         .select("id, session_id, type_name, starts_at, ends_at, location, note, status")
         .eq("organization_id", organizationId)
         .eq("status", "open")
+        // Ogłoszenie z minionym terminem jest już nieaktualne: rezerwacja i tak zostałaby odrzucona (DT009)
+        .gt("starts_at", new Date().toISOString())
         .order("starts_at");
       if (offers.error) return err(fromDbError(offers.error));
       const offerRows = offers.data as OfferRow[];

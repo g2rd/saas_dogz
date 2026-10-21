@@ -2,6 +2,7 @@ export type AppErrorCode =
   | "unauthenticated"
   | "no_organization"
   | "no_client_access"
+  | "org_suspended"
   | "forbidden"
   | "not_found"
   | "validation"

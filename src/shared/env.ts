@@ -74,3 +74,19 @@ export function notificationEnv() {
     mailpitUrl: process.env.MAILPIT_URL || (production ? null : "http://127.0.0.1:54324"),
   };
 }
+
+/** Adres obsługi pokazywany na ekranie zawieszenia konta (opcjonalny). */
+export function supportEmail(): string | null {
+  return process.env.NEXT_PUBLIC_SUPPORT_EMAIL || null;
+}
+
+/**
+ * Czy panel właściciela wymaga weryfikacji dwuetapowej (TOTP). Na produkcji domyślnie tak (wyłącza to tylko `ADMIN_REQUIRE_MFA=0`),
+ * lokalnie domyślnie nie (włącza `ADMIN_REQUIRE_MFA=1`, gdy w Supabase jest włączone MFA).
+ */
+export function adminRequireMfa(): boolean {
+  const configured = process.env.ADMIN_REQUIRE_MFA;
+  if (configured === "1") return true;
+  if (configured === "0") return false;
+  return process.env.NODE_ENV === "production";
+}

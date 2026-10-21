@@ -34,4 +34,5 @@ export { SessionTypeForm, type SessionTypeFormValues } from "./ui/session-type-f
 export { acceptSlotClaim, closeSlotOffer, createSlotOffer, listOpenSlotOffers } from "./application/slots";
 export type { SlotClaim, SlotOffer } from "./domain/slots";
 export { AnnounceSlotForm, type AnnounceSlotState } from "./ui/announce-slot-form";
+export { type SlotActionState } from "./ui/slot-offer-forms";
 export { SlotOfferPanel } from "./ui/slot-offer-panel";

@@ -272,6 +272,27 @@ describe("zgłoszenia „Biorę” i wybór trenera", () => {
       expect((await titlesFor(userPiotr, piotrId)).filter((t) => t === "Termin został zajęty").length).toBe(2);
     });
   });
+
+  it("ogłoszenie z minionym terminem znika z listy trenera, a wybór zgłoszenia zwraca błąd zamiast wyjątku", async () => {
+    value(await scheduleSession(ctx, { clientId: annaId, sessionTypeId, date: "2031-05-13", time: "17:00" }));
+    const session = value(await listClientSessions(ctx, annaId)).upcoming.find((s) => s.startsAt.toISOString().startsWith("2031-05-13"))!;
+    value(await cancelSession(ctx, session.id, { consume: "0" }));
+    const { offerId } = value(await createSlotOffer(ctx, { sessionId: session.id, note: "" }));
+    value(await claimSlot(clientCtx(userPiotr, piotrId), { offerId, dogId: "" }));
+    const claim = value(await listOpenSlotOffers(ctx)).find((o) => o.id === offerId)!.claims[0];
+
+    // Termin mija, zanim trener zdąży wybrać zgłoszenie
+    await adminClient()
+      .from("slot_offers")
+      .update({ starts_at: "2020-01-01T10:00:00Z", ends_at: "2020-01-01T11:00:00Z" })
+      .eq("id", offerId);
+
+    expect(value(await listOpenSlotOffers(ctx)).map((o) => o.id)).not.toContain(offerId);
+    const late = await acceptSlotClaim(ctx, claim.id);
+    expect(late.ok).toBe(false);
+    if (!late.ok) expect(late.error.details).toMatchObject({ reason: "offer_closed" });
+    await closeSlotOffer(ctx, offerId);
+  });
 });
 
 describe("„Nie mogę przyjść”", () => {

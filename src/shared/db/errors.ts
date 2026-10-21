@@ -36,6 +36,10 @@ export function fromDbError(error: DbError): AppError {
       return appError("conflict", "Ten termin został już oddany innej osobie, więc zajęć nie można przywrócić.", { reason: "slot_filled" });
     case "DT014":
       return appError("conflict", "Ta wpłata jest już anulowana.", { reason: "already_voided" });
+    case "DT015":
+      return appError("forbidden", "Konto szkoły jest w trybie tylko do odczytu, więc nie można zapisywać zmian. Skontaktuj się z obsługą.", { reason: "read_only" });
+    case "DT016":
+      return appError("forbidden", "Rejestracja jest zamknięta. Potrzebny jest kod zaproszenia.", { reason: "signup_closed" });
     case "DT006":
       return appError("conflict", "Ta osoba ma już dostęp do tej organizacji.", { reason: "already_member" });
     case "DT002":

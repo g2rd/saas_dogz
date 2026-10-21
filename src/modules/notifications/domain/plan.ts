@@ -41,6 +41,7 @@ export const NOTIFIABLE_EVENT_TYPES = [
   "slot_claim.declined",
   "training_session.restored",
   "payment.voided",
+  "organization.status_changed",
 ] as const;
 
 export function isNotifiable(type: string): boolean {
@@ -287,6 +288,41 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
         link: "/portal/sessions",
         data: { offerId: event.payload.offer_id },
       });
+    }
+
+    case "organization.status_changed": {
+      const to = typeof event.payload.to === "string" ? event.payload.to : "";
+      const reason = typeof event.payload.reason === "string" && event.payload.reason ? ` Powód: ${event.payload.reason}.` : "";
+      const until = typeof event.payload.access_until === "string" ? new Date(event.payload.access_until) : null;
+      const untilText = until && !Number.isNaN(until.getTime()) ? ` Dostęp jest przyznany do ${formatIsoDate(dateInZone(until, facts.timezone))}.` : "";
+      if (to === "suspended") {
+        return toStaff({
+          type: event.type,
+          title: "Konto zawieszone",
+          body: `Dostęp do Twojej szkoły został wstrzymany, a dane są bezpieczne.${reason} Skontaktuj się z obsługą, aby odzyskać dostęp.`,
+          link: "/app",
+          data: { status: to },
+        });
+      }
+      if (to === "read_only") {
+        return toStaff({
+          type: event.type,
+          title: "Konto tylko do odczytu",
+          body: `Możesz przeglądać dane, ale nie możesz ich zmieniać.${reason} Skontaktuj się z obsługą, aby odblokować zapis.`,
+          link: "/app",
+          data: { status: to },
+        });
+      }
+      if (to === "active" || to === "trial") {
+        return toStaff({
+          type: event.type,
+          title: "Dostęp do konta przywrócony",
+          body: `Twoje konto znów działa w pełni.${untilText}`,
+          link: "/app",
+          data: { status: to },
+        });
+      }
+      return [];
     }
 
     case "invitation.accepted":

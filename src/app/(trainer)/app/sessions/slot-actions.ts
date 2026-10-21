@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { acceptSlotClaim, closeSlotOffer, createSlotOffer, type AnnounceSlotState } from "@/modules/scheduling";
+import { acceptSlotClaim, closeSlotOffer, createSlotOffer, type AnnounceSlotState, type SlotActionState } from "@/modules/scheduling";
 import { requireContext } from "../../_lib/context";
 
 const refresh = () => revalidatePath("/app", "layout");
@@ -25,16 +25,18 @@ export async function announceSlotAction(
 }
 
 /** Wybór zgłoszenia: powstają zajęcia, wybrany klient dostaje komunikat, pozostali informację o zajęciu terminu. */
-export async function acceptSlotClaimAction(claimId: string) {
+export async function acceptSlotClaimAction(claimId: string): Promise<SlotActionState> {
   const ctx = await requireContext();
   const result = await acceptSlotClaim(ctx, claimId);
-  if (!result.ok) throw new Error(result.error.message);
+  if (!result.ok) return { error: result.error.message };
   refresh();
+  return { message: "Zajęcia zarezerwowane." };
 }
 
-export async function closeSlotOfferAction(offerId: string) {
+export async function closeSlotOfferAction(offerId: string): Promise<SlotActionState> {
   const ctx = await requireContext();
   const result = await closeSlotOffer(ctx, offerId);
-  if (!result.ok) throw new Error(result.error.message);
+  if (!result.ok) return { error: result.error.message };
   refresh();
+  return { message: "Ogłoszenie zamknięte." };
 }

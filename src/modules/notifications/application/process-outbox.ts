@@ -17,6 +17,8 @@ export type OutboxDeps = {
 
 export type OutboxRunResult = {
   enqueued: number;
+  /** Szkoły przestawione w tryb „tylko do odczytu” z powodu końca terminu dostępu. */
+  expired: number;
   claimed: number;
   processed: number;
   failed: number;
@@ -37,9 +39,12 @@ export async function processOutbox(
   options: { limit?: number; runDailyRules?: boolean } = {},
 ): Promise<OutboxRunResult> {
   const repo = outboxRepository(deps.db);
-  const result: OutboxRunResult = { enqueued: 0, claimed: 0, processed: 0, failed: 0, notifications: 0, stuck: 0 };
+  const result: OutboxRunResult = { enqueued: 0, expired: 0, claimed: 0, processed: 0, failed: 0, notifications: 0, stuck: 0 };
 
-  if (options.runDailyRules ?? true) result.enqueued = await repo.enqueueDaily(deps.now());
+  if (options.runDailyRules ?? true) {
+    result.expired = await repo.expireAccess();
+    result.enqueued = await repo.enqueueDaily(deps.now());
+  }
 
   const events = await repo.claim(options.limit ?? BATCH_SIZE);
   result.claimed = events.length;

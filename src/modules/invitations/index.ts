@@ -12,6 +12,7 @@ export type {
   InvitationPreview,
 } from "./domain/invitation";
 export { normalizeSecret } from "./domain/secrets";
+export { invitationProofHash } from "./application/proof";
 export { InviteForm, type DeliverActionState, type InviteActionState } from "./ui/invite-form";
 export {
   acceptMemberInvitation,

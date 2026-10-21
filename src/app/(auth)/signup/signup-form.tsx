@@ -7,9 +7,12 @@ import type { SignupState } from "./actions";
 export function SignupForm({
   action,
   next,
+  requireCode = false,
 }: {
   action: (prev: SignupState, formData: FormData) => Promise<SignupState>;
   next: string;
+  /** Rejestracja zamknięta: wymagany kod zaproszenia od zespołu. */
+  requireCode?: boolean;
 }) {
   const [state, formAction] = useActionState(action, {});
   const errors = state.fieldErrors ?? {};
@@ -25,6 +28,17 @@ export function SignupForm({
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <input type="hidden" name="next" value={next} />
+      {requireCode ? (
+        <TextField
+          label="Kod zaproszenia"
+          name="betaCode"
+          autoComplete="off"
+          defaultValue={state.values?.betaCode}
+          errors={errors.betaCode}
+          hint="Rejestracja jest na razie zamknięta. Kod dostajesz od zespołu DogTrainer, np. ABCD-EFGH-JKMN"
+          required
+        />
+      ) : null}
       <TextField
         label="Imię i nazwisko"
         name="fullName"

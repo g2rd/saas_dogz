@@ -14,7 +14,7 @@ Zasady pracy dla agenta: `CLAUDE.md` i `AGENTS.md` (ten Next.js ma zmiany łami�
 npm install
 npm run db:start             # lokalny Supabase (wymaga Dockera); wypisze URL i klucze
 cp .env.example .env.local   # uzupełnij klucze Supabase i pozostałe zmienne (opis w pliku)
-npm run db:reset             # migracje 0001-0010 (kasuje dane lokalne)
+npm run db:reset             # migracje 0001-0011 (kasuje dane lokalne)
 npm run seed:dev             # dane deweloperskie (tylko lokalnie)
 npm run dev                  # http://localhost:3000
 ```
@@ -35,23 +35,24 @@ Test push i instalacji PWA na telefonie (tunel HTTPS): sekcja 7 dokumentu o stan
 | `npm run check:boundaries` | Granice modułów (dependency-cruiser) |
 | `npm run outbox:run` | Ręczne wywołanie przetwarzania powiadomień przez trasę cron (`CRON_SECRET`) |
 | `npm run seed:dev` | Dane deweloperskie (konto trenera, klienci, psy, pakiet, zajęcia) |
+| `npm run admin:grant -- adres@example.pl` | Nadaje (albo z `--revoke` odbiera) uprawnienia właściciela platformy, czyli dostęp do `/admin` |
 | `npm run db:start` / `db:reset` / `db:types` | Lokalny Supabase / migracje / typy bazy |
 
 ## Struktura
 
-- `src/app`: trasy (marketing, auth, panel trenera `/app`, panel klienta `/portal`, `/api/cron/outbox`), tylko routing i wywołania przypadków użycia
-- `src/modules/<moduł>`: `domain`, `application`, `infrastructure`, `ui`, publiczne API w `index.ts` (moduły: `core`, `clients`, `dogs`, `packages`, `payments`, `scheduling`, `invitations`, `portal`, `notifications`)
+- `src/app`: trasy (marketing, auth, panel trenera `/app`, panel klienta `/portal`, panel właściciela `/admin`, `/api/cron/outbox`), tylko routing i wywołania przypadków użycia
+- `src/modules/<moduł>`: `domain`, `application`, `infrastructure`, `ui`, publiczne API w `index.ts` (moduły: `core`, `clients`, `dogs`, `packages`, `payments`, `scheduling`, `invitations`, `portal`, `notifications`, `platform`)
 - `src/shared`: Money, Result, błędy, kontekst, klienci Supabase, env, wspólne UI (formularze, potwierdzenie, PWA)
 - `supabase/migrations`: migracje SQL z RLS; `supabase/tests`: testy pgTAP
 - `public`: service worker, strona offline, ikony PWA; `scripts`: seed, outbox, generator ikon
-- `docs`: stan prac i architektura, plan wdrożenia, `adr/` (decyzje 0001-0011)
+- `docs`: stan prac i architektura, plan wdrożenia, `adr/` (decyzje 0001-0012)
 
 ## Stan (2026-10-21)
 
 Zrobione i scalone do `dev`: fundament i RLS, klienci i psy, pakiety i płatności (ze stornem), zajęcia (z cofaniem pomyłek),
 zaproszenia klientów i personelu, panel klienta, powiadomienia (dzwonek, web push, e-mail), prośby klientów, wolne terminy z listą
-chętnych, PWA z panelem trenera na telefonie, potwierdzenia wrażliwych operacji. `main` zawiera etapy do zaproszeń i panelu klienta;
+chętnych, PWA z panelem trenera na telefonie, potwierdzenia wrażliwych operacji, panel właściciela platformy (użycie, blokowanie dostępu, kody beta). `main` zawiera etapy do zaproszeń i panelu klienta;
 reszta czeka na zatwierdzenie właściciela.
 
-Następny krok: oddanie aplikacji testerom na 2 tygodnie (staging z HTTPS, test push na telefonach, seed demo, import CSV,
-minimum prawne), potem decyzja o opłatach. Pełna lista w sekcji 8 dokumentu o stanie prac.
+Następny krok: oddanie aplikacji testerom na 2 tygodnie (staging z HTTPS, test push na telefonach, regulamin i zgody, formularz opinii,
+import CSV), potem decyzja o opłatach. Pełna lista w sekcji 8 dokumentu o stanie prac.

@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { signUp } from "@/modules/core";
-import { acceptInvitation, lookupInvitation, normalizeSecret } from "@/modules/invitations";
+import { acceptInvitation, invitationProofHash, lookupInvitation, normalizeSecret } from "@/modules/invitations";
 import { siteUrl } from "@/shared/env";
 import { toFormState, type FormState } from "@/shared/form";
 import { createUserClient } from "@/shared/supabase/server";
@@ -72,7 +72,11 @@ export async function inviteSignupAction(
     };
   }
 
-  const signedUp = await signUp(db, Object.fromEntries(formData), { siteUrl: siteUrl(), next: `/invite/${secret}` });
+  const signedUp = await signUp(db, Object.fromEntries(formData), {
+    siteUrl: siteUrl(),
+    next: `/invite/${secret}`,
+    inviteHash: invitationProofHash(secret),
+  });
   if (!signedUp.ok) {
     if (signedUp.error.code === "conflict") {
       return { ...toFormState(signedUp.error, formData), existingAccount: true };

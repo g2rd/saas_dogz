@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { invitationHashSecret } from "@/shared/env";
 import { appError } from "@/shared/errors";
 import { parseInput } from "@/shared/form";
 import { err, ok, type Result } from "@/shared/result";
@@ -8,13 +9,14 @@ import {
   resetPasswordSchema,
   signupSchema,
 } from "../domain/auth";
+import { hashBetaCode, normalizeBetaCode } from "../domain/beta-code";
 import { safeNextPath } from "../domain/redirect";
 
 /** Ścieżki, na które może wskazywać `next` w linkach z e-maili (callback). */
 export const CALLBACK_NEXT_PREFIXES = ["/app", "/portal", "/invite", "/join", "/reset-password"] as const;
 
 /** Ścieżki, na które może wskazywać `next` po zalogowaniu lub rejestracji. */
-export const LOGIN_NEXT_PREFIXES = ["/app", "/portal", "/invite", "/join"] as const;
+export const LOGIN_NEXT_PREFIXES = ["/app", "/portal", "/invite", "/join", "/admin"] as const;
 
 export type SignupOutcome = "signed_in" | "confirmation_required";
 
@@ -32,20 +34,57 @@ export async function signIn(db: SupabaseClient, raw: unknown): Promise<Result<v
   return ok(undefined);
 }
 
+/** Czy rejestracja jest otwarta dla każdego, czy tylko z kodem beta lub zaproszeniem (ustawia właściciel platformy). */
+export async function getSignupMode(db: SupabaseClient): Promise<"open" | "closed"> {
+  const { data, error } = await db.rpc("check_signup_allowed", { p_code_hash: null, p_invite_hash: null });
+  // Przy błędzie zakładamy zamknięcie: lepiej zapytać o kod, niż wpuścić bez niego
+  return !error && data === "ok" ? "open" : "closed";
+}
+
+const GATE_MESSAGES: Record<string, string> = {
+  closed: "Rejestracja jest teraz zamknięta. Wpisz kod zaproszenia, który dostałeś(-aś) od zespołu DogTrainer.",
+  invalid_code: "Ten kod jest nieprawidłowy, wygasł albo został już wykorzystany.",
+  invalid_invitation: "To zaproszenie wygasło lub zostało już użyte.",
+};
+
+/**
+ * Rejestracja konta. Przy zamkniętej rejestracji wymagany jest kod beta (formularz) albo dowód zaproszenia
+ * (`options.inviteHash`, skrót z modułu invitations). Ostateczną blokadę wymusza wyzwalacz na auth.users;
+ * tu sprawdzamy to wcześniej, żeby pokazać zrozumiały komunikat.
+ */
 export async function signUp(
   db: SupabaseClient,
   raw: unknown,
-  options: { siteUrl: string; next?: unknown },
+  options: { siteUrl: string; next?: unknown; inviteHash?: string | null },
 ): Promise<Result<SignupOutcome>> {
   const input = parseInput(signupSchema, raw);
   if (!input.ok) return err(input.error);
+
+  const typedCode = String((raw as Record<string, unknown> | null)?.betaCode ?? "").trim();
+  const betaCode = typedCode === "" ? null : normalizeBetaCode(typedCode);
+  if (typedCode !== "" && betaCode === null) {
+    return err(appError("validation", "Popraw zaznaczone pola.", { betaCode: [GATE_MESSAGES.invalid_code] }));
+  }
+  const codeHash = betaCode ? hashBetaCode(betaCode, invitationHashSecret()) : null;
+  const inviteHash = options.inviteHash ?? null;
+
+  const gate = await db.rpc("check_signup_allowed", { p_code_hash: codeHash, p_invite_hash: inviteHash });
+  if (gate.error) return err(appError("internal", "Nie udało się utworzyć konta. Spróbuj ponownie.", gate.error.message));
+  if (gate.data !== "ok") {
+    const message = GATE_MESSAGES[String(gate.data)] ?? GATE_MESSAGES.closed;
+    return err(appError("validation", "Popraw zaznaczone pola.", { betaCode: [message] }));
+  }
 
   const next = safeNextPath(options.next, LOGIN_NEXT_PREFIXES);
   const { data, error } = await db.auth.signUp({
     email: input.value.email,
     password: input.value.password,
     options: {
-      data: input.value.fullName ? { full_name: input.value.fullName } : undefined,
+      data: {
+        ...(input.value.fullName ? { full_name: input.value.fullName } : {}),
+        ...(codeHash ? { beta_code_hash: codeHash } : {}),
+        ...(inviteHash ? { invite_hash: inviteHash } : {}),
+      },
       emailRedirectTo: callbackUrl(options.siteUrl, next),
     },
   });
