@@ -11,7 +11,7 @@ Dokument opisuje, co sprawdziliśmy „z perspektywy atakującego” przed oddan
 | `quality` | `typecheck`, `lint`, `npm test`, `check:boundaries`, `npm audit --omit=dev --audit-level=high`, `build` |
 | `database` | lokalny Supabase w Dockerze, `supabase test db` (pgTAP: RLS, funkcje, niezmienniki), `npm run test:integration` (przypadki użycia na prawdziwej bazie z pocztą Mailpit) |
 
-Obok działa `claude-review.yml` (review z komentarzem). Dependabot (`.github/dependabot.yml`) co tydzień proponuje aktualizacje npm i akcji jako PR-y do `dev`. **Do zrobienia przez właściciela po pierwszym uruchomieniu CI:** w ustawieniach repozytorium (Branch protection / Rulesets dla `dev` i `main`) ustaw wymagane kontrole „Kod (typy, lint, testy, build)” oraz „Baza (migracje, pgTAP, testy integracyjne)”, żeby scalenie z czerwonym CI było niemożliwe.
+Review kodu robi właściciel (automatycznego review przez AI nie używamy). Dependabot (`.github/dependabot.yml`) co tydzień proponuje aktualizacje npm i akcji jako PR-y do `dev`. **Do zrobienia przez właściciela po pierwszym uruchomieniu CI:** w ustawieniach repozytorium (Branch protection / Rulesets dla `dev` i `main`) ustaw wymagane kontrole „Kod (typy, lint, testy, build)” oraz „Baza (migracje, pgTAP, testy integracyjne)”, żeby scalenie z czerwonym CI było niemożliwe.
 
 ## 2. Przegląd RLS i uprawnień bazy
 
