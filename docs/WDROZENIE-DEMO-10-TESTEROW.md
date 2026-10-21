@@ -56,18 +56,23 @@ a zablokowanie osoby: w Supabase → Authentication → Users → zablokuj (ban)
 - W panelu `/admin` zakładka „Kody”: generowanie kodu (np. 1 użycie, ważny 14 dni, etykieta „Anna K., Szkoła Łapa”), unieważnianie.
 ✅ Test: rejestracja bez kodu bezpośrednio przez API zwraca błąd; z poprawnym kodem działa; zużyty kod nie działa drugi raz; rejestracja klienta z zaproszenia nadal działa.
 
-### 1.3. Zgoda na regulamin testów i politykę prywatności
+### 1.3. Zgoda na regulamin testów i politykę prywatności ✅ część techniczna (2026-10-21)
+**Zrobione (PR `feat/terms-consents`):** strony `/terms` (regulamin testów z umową powierzenia przetwarzania danych) i `/privacy` (pl i en), linki na stronie głównej i w polu zgody, wymagane pole przy rejestracji trenera, klienta i członka zespołu, zapis zgody z wersją (`consents`, migracja 0018). Treść jest **szkicem do przeglądu prawnika** (baner na stronach); dane operatora ustawiasz zmiennymi `NEXT_PUBLIC_OPERATOR_NAME`, `NEXT_PUBLIC_OPERATOR_ADDRESS`, `NEXT_PUBLIC_SUPPORT_EMAIL`. **Zostaje:** przegląd i uzupełnienie treści przez prawnika (regiony i podprocesorzy, okresy przechowywania, odpowiedzialność), ponowna zgoda po zmianie wersji. Pierwotny plan:
 - Strony statyczne `/regulamin-testow` i `/prywatnosc` (treść od prawnika; minimum: kto jest administratorem danych, że trener jest administratorem danych swoich klientów, a platforma procesorem, jakie dane, gdzie przechowywane (UE), kontakt, usuwanie danych na żądanie, brak gwarancji dostępności w teście, zasady zawieszenia).
 - Pole wyboru przy rejestracji trenera i zapis zgody (`consents`: użytkownik, dokument, wersja, czas). Klient przy przyjęciu zaproszenia akceptuje politykę prywatności szkoły/platformy.
 - **Umowa powierzenia przetwarzania danych** z każdym trenerem (może być zgodą w regulaminie, ale konsultuj z prawnikiem; trener wprowadza dane osobowe klientów i **wizerunek/dane o psach**).
 
-### 1.4. Zbieranie opinii
+### 1.4. Zbieranie opinii ✅ (zrobione 2026-10-21)
+**Decyzja właściciela 2026-10-21: opinie zbierasz sam, na bieżąco, przez komunikatory, SMS i telefon; bez ankiet.** Zapisy o ankiecie tygodniowej i końcowej poniżej są nieaktualne; zostaje formularz w aplikacji i rozmowy.
+**Zrobione:** przycisk „Zgłoś problem lub pomysł” w `Więcej` obu paneli (`/app/feedback`, `/portal/feedback`), tabela `feedback` (migracja 0014; autor, szkoła, rodzaj, treść, ekran, język), przegląd w `/admin/feedback` z oznaczaniem jako obejrzane. Zostaje ankieta tygodniowa (ręcznie) i ewentualny link do zewnętrznego formularza w stopce e-maili. Pierwotny plan:
 Link do formularza opinii (Tally/Google Forms) w menu „Więcej” obu paneli i w stopce e-maili; opcjonalnie tabela `feedback` z przyciskiem „Zgłoś problem lub pomysł” (strona, wersja, wiadomość). Plus ankieta tygodniowa (5 pytań) wysyłana ręcznie.
 
-### 1.5. Import klientów z CSV (mocno zalecany)
+### 1.5. Import klientów z CSV ✅ (zrobione 2026-10-21)
+**Zrobione:** `/app/clients/import` (link na liście klientów): plik CSV albo wklejona tabela, podgląd i raport problemów, atomowy zapis klientów i psów (funkcja SQL `import_clients`, migracja 0015), bez zaproszeń. Wzór arkusza dla testerów: kolumny `Imię;Nazwisko;E-mail;Telefon;Pies;Rasa` (rozpoznawane także nagłówki angielskie). Pierwotny plan:
 Trener z 30-100 klientami nie wpisze ich ręcznie, więc test bez importu da zafałszowany obraz. Minimum: przesłanie pliku (imię, nazwisko, telefon, e-mail, pies), podgląd i raport błędów, zapis do `clients`/`dogs`, bez zaproszeń. Jeśli nie zdążysz, importuj **Ty** dane testerów skryptem jednorazowo (ustalasz z nimi wzór arkusza).
 
 ### 1.6. Jakość i bezpieczeństwo minimum (przed pierwszym obcym użytkownikiem)
+**Zrobione 2026-10-21 (PR `feat/ci-quality-minimum`, szczegóły: [PRZEGLAD-BEZPIECZENSTWA.md](PRZEGLAD-BEZPIECZENSTWA.md)):** CI w GitHub Actions (blokadę scalania włączasz w rulesecie), `error.tsx`/`not-found.tsx`/`global-error.tsx`, limity (opinie, zaproszenia, import, rozmiar akcji), przegląd `npm audit` (produkcja bez podatności) i RLS z testem niezmienników, nagłówki bezpieczeństwa. **Zostaje:** Sentry i monitor dostępności (konta), komunikat wygasłej sesji, limity Supabase Auth i Resend przy wdrożeniu. Pierwotny plan:
 - CI w GitHub Actions: typecheck, lint, testy jednostkowe, pgTAP, integracyjne, granice, build; blokada scalania przy czerwonym CI.
 - `error.tsx` i `not-found.tsx`, komunikat wygasłej sesji, linki powrotu w trybie `standalone` PWA.
 - Limity: ograniczenie wysyłki zaproszeń e-mailem na trenera na dobę; captcha lub kod beta (jest) na rejestracji.
@@ -108,6 +113,7 @@ Trener z 30-100 klientami nie wpisze ich ręcznie, więc test bez importu da zaf
 4. Darmowy plan ma limity dzienne i miesięczne; przy 10 trenerach i ich klientach prawdopodobnie wystarczy na start, ale sprawdź zużycie po pierwszym tygodniu.
 
 ## 5. Vercel i zmienne środowiskowe (🧑 + 🤖)
+**Skrót wykonawczy z gotowymi poleceniami (`env:check`, `smoke`, szablony e-maili, cron z bazy, wybór planów): [WDROZENIE-STAGING.md](WDROZENIE-STAGING.md).** Poniżej opis pierwotny (cron: wolisz wersję z bazy, bo działa na każdym planie Vercel; wpis `vercel.json` z punktu 3 dotyczy tylko planu Pro).
 
 1. Vercel → Add New → Project → zaimportuj repozytorium. Framework: Next.js (wykryty). Gałąź produkcyjna: **`main`** (zmieniamy ją tylko po Twojej zgodzie). Wersja Node: ustaw zgodną z lokalną (24.x, jeśli dostępna, w przeciwnym razie najnowsza LTS; sprawdź, czy `build` przechodzi). Region funkcji: **Frankfurt (`fra1`)** (Settings → Functions).
 2. **Zmienne środowiskowe (Production):**
@@ -194,9 +200,9 @@ Po 4-6 tygodniach zbierz: metryki z `/admin` względem kryteriów z sekcji 0, an
 ## 11. Lista kontrolna „gotowe do zaproszenia testerów”
 - [ ] Panel `/admin` z wglądem, zawieszaniem i `access_until` (1.1) i testami
 - [ ] Zamknięta rejestracja kodem, sprawdzona przez bezpośrednie API (1.2)
-- [ ] Regulamin testów, polityka prywatności, zgoda przy rejestracji (1.3)
-- [ ] Formularz opinii podlinkowany (1.4); import CSV lub plan ręcznego importu (1.5)
-- [ ] CI zielone, Sentry i monitor dostępności włączone (1.6)
+- [ ] Regulamin testów, polityka prywatności, zgoda przy rejestracji (1.3): jest szkic i zapis zgody, czeka na prawnika
+- [x] Formularz opinii (1.4) i import CSV (1.5) zrobione; do tego dać testerom wzór arkusza
+- [ ] CI zielone i wymagane w rulesecie (jest, 1.6); Sentry i monitor dostępności włączone (zostaje)
 - [ ] Supabase Pro w UE, migracje wdrożone, Auth (URL-e, potwierdzenie e-mail, własny SMTP), kopia przetestowana
 - [ ] Resend z zweryfikowaną domeną, e-maile trafiają do głównej skrzynki
 - [ ] Vercel Pro, zmienne środowiskowe, `vercel.json` z cronem, domena z HTTPS

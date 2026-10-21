@@ -1,0 +1,147 @@
+{
+  "common": {
+    "draft": "Wersja robocza do przeglądu prawnika. Dokument opisuje zasady testów aplikacji i nie jest poradą prawną.",
+    "version": "Wersja z dnia {version}",
+    "operator_heading": "Operator aplikacji",
+    "operator_name": "Nazwa: {value}",
+    "operator_address": "Adres: {value}",
+    "operator_email": "Kontakt: {value}",
+    "to_define": "do uzupełnienia",
+    "other_document": "Zobacz też:",
+    "back": "Wróć do strony głównej"
+  },
+  "terms": {
+    "title": "Regulamin testów aplikacji DogTrainer",
+    "link": "Regulamin testów",
+    "sections": [
+      {
+        "heading": "1. Czym jest test",
+        "paragraphs": [
+          "DogTrainer to aplikacja dla trenerów psów: kartoteka klientów i psów, pakiety zajęć, terminarz, płatności gotówkowe, powiadomienia i panel klienta. Aplikacja jest w fazie testów, w której korzystają z niej zaproszeni trenerzy i ich klienci.",
+          "Operatorem aplikacji jest podmiot wskazany na górze tej strony (dalej: Operator). Korzystanie z aplikacji oznacza akceptację niniejszego regulaminu i Polityki prywatności."
+        ]
+      },
+      {
+        "heading": "2. Konto i dostęp",
+        "paragraphs": [
+          "Konto trenera można założyć kodem otrzymanym od Operatora albo z zaproszenia. Klienci i członkowie zespołu dołączają z zaproszenia trenera. Podajesz prawdziwe dane, dbasz o swoje hasło i nie udostępniasz konta innym osobom.",
+          "Operator może odmówić założenia konta lub wygasić kod bez podawania przyczyny."
+        ]
+      },
+      {
+        "heading": "3. Test jest bezpłatny i bez gwarancji",
+        "paragraphs": [
+          "W okresie testów aplikacja jest udostępniana bezpłatnie i w stanie, w jakim jest. Mogą zdarzać się przerwy, błędy i zmiany funkcji, także bez uprzedzenia. Operator nie gwarantuje dostępności ani odtworzenia danych z kopii zapasowych.",
+          "Nie traktuj aplikacji jako jedynego rejestru ważnych danych: w okresie testów zalecamy prowadzenie własnych notatek o płatnościach i zajęciach."
+        ]
+      },
+      {
+        "heading": "4. Zasady korzystania",
+        "paragraphs": [
+          "Nie wolno nadużywać aplikacji: omijać zabezpieczeń, przeciążać usługi, wprowadzać treści niezgodnych z prawem ani danych osób, wobec których nie masz podstawy do ich przetwarzania.",
+          "Trener odpowiada za dane klientów, które wprowadza, w tym za poinformowanie klientów o przetwarzaniu ich danych i za ich zgody tam, gdzie są wymagane."
+        ]
+      },
+      {
+        "heading": "5. Dane klientów trenera: powierzenie przetwarzania",
+        "paragraphs": [
+          "Trener jest administratorem danych osobowych swoich klientów i ich psów, które wprowadza do aplikacji. Operator przetwarza je jako podmiot przetwarzający, wyłącznie w celu udostępniania aplikacji i na udokumentowane polecenie trenera, którym jest korzystanie z funkcji aplikacji.",
+          "Operator stosuje odpowiednie środki bezpieczeństwa (szyfrowanie połączeń, kontrola dostępu, rozdzielenie danych poszczególnych szkół), zapewnia poufność osób upoważnionych do danych, korzysta z podmiotów przetwarzających wymienionych w Polityce prywatności i pomaga trenerowi w realizacji praw osób, których dane dotyczą.",
+          "Po zakończeniu korzystania z aplikacji Operator usuwa dane trenera lub je zwraca na jego żądanie, a o naruszeniu ochrony danych informuje bez zbędnej zwłoki. Ten punkt stanowi umowę powierzenia przetwarzania danych w rozumieniu art. 28 RODO."
+        ]
+      },
+      {
+        "heading": "6. Zawieszenie i ograniczenie dostępu",
+        "paragraphs": [
+          "Operator może przełączyć szkołę w tryb tylko do odczytu albo zawiesić dostęp, w szczególności po zakończeniu okresu testów, przy naruszeniu regulaminu lub zagrożeniu bezpieczeństwa. Osoby korzystające z konta zobaczą informację o tym i o powodzie. Zawieszenie nie usuwa danych."
+        ]
+      },
+      {
+        "heading": "7. Zakończenie korzystania i usunięcie danych",
+        "paragraphs": [
+          "Możesz zrezygnować w każdej chwili, pisząc na adres kontaktowy. Na żądanie usuniemy dane konta i szkoły w rozsądnym terminie, nie dłuższym niż 30 dni, z wyjątkiem danych, które prawo każe przechowywać."
+        ]
+      },
+      {
+        "heading": "8. Odpowiedzialność",
+        "paragraphs": [
+          "W granicach dozwolonych prawem Operator nie odpowiada za szkody wynikające z korzystania z bezpłatnej wersji testowej, w tym za utratę danych lub przychodów, chyba że szkoda powstała z winy umyślnej lub rażącego niedbalstwa. Przepisy, których nie można wyłączyć umownie, w tym przepisy o ochronie konsumentów, pozostają w mocy."
+        ]
+      },
+      {
+        "heading": "9. Zmiany i prawo właściwe",
+        "paragraphs": [
+          "Regulamin może się zmienić; o zmianie poinformujemy w aplikacji lub e-mailem, a nowa wersja ma nową datę. Kontynuowanie korzystania po zmianie oznacza akceptację nowej wersji. Do regulaminu stosuje się prawo polskie.",
+          "Kontakt w sprawach regulaminu: adres Operatora podany na górze strony."
+        ]
+      }
+    ]
+  },
+  "privacy": {
+    "title": "Polityka prywatności DogTrainer",
+    "link": "Polityka prywatności",
+    "sections": [
+      {
+        "heading": "1. Kto jest administratorem danych",
+        "paragraphs": [
+          "Administratorem danych kont użytkowników (trenerów, członków zespołu i klientów jako osób logujących się) jest Operator wskazany na górze tej strony.",
+          "Dane klientów i psów, które trener wprowadza do aplikacji, administruje trener (szkoła); Operator przetwarza je jako podmiot przetwarzający na jego polecenie. W sprawach tych danych kieruj się do swojego trenera."
+        ]
+      },
+      {
+        "heading": "2. Jakie dane przetwarzamy",
+        "paragraphs": [
+          "Dane konta: adres e-mail, imię i nazwisko (opcjonalnie), hasło (przechowywane wyłącznie jako skrót przez usługę uwierzytelniania), wybrany język, zgody na dokumenty.",
+          "Dane wprowadzane przez trenera: imiona, nazwiska, telefony i e-maile klientów, dane psów, notatki, terminy zajęć, pakiety i rejestr płatności gotówkowych (kwoty i daty, bez numerów kart i kont).",
+          "Dane techniczne: dzienniki serwera (np. adres IP, czas i rodzaj żądania), identyfikator urządzenia przy powiadomieniach push, informacje o błędach."
+        ]
+      },
+      {
+        "heading": "3. Cele i podstawy prawne",
+        "paragraphs": [
+          "Udostępnianie aplikacji i obsługa konta (art. 6 ust. 1 lit. b RODO). Bezpieczeństwo, zapobieganie nadużyciom i ocena użycia platformy w okresie testów (art. 6 ust. 1 lit. f RODO, prawnie uzasadniony interes). Powiadomienia push (zgoda, art. 6 ust. 1 lit. a RODO, możesz ją cofnąć w każdej chwili w ustawieniach). Wypełnienie obowiązków prawnych (art. 6 ust. 1 lit. c RODO)."
+        ]
+      },
+      {
+        "heading": "4. Odbiorcy i podmioty przetwarzające",
+        "paragraphs": [
+          "Dane są przetwarzane przy pomocy dostawców infrastruktury: baza danych i uwierzytelnianie (Supabase, region w Unii Europejskiej), hosting aplikacji (Vercel) i wysyłka e-maili (Resend). Dostawcy działają na podstawie umów powierzenia. Aktualne regiony przetwarzania i ewentualne przekazywanie danych poza Europejski Obszar Gospodarczy oparte na standardowych klauzulach umownych: do uzupełnienia przez Operatora przed publicznym startem.",
+          "Dane nie są sprzedawane ani wykorzystywane do reklam."
+        ]
+      },
+      {
+        "heading": "5. Jak długo przechowujemy dane",
+        "paragraphs": [
+          "Dane konta i szkoły przechowujemy do czasu usunięcia konta lub zakończenia testów, a następnie usuwamy je na żądanie lub w ciągu 30 dni od zakończenia korzystania. Dzienniki techniczne przechowujemy krócej, w okresie niezbędnym do zapewnienia bezpieczeństwa. Kopie zapasowe wygasają zgodnie z cyklem dostawcy bazy."
+        ]
+      },
+      {
+        "heading": "6. Twoje prawa",
+        "paragraphs": [
+          "Masz prawo dostępu do danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przenoszenia, sprzeciwu wobec przetwarzania opartego na prawnie uzasadnionym interesie oraz cofnięcia zgody w dowolnym momencie. Możesz też złożyć skargę do Prezesa Urzędu Ochrony Danych Osobowych. Prawa dotyczące danych klientów szkoły realizuje trener, a Operator mu w tym pomaga."
+        ]
+      },
+      {
+        "heading": "7. Pliki cookie i podobne technologie",
+        "paragraphs": [
+          "Używamy wyłącznie technologii niezbędnych do działania aplikacji: ciasteczka sesji logowania, ciasteczka z wybranym językiem oraz pamięci przeglądarki (service worker) do działania aplikacji na ekranie głównym i powiadomień push. Nie używamy ciasteczek reklamowych ani zewnętrznej analityki."
+        ]
+      },
+      {
+        "heading": "8. Bezpieczeństwo",
+        "paragraphs": [
+          "Połączenia są szyfrowane, dane każdej szkoły są logicznie oddzielone, a dostęp do nich wymaga uwierzytelnienia i odpowiedniej roli. Operator ma techniczną możliwość dostępu do danych w bazie i korzysta z niej wyłącznie do obsługi, zapewnienia bezpieczeństwa i na prośbę użytkownika."
+        ]
+      },
+      {
+        "heading": "9. Kontakt i zmiany",
+        "paragraphs": [
+          "W sprawach danych osobowych pisz na adres kontaktowy Operatora podany na górze strony. Politykę możemy zmienić; nowa wersja ma nową datę i będzie dostępna w aplikacji."
+        ]
+      }
+    ]
+  },
+  "consent": {
+    "label": "Akceptuję <terms>Regulamin testów</terms> i <privacy>Politykę prywatności</privacy>."
+  }
+}

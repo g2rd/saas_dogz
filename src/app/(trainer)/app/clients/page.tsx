@@ -11,13 +11,21 @@ export default function ClientsPage({ searchParams }: PageProps<"/app/clients">)
     <>
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">{t("common.klienci_2")}</h1>
-        <Link
-          href="/app/clients/new"
-          className="inline-flex h-11 items-center rounded-full bg-primary hover:bg-primary-hover px-6 font-medium text-primary-foreground"
-        >
-          {t("common.dodaj_klienta")}
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href="/app/clients/import" className="hidden text-sm underline sm:inline">
+            {t("clients.import.link")}
+          </Link>
+          <Link
+            href="/app/clients/new"
+            className="inline-flex h-11 items-center rounded-full bg-primary hover:bg-primary-hover px-6 font-medium text-primary-foreground"
+          >
+            {t("common.dodaj_klienta")}
+          </Link>
+        </div>
       </div>
+      <Link href="/app/clients/import" className="mt-2 inline-block text-sm underline sm:hidden">
+        {t("clients.import.link")}
+      </Link>
       <Suspense fallback={<p className="mt-6 text-zinc-500">{t("common.ladowanie")}</p>}>
         <ClientList searchParams={searchParams} />
       </Suspense>

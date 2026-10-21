@@ -3,6 +3,7 @@ import { fromDbError } from "@/shared/db/errors";
 import { appError } from "@/shared/errors";
 import { err, ok, type Result } from "@/shared/result";
 import type { Client, ClientInput, ClientStatus } from "../domain/client";
+import type { ImportRow } from "../domain/import";
 import { msg } from "@/shared/i18n/messages";
 
 const COLUMNS =
@@ -111,6 +112,33 @@ export function clientsRepository(db: SupabaseClient) {
       if (error) return err(fromDbError(error));
       if (!data) return err(notFound());
       return ok(toClient(data as ClientRow));
+    },
+
+    /** E-maile i telefony wszystkich klientów szkoły (także zarchiwizowanych): do wykrywania duplikatów przy imporcie. */
+    async contacts(organizationId: string): Promise<Result<{ email: string | null; phone: string | null }[]>> {
+      const { data, error } = await db.from("clients").select("email, phone").eq("organization_id", organizationId).limit(10000);
+      if (error) return err(fromDbError(error));
+      return ok(data as { email: string | null; phone: string | null }[]);
+    },
+
+    /** Atomowy zapis klientów i psów (funkcja SQL `import_clients`: rola, limit wierszy i duplikaty e-mail sprawdza baza). */
+    async importRows(
+      organizationId: string,
+      rows: ImportRow[],
+    ): Promise<Result<{ clients: number; dogs: number; skipped: number }>> {
+      const { data, error } = await db.rpc("import_clients", {
+        p_org: organizationId,
+        p_rows: rows.map((row) => ({
+          first_name: row.firstName,
+          last_name: row.lastName,
+          email: row.email,
+          phone: row.phone,
+          dog_name: row.dogName,
+          breed: row.breed,
+        })),
+      });
+      if (error) return err(fromDbError(error));
+      return ok(data as { clients: number; dogs: number; skipped: number });
     },
 
     async setArchived(organizationId: string, id: string, archivedAt: Date | null): Promise<Result<Client>> {

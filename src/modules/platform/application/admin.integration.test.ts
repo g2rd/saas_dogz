@@ -181,21 +181,21 @@ describe("kody beta i zamknięta rejestracja", () => {
       const options = { siteUrl: "http://localhost:3000" };
       const stamp = Date.now();
 
-      const noCode = await signUp(anon, { email: `no-code-${stamp}@example.test`, password: "Haslo-Testowe-123" }, options);
+      const noCode = await signUp(anon, { email: `no-code-${stamp}@example.test`, password: "Haslo-Testowe-123", acceptTerms: "on" }, options);
       expect(noCode.ok).toBe(false);
       if (!noCode.ok) expect(noCode.error.details).toMatchObject({ betaCode: ["errors.auth.gate_closed"] });
 
       const created = value(await createBetaCode(admin, { label: "Rejestracja testowa", maxUses: "1", validDays: "1" }));
       const first = await signUp(
         anonClient(),
-        { email: `with-code-${stamp}@example.test`, password: "Haslo-Testowe-123", betaCode: created.display },
+        { email: `with-code-${stamp}@example.test`, password: "Haslo-Testowe-123", betaCode: created.display, acceptTerms: "on" },
         options,
       );
       expect(first.ok).toBe(true);
 
       const reused = await signUp(
         anonClient(),
-        { email: `reused-${stamp}@example.test`, password: "Haslo-Testowe-123", betaCode: created.display },
+        { email: `reused-${stamp}@example.test`, password: "Haslo-Testowe-123", betaCode: created.display, acceptTerms: "on" },
         options,
       );
       expect(reused.ok).toBe(false);

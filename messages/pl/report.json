@@ -1,0 +1,16 @@
+{
+  "link": "Zgłoś problem lub pomysł",
+  "title": "Zgłoś problem lub pomysł",
+  "intro": "Napisz, co nie działa albo czego brakuje. Zgłoszenie trafia prosto do zespołu DogTrainer. Dopiszemy automatycznie ekran, z którego przyszedłeś.",
+  "kind_label": "Co chcesz zgłosić?",
+  "kind": {
+    "problem": "Problem lub błąd",
+    "idea": "Pomysł lub brakująca funkcja",
+    "other": "Coś innego"
+  },
+  "message_label": "Wiadomość",
+  "message_hint": "Opisz krótko, co robiłeś(-aś) i co poszło nie tak albo co by Ci pomogło. Do 2000 znaków.",
+  "submit": "Wyślij zgłoszenie",
+  "sending": "Wysyłanie...",
+  "thanks": "Dziękujemy! Zgłoszenie dotarło do zespołu DogTrainer."
+}

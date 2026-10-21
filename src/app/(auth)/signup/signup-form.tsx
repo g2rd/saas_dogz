@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { ConsentField } from "@/shared/ui/consent-field";
 import { FormMessage, SubmitButton, TextField } from "@/shared/ui/form-fields";
 import type { SignupState } from "./actions";
 import { useTranslations } from "next-intl";
@@ -66,6 +67,7 @@ export function SignupForm({
         errors={errors.password}
         required
       />
+      <ConsentField errors={errors.acceptTerms} defaultChecked={state.values?.acceptTerms === "on"} />
       <FormMessage state={state} />
       <div>
         <SubmitButton pendingLabel={t("auth.signupSignupForm.tworzenie_konta")}>{t("common.zaloz_konto")}</SubmitButton>

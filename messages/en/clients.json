@@ -5,5 +5,43 @@
     "telefon": "Phone",
     "numer_polski_bez_prefiksu_zapiszemy_jako": "A number without a country code is saved as Polish (+48)",
     "status": "Status"
+  },
+  "import": {
+    "title": "Import clients from a file",
+    "intro": "Move your clients over from a spreadsheet or notebook: upload a CSV file (Excel: Save as CSV) or paste a table. You'll see a preview and a list of problems first, and nothing is saved until you confirm. Clients don't get any invitations or messages.",
+    "file_label": "CSV file",
+    "paste_label": "Or paste the data",
+    "paste_placeholder": "First name;Last name;Email;Phone;Dog;Breed",
+    "format_hint": "The first row holds the headers. We recognise the columns: First name, Last name (or Full name), Email, Phone, Dog, Breed. Separator: semicolon, comma or tab. Up to 500 clients at a time.",
+    "check": "Check the file",
+    "checking": "Checking...",
+    "preview_title": "Import preview",
+    "summary": "Ready to import: {rows} of {total} rows, including {dogs, plural, one {# dog} other {# dogs}}.",
+    "truncated": "The file has more than 500 rows: we import the first 500, load the rest in another file.",
+    "ignored_columns": "Skipped columns (not recognised): {columns}.",
+    "col_name": "Name",
+    "col_dog": "Dog",
+    "more_rows": "…and {count} more.",
+    "errors_title": "{count, plural, one {# row skipped} other {# rows skipped}}",
+    "warnings_title": "{count, plural, one {# warning (row imported without one field)} other {# warnings (rows imported without one field)}}",
+    "issue_line": "Row {line}",
+    "issue": {
+      "first_name_required": "missing first name",
+      "too_long": "a field is too long",
+      "email_dropped": "invalid email “{value}” (skipped)",
+      "phone_dropped": "invalid phone “{value}” (skipped)",
+      "duplicate_in_file": "client repeated in the file “{value}”",
+      "already_exists": "this client is already in the school “{value}”"
+    },
+    "confirm": "Import {count, plural, one {# client} other {# clients}}",
+    "importing": "Importing...",
+    "done": "Done! Imported {clients, plural, one {# client} other {# clients}} and {dogs, plural, one {# dog} other {# dogs}}.",
+    "done_skipped": "Skipped {count, plural, one {# client who was} other {# clients who were}} already in the school.",
+    "back_to_clients": "Go to the client list",
+    "empty": "Paste some data or choose a file.",
+    "too_large": "The file is too large (1 MB limit). Split it into smaller ones.",
+    "no_name_column": "No first name column found. Add a “First name” (or “Full name”) header in the first row.",
+    "nothing_to_import": "Nothing to import: all rows were skipped.",
+    "link": "Import from a file"
   }
 }

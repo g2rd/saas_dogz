@@ -5,8 +5,11 @@
  */
 export type MessageParams = Record<string, string | number>;
 
-/** Klucz komunikatu: małe litery, cyfry i podkreślenia rozdzielone kropkami, co najmniej dwa człony (`validation.email`). */
-const KEY_PATTERN = /^[a-z][a-z0-9_]*(?:\.[a-z0-9_]+)+$/;
+/**
+ * Klucz komunikatu: litery, cyfry i podkreślenia rozdzielone kropkami, co najmniej dwa człony (`validation.email`), pierwszy zaczyna się
+ * małą literą. Człony mogą mieć wielkie litery (`labels.requestConfirmation.cancel`); zwykły tekst ze spacją nigdy nie pasuje.
+ */
+const KEY_PATTERN = /^[a-z][A-Za-z0-9_]*(?:\.[A-Za-z0-9_]+)+$/;
 
 export function msg(key: string, params?: MessageParams): string {
   return params && Object.keys(params).length > 0 ? `${key}|${JSON.stringify(params)}` : key;

@@ -12,6 +12,7 @@ import {
 import { hashBetaCode, normalizeBetaCode } from "../domain/beta-code";
 import { safeNextPath } from "../domain/redirect";
 import { msg } from "@/shared/i18n/messages";
+import { LEGAL_VERSION } from "@/shared/legal";
 
 /** Ścieżki, na które może wskazywać `next` w linkach z e-maili (callback). */
 export const CALLBACK_NEXT_PREFIXES = ["/app", "/portal", "/invite", "/join", "/reset-password"] as const;
@@ -85,6 +86,8 @@ export async function signUp(
         ...(input.value.fullName ? { full_name: input.value.fullName } : {}),
         ...(codeHash ? { beta_code_hash: codeHash } : {}),
         ...(inviteHash ? { invite_hash: inviteHash } : {}),
+        // Zgoda na regulamin i politykę prywatności (schemat wymaga zaznaczenia pola); zapisuje ją wyzwalacz zakładania konta
+        consent_version: LEGAL_VERSION,
         // Język preferowany przy rejestracji: trafia do profilu (powiadomienia w języku odbiorcy)
         ...(options.locale && /^[a-z]{2,3}$/.test(options.locale) ? { locale: options.locale } : {}),
       },

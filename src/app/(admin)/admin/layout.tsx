@@ -13,6 +13,7 @@ export default function AdminLayout({ children }: LayoutProps<"/admin">) {
           </Link>
           <Link href="/admin">Szkoły</Link>
           <Link href="/admin/codes">Kody i rejestracja</Link>
+          <Link href="/admin/feedback">Opinie</Link>
           <span className="ml-auto flex items-center gap-4">
             <Link href="/app" className="text-zinc-300">
               Mój panel trenera

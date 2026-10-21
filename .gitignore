@@ -30,6 +30,12 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# testy end-to-end (Playwright): wyniki i raporty
+/e2e/.results/
+/e2e/.report/
+/test-results/
+/playwright-report/
+
 # env files (can opt-in for committing if needed)
 .env*
 !.env.example

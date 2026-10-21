@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import { ConsentField } from "@/shared/ui/consent-field";
 import { FormMessage, SubmitButton, TextField } from "@/shared/ui/form-fields";
 import type { InviteState } from "../actions";
 import { Msg } from "@/shared/ui/msg";
@@ -84,6 +85,7 @@ export function InviteSignupForm({
         errors={errors.password}
         required
       />
+      <ConsentField errors={errors.acceptTerms} defaultChecked={state.values?.acceptTerms === "on"} />
       <FormMessage state={state} />
       {state.existingAccount ? (
         <p className="text-sm">

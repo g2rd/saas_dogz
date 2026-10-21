@@ -21,9 +21,12 @@ export const NAMESPACES = [
   "scheduling",
   "notifications",
   "notify",
+  "report",
+  "legal",
   "invitations",
   "labels",
   "feedback",
+  "settings",
 ] as const;
 
 export type Messages = Record<string, unknown>;

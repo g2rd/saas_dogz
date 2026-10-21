@@ -86,5 +86,17 @@
     "shortcut_today": "Today",
     "shortcut_notifications": "Notifications",
     "suspended_title": "Account unavailable"
+  },
+  "errorPage": {
+    "title": "Something went wrong",
+    "text": "An unexpected error occurred. Your data is safe. Try again; if the problem keeps happening, use “Report a problem or idea” in the More menu and include the code below.",
+    "reference": "Reference code: {code}",
+    "retry": "Try again",
+    "home": "Back to the home page"
+  },
+  "notFoundPage": {
+    "title": "Page not found",
+    "text": "This page doesn't exist or you don't have access to it. Check the address or go back to the home page.",
+    "home": "Back to the home page"
   }
 }

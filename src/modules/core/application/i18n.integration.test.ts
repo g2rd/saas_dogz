@@ -14,7 +14,7 @@ describe("język, waluta i strefa czasowa wykryte z urządzenia", () => {
     const email = `i18n-${crypto.randomUUID().slice(0, 8)}@example.test`;
     const result = await signUp(
       anonClient(),
-      { email, password: "Haslo-Testowe-123", fullName: "Anna Test" },
+      { email, password: "Haslo-Testowe-123", fullName: "Anna Test", acceptTerms: "on" },
       { siteUrl: "http://localhost:3000", locale: "en" },
     );
     expect(result.ok).toBe(true);

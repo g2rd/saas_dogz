@@ -1,0 +1,38 @@
+{
+  "link": "Ustawienia szkoły",
+  "title": "Ustawienia szkoły",
+  "back": "Więcej",
+  "description": "Waluta, strefa czasowa i język szkoły oraz zasady późnych odwołań. Zmieniać je mogą właściciel i administrator.",
+  "currency": {
+    "label": "Waluta szkoły",
+    "hint": "Jedna waluta dla cen, pakietów i wpłat. Po zmianie ceny w cenniku (rodzaje zajęć, szablony pakietów) dostają nową walutę, a kwoty zostają bez zmian, więc sprawdź je.",
+    "locked": "Waluta jest zablokowana, bo w szkole są już pakiety, należności lub wpłaty. Zmiana walut zmieniłaby sens zapisanych kwot. Jeśli to pomyłka, napisz do obsługi przez „Zgłoś problem lub pomysł”."
+  },
+  "timezone": {
+    "label": "Strefa czasowa",
+    "hint": "Według niej liczymy godziny zajęć, dzień rozliczeń i przypomnienia."
+  },
+  "locale": {
+    "label": "Język szkoły",
+    "hint": "W tym języku idą wiadomości do osób bez konta, np. zaproszenia e-mail. Osoby z kontem widzą aplikację we własnym języku."
+  },
+  "lateCancel": {
+    "hours": {
+      "label": "Późne odwołanie: ile godzin przed zajęciami",
+      "hint": "Odwołanie później niż tyle godzin przed startem jest „późne”. 0 oznacza brak progu."
+    },
+    "consumes": {
+      "label": "Późne odwołanie zużywa zajęcie z pakietu",
+      "hint": "Wyłącz, jeśli późne odwołania mają nie obciążać pakietu klienta."
+    }
+  },
+  "save": "Zapisz ustawienia",
+  "saving": "Zapisywanie...",
+  "saved": "Zapisano",
+  "validation": {
+    "currency": "Wybierz poprawną walutę.",
+    "timezone": "Wybierz poprawną strefę czasową.",
+    "locale": "Wybierz język spośród dostępnych.",
+    "late_cancel_hours": "Podaj liczbę godzin od 0 do {max}."
+  }
+}

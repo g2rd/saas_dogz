@@ -1,0 +1,16 @@
+{
+  "link": "Report a problem or idea",
+  "title": "Report a problem or idea",
+  "intro": "Tell us what isn't working or what's missing. Your message goes straight to the DogTrainer team. We automatically add the screen you came from.",
+  "kind_label": "What would you like to report?",
+  "kind": {
+    "problem": "A problem or bug",
+    "idea": "An idea or missing feature",
+    "other": "Something else"
+  },
+  "message_label": "Message",
+  "message_hint": "Briefly describe what you were doing and what went wrong, or what would help. Up to 2000 characters.",
+  "submit": "Send report",
+  "sending": "Sending...",
+  "thanks": "Thank you! Your report reached the DogTrainer team."
+}
