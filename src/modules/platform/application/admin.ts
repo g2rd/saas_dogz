@@ -12,6 +12,7 @@ import {
   setStatusSchema,
   signupModeSchema,
 } from "../domain/inputs";
+import type { FeedbackRow } from "../domain/feedback";
 import type { BetaCodeRow, OrganizationOverview, StatusHistoryEntry } from "../domain/overview";
 import { adminRepository } from "../infrastructure/admin-repository";
 import { msg } from "@/shared/i18n/messages";
@@ -106,6 +107,14 @@ export async function createBetaCode(ctx: AdminContext, raw: unknown): Promise<R
   );
   if (!created.ok) return created;
   return ok({ code, display: formatBetaCode(code) });
+}
+
+export async function listFeedback(ctx: AdminContext): Promise<Result<FeedbackRow[]>> {
+  return repo(ctx).listFeedback();
+}
+
+export async function setFeedbackSeen(ctx: AdminContext, id: string, seen: boolean): Promise<Result<void>> {
+  return repo(ctx).setFeedbackSeen(id, seen, ctx.now());
 }
 
 export async function revokeBetaCode(ctx: AdminContext, codeId: string): Promise<Result<void>> {

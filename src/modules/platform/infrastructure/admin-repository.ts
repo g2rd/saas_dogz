@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { fromDbError } from "@/shared/db/errors";
 import { err, ok, type Result } from "@/shared/result";
+import type { FeedbackRow } from "../domain/feedback";
 import type { BetaCodeRow, OrganizationOverview, OrgStatus, StatusHistoryEntry } from "../domain/overview";
 
 type OverviewRow = {
@@ -128,6 +129,60 @@ export function adminRepository(db: SupabaseClient, actorId: string) {
     async revokeBetaCode(codeId: string): Promise<Result<void>> {
       const { error } = await db.rpc("admin_revoke_beta_code", { p_code: codeId, p_actor: actorId });
       return error ? err(fromDbError(error)) : ok(undefined);
+    },
+
+    /** Zgłoszenia testerów (najnowsze pierwsze) z nazwą szkoły i adresem autora. */
+    async listFeedback(limit = 200): Promise<Result<FeedbackRow[]>> {
+      const { data, error } = await db
+        .from("feedback")
+        .select("id, user_id, audience, kind, message, page, locale, status, created_at, organizations(name)")
+        .order("created_at", { ascending: false })
+        .limit(limit);
+      if (error) return err(fromDbError(error));
+      type Row = {
+        id: string;
+        user_id: string;
+        audience: FeedbackRow["audience"];
+        kind: FeedbackRow["kind"];
+        message: string;
+        page: string | null;
+        locale: string | null;
+        status: FeedbackRow["status"];
+        created_at: string;
+        organizations: { name: string } | { name: string }[] | null;
+      };
+      const rows = (data ?? []) as unknown as Row[];
+      const emails = new Map<string, string | null>();
+      for (const userId of new Set(rows.map((row) => row.user_id))) {
+        const user = await db.auth.admin.getUserById(userId);
+        emails.set(userId, user.data.user?.email ?? null);
+      }
+      return ok(
+        rows.map((row) => {
+          const org = Array.isArray(row.organizations) ? row.organizations[0] : row.organizations;
+          return {
+            id: row.id,
+            organizationName: org?.name ?? "—",
+            authorEmail: emails.get(row.user_id) ?? null,
+            audience: row.audience,
+            kind: row.kind,
+            message: row.message,
+            page: row.page,
+            locale: row.locale,
+            status: row.status,
+            createdAt: new Date(row.created_at),
+          };
+        }),
+      );
+    },
+
+    async setFeedbackSeen(id: string, seen: boolean, at: Date): Promise<Result<void>> {
+      const { error } = await db
+        .from("feedback")
+        .update({ status: seen ? "seen" : "new", handled_at: seen ? at.toISOString() : null })
+        .eq("id", id);
+      if (error) return err(fromDbError(error));
+      return ok(undefined);
     },
 
     async listBetaCodes(): Promise<Result<BetaCodeRow[]>> {

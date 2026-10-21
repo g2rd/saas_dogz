@@ -5,13 +5,16 @@ export {
   getSignupMode,
   getStatusHistory,
   listBetaCodes,
+  listFeedback,
   listOrganizations,
   revokeBetaCode,
   setOrganizationNotes,
+  setFeedbackSeen,
   setOrganizationStatus,
   setSignupMode,
   type AdminContext,
 } from "./application/admin";
+export { FEEDBACK_KIND_LABELS, type FeedbackRow } from "./domain/feedback";
 export {
   ACTIVITY_LABELS,
   BETA_CODE_STATE_LABELS,

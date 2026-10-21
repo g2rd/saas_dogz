@@ -22,7 +22,7 @@ Stan na 2026-10-21 (`origin/dev` = `ee20159`, `origin/main` = `19b334a`). Dokume
 | 8. Potwierdzenia, cofanie pomyłek, okno 30 s (ADR 0011, migracja 0010) | ✅ | `dev` |
 | 9. Panel właściciela `/admin`, status szkoły (próba/aktywna/tylko do odczytu/zawieszona) z blokadą w bazie, zamknięta rejestracja kodami beta, MFA admina, poprawka błędu 500 przy wyborze zgłoszenia na wolny termin (ADR 0012, migracja 0011) | ✅ kod i testy, ⏳ zostały przeklikać rejestrację z kodem w przeglądarce i test na środowisku zdalnym | `dev` (lokalnie, niewypchnięte) |
 | 9b. Wielojęzyczność, etapy 0-5: `next-intl`, wybór języka z urządzenia i w `Więcej`, formatery, waluta i strefa szkoły z urządzenia, błędy i walidacja jako klucze, teksty UI w katalogu `pl` (680 kluczy), powiadomienia, e-maile zaproszeń, metadane, manifest i strona offline w języku odbiorcy (`message_key` + `params`) (ADR 0013, migracje 0012-0013, [WDROZENIE-WIELOJEZYCZNOSCI.md](WDROZENIE-WIELOJEZYCZNOSCI.md)) | ✅ kod i testy; angielski kompletny i włączony (`ENABLED_LOCALES=pl,en`), przegląd człowieka i pseudo-lokalizacja zostają | PR-y `feat/i18n-notifications` (etap 4) i `feat/i18n-english` (etap 5, oparty na etapie 4) czekają na zatwierdzenie właściciela; etapy 0-3 scalone do `dev` |
-| **10. Oddanie testerom na 2 tygodnie** (staging z HTTPS, regulamin i zgody, formularz opinii, import CSV, seed demo) | ⏳ **następny krok** (sekcja 8, instrukcja: `WDROZENIE-DEMO-10-TESTEROW.md`) | |
+| **10. Oddanie testerom na 2 tygodnie** (staging z HTTPS, regulamin i zgody, formularz opinii, import CSV, seed demo) | ⏳ **w toku**: formularz opinii i import CSV gotowe (PR `feat/tester-feedback-import`, migracje 0014-0015); zostają regulamin i zgody, CI i jakość minimum, staging z HTTPS (sekcja 8, instrukcja: `WDROZENIE-DEMO-10-TESTEROW.md`) | |
 
 Zdalne repozytorium: `https://github.com/g2rd/saas_dogz`. **Gałąź `dev` jest gałęzią integracyjną: tam trafiają wszystkie zmiany. `main` zawiera tylko to, co właściciel zatwierdził; do `main` wchodzimy dopiero po jego wyraźnym zatwierdzeniu (merge `dev` do `main` i push).** Ostatnie wypchnięcie `dev`: 2026-10-16 (commit `ee20159`). `main` jest nadal na etapach do 3.
 
@@ -104,7 +104,7 @@ src/
   instrumentation*.ts       Lokalna pętla powiadomień w `next dev` (co 10 s)
 messages/                   Katalogi tekstów <język>/<przestrzeń>.json (pl źródłowy, en)
 supabase/
-  migrations/               Migracje SQL z RLS (0001-0012), źródło prawdy o schemacie
+  migrations/               Migracje SQL z RLS (0001-0015), źródło prawdy o schemacie
   tests/database/           Testy pgTAP
 public/                     sw.js, offline.html, icons/
 scripts/                    seed-dev.mjs, run-outbox.mjs, generate-icons.mjs, grant-platform-admin.mjs
@@ -156,7 +156,7 @@ Manifest (`start_url=/start`, który kieruje do `/login`, `/app` lub `/portal`),
 
 ## 4. Model danych
 
-Migracje `supabase/migrations/20261016000001` … `0012` (wszystkie zastosowane lokalnie; 0012: język profilu z rejestracji i trigger waluty szkoły).
+Migracje `supabase/migrations/20261016000001` … `0015` (wszystkie zastosowane lokalnie; 0013: klucz i parametry powiadomień; 0014: tabela `feedback`; 0015: funkcja `import_clients`; 0012: język profilu z rejestracji i trigger waluty szkoły).
 
 | Tabela | Moduł | Cel |
 | --- | --- | --- |
@@ -201,6 +201,7 @@ Migracje `supabase/migrations/20261016000001` … `0012` (wszystkie zastosowane 
 10. **Potwierdzenia i cofanie** (ADR 0011, migracja 0010): `ConfirmSubmit`, okno 30 s, cofnięcie zakończenia, przywrócenie zajęć, storno wpłaty, anulowanie pakietu.
 11. **Dokumentacja i narzędzia:** `WDROZENIE-PRODUKCYJNE.md`, `WDROZENIE-DEMO-10-TESTEROW.md`, `WDROZENIE-PELNE-PRODUKCJA.md`, tryb tunelu HTTPS do testu na telefonie (`DEV_TUNNEL=1`), skrypty `seed-dev`, `outbox:run`, `generate-icons`, `admin:grant`.
 12. **Panel właściciela i kontrola dostępu** (ADR 0012, migracja 0011, moduł `platform`): `/admin` (kafelki użycia, lista szkół z filtrem, karta szkoły: status, przedłużenie, notatki, historia), status szkoły egzekwowany w bazie i UI (`/suspended`, pasek „tylko do odczytu”), automat końca dostępu w cronie, e-mail do właścicieli przy zmianie statusu, zamknięta rejestracja kodami beta (wyzwalacz na `auth.users`, kody w `/admin/codes`, pole „Kod zaproszenia” w `/signup`, dowód zaproszenia dla klientów i zespołu), MFA TOTP dla admina (`/admin/mfa`), skrypt `npm run admin:grant`.
+16. **Opinie testerów i import klientów** (etap 10, migracje 0014-0015, moduł `feedback`, rozszerzony `clients`): „Zgłoś problem lub pomysł” w `Więcej` obu paneli (`/app/feedback`, `/portal/feedback`; tabela `feedback` z RLS: tylko własne zgłoszenia, bez edycji i usuwania, ekran źródłowy bez zapytania w adresie); przegląd i „Oznacz jako obejrzane” w `/admin/feedback`. Import klientów i psów z CSV (`/app/clients/import`): wgranie pliku albo wklejenie, separator `;` `,` tabulator, nagłówki po polsku i angielsku, podgląd z listą problemów (błędy pomijają wiersz, złe e-mail i telefon to ostrzeżenia), duplikaty w pliku i w szkole (e-mail, telefon), limit 500 wierszy i 1 MB, zapis atomową funkcją SQL `import_clients`, bez zaproszeń i powiadomień. Teksty w `messages/{pl,en}/report.json` i `clients.import.*`.
 15. **Wielojęzyczność, etap 5 (angielski)**: `messages/en/` dla wszystkich przestrzeni (742 klucze), wybór języka w `Więcej` (`ENABLED_LOCALES=pl,en`), parytet kluczy i parametrów w teście, poprawione pominięte teksty (pulpit, konto klienta, zaległości, potwierdzenia próśb), usunięta wzmianka o BLIK.
 14. **Wielojęzyczność, etap 4** (migracja 0013, ADR 0013): powiadomienia jako `message_key` + `params` (przestrzeń `notify`), render w języku odbiorcy (`profiles.locale`, tylko języki włączone) dla skrzynki, e-maila i push; dzwonek składa treść w języku widza; e-maile zaproszeń w języku szkoły; metadane, manifest i `offline.html` zależne od języka; tłumacz poza żądaniem `src/shared/i18n/translator.ts`.
 13. **Poprawka:** wybór zgłoszenia na wolny termin, gdy termin już minął, rzucał wyjątek (500 w konsoli). Teraz akcje „Wybierz” i „Zamknij ogłoszenie” zwracają komunikat przy przycisku (`slot-offer-forms.tsx`), a lista trenera pomija ogłoszenia z minionym terminem; test regresji w `slots.integration.test.ts`.
@@ -216,11 +217,11 @@ Migracje `supabase/migrations/20261016000001` … `0012` (wszystkie zastosowane 
 | --- | --- | --- |
 | Typy | `npm run typecheck` | czysto |
 | Lint | `npm run lint` | czysto |
-| Testy jednostkowe (domena, symulacja service workera, i18n) | `npm test` | 229/229 |
-| Granice modułów | `npm run check:boundaries` | brak naruszeń (248 modułów) |
+| Testy jednostkowe (domena, symulacja service workera, i18n) | `npm test` | 257/257 |
+| Granice modułów | `npm run check:boundaries` | brak naruszeń (264 modułów) |
 | Build produkcyjny | `npm run build` | przechodzi (trasy panelu to częściowy prerender) |
-| Testy RLS i funkcji SQL (pgTAP) | `npm run db:test` | 239/239 (12 plików; `notification_messages.test.sql`: klucz i parametry powiadomień, ograniczenia, brak prawa zmiany przez odbiorcę; `i18n.test.sql`: język profilu, waluta szkoły; `platform_admin.test.sql`: status, blokada zapisów i odczytów, ochrona kolumn, funkcje tylko `service_role`, wygaszanie, zamknięta rejestracja) |
-| Testy przypadków użycia na prawdziwej bazie (z Mailpit) | `npm run test:integration` | 139/139 (11 plików; `notifications.integration.test.ts`: język odbiorcy w powiadomieniach i e-mailach; `i18n.integration.test.ts`: język w profilu, ustawienia szkoły z urządzenia, waluta rekordów; `admin.integration.test.ts`: panel, blokada, kody beta, rejestracja przy zamkniętym naborze także bezpośrednio przez API) |
+| Testy RLS i funkcji SQL (pgTAP) | `npm run db:test` | 261/261 (14 plików; `feedback.test.sql`: zgłoszenia tylko własne, rola i szkoła, brak edycji; `import_clients.test.sql`: atomowy import, duplikaty e-mail, limit, role; `notification_messages.test.sql`: klucz i parametry powiadomień, ograniczenia, brak prawa zmiany przez odbiorcę; `i18n.test.sql`: język profilu, waluta szkoły; `platform_admin.test.sql`: status, blokada zapisów i odczytów, ochrona kolumn, funkcje tylko `service_role`, wygaszanie, zamknięta rejestracja) |
+| Testy przypadków użycia na prawdziwej bazie (z Mailpit) | `npm run test:integration` | 150/150 (13 plików; `feedback.integration.test.ts`: zgłoszenia i przegląd przez właściciela platformy; `import.integration.test.ts`: podgląd, zapis, ponowny import, błędne pliki, asystent; `notifications.integration.test.ts`: język odbiorcy w powiadomieniach i e-mailach; `i18n.integration.test.ts`: język w profilu, ustawienia szkoły z urządzenia, waluta rekordów; `admin.integration.test.ts`: panel, blokada, kody beta, rejestracja przy zamkniętym naborze także bezpośrednio przez API) |
 
 ### Przeklikane w przeglądarce (lokalny Supabase)
 Panel `/admin` (lista szkół, karta, zmiana statusu z potwierdzeniem, strona kodów), trener szkoły „tylko do odczytu” (pasek i czytelny błąd przy zapisie), ekran `/suspended`, konfiguracja MFA kodem TOTP i wejście do panelu po weryfikacji (przy włączonym MFA w lokalnym Supabase). Fundament i klienci; zaproszenie klienta i rejestracja z QR/kodu do `/portal`; powiadomienia (niskie saldo u obu stron, e-maile w Mailpit); prośba „Odnów pakiet” do trenera; zespół i `/join`; panel w 375 px (dolna nawigacja, „Dziś”, „Więcej”); odwołanie zajęć z potwierdzeniem, „Ogłoś wolny termin”, lista chętnych i „Biorę” po stronie klienta, przywrócenie zajęć; menu „Więcej” klienta; jasny motyw przy emulowanym ciemnym trybie systemu.
@@ -273,7 +274,7 @@ Trener tworzy kartotekę klienta, potem na jej karcie w sekcji „Panel klienta�
 
 Szczegółowa ścieżka do sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJNE.md](WDROZENIE-PRODUKCYJNE.md). Instrukcje krok po kroku: [WDROZENIE-DEMO-10-TESTEROW.md](WDROZENIE-DEMO-10-TESTEROW.md) (demo) i [WDROZENIE-PELNE-PRODUKCJA.md](WDROZENIE-PELNE-PRODUKCJA.md) (sprzedaż).
 
-**Zrobione dla demo:** panel właściciela `/admin` z wglądem i blokowaniem dostępu, status szkoły egzekwowany w bazie, zamknięta rejestracja kodami beta, MFA admina (ADR 0012). **Blokujące, jeszcze niezbudowane (sekcja 1 instrukcji demo):** zgody i regulamin testów (1.3), formularz opinii (1.4), import CSV (1.5), CI i jakość minimum (1.6), e-mail „dostęp kończy się za 7 dni”.
+**Zrobione dla demo:** panel właściciela `/admin` z wglądem i blokowaniem dostępu, status szkoły egzekwowany w bazie, zamknięta rejestracja kodami beta, MFA admina (ADR 0012). **Zrobione w PR `feat/tester-feedback-import`:** formularz opinii „Zgłoś problem lub pomysł” (1.4) z przeglądem w `/admin/feedback` i import klientów z CSV (1.5). **Blokujące, jeszcze niezbudowane (sekcja 1 instrukcji demo):** zgody i regulamin testów (1.3), CI i jakość minimum (1.6), e-mail „dostęp kończy się za 7 dni”.
 
 ### A. Żeby oddać aplikację testerom na 2 tygodnie (bez płatności)
 - [ ] **Staging z HTTPS** (Vercel + osobny projekt Supabase w UE, własna domena, migracje z CI): bez niego nie da się porządnie przetestować PWA i push na telefonach.
@@ -338,6 +339,8 @@ Walidacja (10-15 wywiadów z trenerami, ceny 49/79/119 zł, 5-10 pilotażystów,
 - **Zawieszenie odcina także klientów szkoły:** łagodniejszą blokadą jest `read_only`.
 
 ## 11. Plan bieżącego etapu
+
+Etap 10 (oddanie testerom): formularz opinii i import CSV zrobione (PR `feat/tester-feedback-import`, oparty na gałęzi etapu 5; scalać po kolei). Następne: regulamin i zgody (potrzebny prawnik), CI i jakość minimum, staging z HTTPS (Vercel, domena, Supabase Pro w UE).
 
 Wielojęzyczność: etapy 0-5 gotowe (etap 4 w PR `feat/i18n-notifications`, etap 5 w PR `feat/i18n-english` oparty na etapie 4; oba czekają na zatwierdzenie właściciela; scalać po kolei). Następne: przegląd angielskiego przez człowieka, pseudo-lokalizacja, ekran ustawień szkoły (waluta, strefa, język), potem etap 6 (trzeci język). Etap 10 (oddanie testerom) opisany niżej jest niezależny.
 

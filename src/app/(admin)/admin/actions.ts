@@ -6,6 +6,7 @@ import {
   createBetaCode,
   extendOrganizationAccess,
   revokeBetaCode,
+  setFeedbackSeen,
   setOrganizationNotes,
   setOrganizationStatus,
   setSignupMode,
@@ -64,6 +65,13 @@ export async function revokeBetaCodeAction(codeId: string): Promise<AdminFormSta
   if (!result.ok) return { error: result.error.message };
   refresh();
   return { message: "Kod unieważniony." };
+}
+
+export async function setFeedbackSeenAction(id: string, seen: boolean): Promise<void> {
+  const ctx = await requireAdmin();
+  const result = await setFeedbackSeen(ctx, id, seen);
+  if (!result.ok) throw new Error(result.error.message);
+  revalidatePath("/admin/feedback");
 }
 
 export async function adminLogoutAction() {

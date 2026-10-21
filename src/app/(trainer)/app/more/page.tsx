@@ -43,6 +43,7 @@ async function Links() {
     { href: "/app/team", label: t("common.zespol"), show: hasPermission(ctx, "members.read") },
     { href: "/app/notifications", label: t("common.powiadomienia"), show: true },
     { href: "/app/notifications/settings", label: t("trainer.morePage.ustawienia_powiadomien_i_push"), show: true },
+    { href: "/app/feedback", label: t("report.link"), show: true },
     { href: "/admin", label: t("trainer.morePage.panel_wlasciciela_platformy"), show: Boolean(platformAdmin) },
   ].filter((item) => item.show);
 

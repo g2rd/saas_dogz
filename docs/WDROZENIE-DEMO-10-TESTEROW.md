@@ -61,10 +61,12 @@ a zablokowanie osoby: w Supabase → Authentication → Users → zablokuj (ban)
 - Pole wyboru przy rejestracji trenera i zapis zgody (`consents`: użytkownik, dokument, wersja, czas). Klient przy przyjęciu zaproszenia akceptuje politykę prywatności szkoły/platformy.
 - **Umowa powierzenia przetwarzania danych** z każdym trenerem (może być zgodą w regulaminie, ale konsultuj z prawnikiem; trener wprowadza dane osobowe klientów i **wizerunek/dane o psach**).
 
-### 1.4. Zbieranie opinii
+### 1.4. Zbieranie opinii ✅ (zrobione 2026-10-21)
+**Zrobione:** przycisk „Zgłoś problem lub pomysł” w `Więcej` obu paneli (`/app/feedback`, `/portal/feedback`), tabela `feedback` (migracja 0014; autor, szkoła, rodzaj, treść, ekran, język), przegląd w `/admin/feedback` z oznaczaniem jako obejrzane. Zostaje ankieta tygodniowa (ręcznie) i ewentualny link do zewnętrznego formularza w stopce e-maili. Pierwotny plan:
 Link do formularza opinii (Tally/Google Forms) w menu „Więcej” obu paneli i w stopce e-maili; opcjonalnie tabela `feedback` z przyciskiem „Zgłoś problem lub pomysł” (strona, wersja, wiadomość). Plus ankieta tygodniowa (5 pytań) wysyłana ręcznie.
 
-### 1.5. Import klientów z CSV (mocno zalecany)
+### 1.5. Import klientów z CSV ✅ (zrobione 2026-10-21)
+**Zrobione:** `/app/clients/import` (link na liście klientów): plik CSV albo wklejona tabela, podgląd i raport problemów, atomowy zapis klientów i psów (funkcja SQL `import_clients`, migracja 0015), bez zaproszeń. Wzór arkusza dla testerów: kolumny `Imię;Nazwisko;E-mail;Telefon;Pies;Rasa` (rozpoznawane także nagłówki angielskie). Pierwotny plan:
 Trener z 30-100 klientami nie wpisze ich ręcznie, więc test bez importu da zafałszowany obraz. Minimum: przesłanie pliku (imię, nazwisko, telefon, e-mail, pies), podgląd i raport błędów, zapis do `clients`/`dogs`, bez zaproszeń. Jeśli nie zdążysz, importuj **Ty** dane testerów skryptem jednorazowo (ustalasz z nimi wzór arkusza).
 
 ### 1.6. Jakość i bezpieczeństwo minimum (przed pierwszym obcym użytkownikiem)
@@ -195,7 +197,7 @@ Po 4-6 tygodniach zbierz: metryki z `/admin` względem kryteriów z sekcji 0, an
 - [ ] Panel `/admin` z wglądem, zawieszaniem i `access_until` (1.1) i testami
 - [ ] Zamknięta rejestracja kodem, sprawdzona przez bezpośrednie API (1.2)
 - [ ] Regulamin testów, polityka prywatności, zgoda przy rejestracji (1.3)
-- [ ] Formularz opinii podlinkowany (1.4); import CSV lub plan ręcznego importu (1.5)
+- [x] Formularz opinii (1.4) i import CSV (1.5) zrobione; do tego dać testerom wzór arkusza
 - [ ] CI zielone, Sentry i monitor dostępności włączone (1.6)
 - [ ] Supabase Pro w UE, migracje wdrożone, Auth (URL-e, potwierdzenie e-mail, własny SMTP), kopia przetestowana
 - [ ] Resend z zweryfikowaną domeną, e-maile trafiają do głównej skrzynki

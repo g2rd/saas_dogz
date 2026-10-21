@@ -28,6 +28,12 @@ export default function PortalMorePage() {
             {t("portal.morePage.zobacz_wszystkie_powiadomienia")}
           </Link>
         </section>
+        <Link href="/portal/feedback" className="flex min-h-14 items-center justify-between rounded-2xl border border-zinc-200 px-4 py-3 dark:border-zinc-800">
+          <span className="font-medium">{t("report.link")}</span>
+          <span aria-hidden className="text-zinc-400">
+            ›
+          </span>
+        </Link>
         <Suspense fallback={null}>
           <LanguageSection />
         </Suspense>
