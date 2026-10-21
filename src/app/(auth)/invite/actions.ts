@@ -4,8 +4,10 @@ import { redirect } from "next/navigation";
 import { signUp } from "@/modules/core";
 import { acceptInvitation, invitationProofHash, lookupInvitation, normalizeSecret } from "@/modules/invitations";
 import { siteUrl } from "@/shared/env";
+import { getLocaleContext } from "@/shared/i18n/server";
 import { toFormState, type FormState } from "@/shared/form";
 import { createUserClient } from "@/shared/supabase/server";
+import { msg } from "@/shared/i18n/messages";
 
 export type InviteState = FormState & {
   /** E-mail jest już zarejestrowany: pokazujemy link do logowania. */
@@ -66,7 +68,7 @@ export async function inviteSignupAction(
   }
   if (preview.value.emailMatches === false) {
     return {
-      error: "Popraw zaznaczone pola.",
+      error: msg("validation.fix_fields"),
       fieldErrors: { email: ["Podaj adres e-mail, na który wysłano zaproszenie"] },
       values: { fullName: String(formData.get("fullName") ?? ""), email },
     };
@@ -76,6 +78,7 @@ export async function inviteSignupAction(
     siteUrl: siteUrl(),
     next: `/invite/${secret}`,
     inviteHash: invitationProofHash(secret),
+    locale: (await getLocaleContext()).preferred,
   });
   if (!signedUp.ok) {
     if (signedUp.error.code === "conflict") {

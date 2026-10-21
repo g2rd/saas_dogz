@@ -4,6 +4,7 @@ import { ConfirmSubmit } from "@/shared/ui/confirm";
 
 import { useActionState } from "react";
 import { TextField } from "@/shared/ui/form-fields";
+import { Msg } from "@/shared/ui/msg";
 
 export type AnnounceSlotState = { message?: string; error?: string };
 type Action = (prev: AnnounceSlotState, formData: FormData) => Promise<AnnounceSlotState>;
@@ -40,7 +41,7 @@ export function AnnounceSlotForm({ action }: { action: Action }) {
       ) : null}
       {state.error ? (
         <p role="alert" className="mt-2 text-red-600">
-          {state.error}
+          <Msg text={state.error} />
         </p>
       ) : null}
     </details>

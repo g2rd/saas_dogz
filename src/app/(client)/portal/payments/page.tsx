@@ -5,6 +5,7 @@ import { formatIsoDate } from "@/shared/dates";
 import { formatMoney, money } from "@/shared/money";
 import { Badge } from "@/shared/ui/badge";
 import { requirePortalContext } from "../../_lib/context";
+import { getFormats } from "@/shared/i18n/server";
 
 const TONE: Record<ChargeStatus, "success" | "neutral" | "warning" | "danger"> = {
   paid: "success",
@@ -27,6 +28,7 @@ export default function PortalPaymentsPage() {
 
 async function Payments() {
   const ctx = await requirePortalContext();
+  const formats = await getFormats();
   const result = await listPortalPayments(ctx);
   if (!result.ok) throw new Error(result.error.message);
   const { charges, payments, owedMinor, creditMinor, currency } = result.value;
@@ -82,7 +84,7 @@ async function Payments() {
             {payments.map((payment) => (
               <li key={payment.id} className="flex items-center justify-between gap-2 px-4 py-3">
                 <span>
-                  {payment.paidAt.toLocaleDateString("pl-PL")} · {PAYMENT_METHOD_LABELS[payment.method]}
+                  {formats.date(payment.paidAt)} · {PAYMENT_METHOD_LABELS[payment.method]}
                 </span>
                 <strong>{fmt(payment.amountMinor, payment.currency)}</strong>
               </li>

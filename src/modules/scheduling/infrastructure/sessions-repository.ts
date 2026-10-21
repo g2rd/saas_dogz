@@ -3,6 +3,7 @@ import { fromDbError } from "@/shared/db/errors";
 import { appError } from "@/shared/errors";
 import { err, ok, type Result } from "@/shared/result";
 import type { AttendanceStatus, Session, SessionStatus } from "../domain/session";
+import { msg } from "@/shared/i18n/messages";
 
 const COLUMNS =
   "id, session_type_id, type_name, duration_minutes, default_price_minor, currency, trainer_id, trainer_name, starts_at, ends_at, location, status, client_summary, attendee_id, client_id, client_first_name, client_last_name, dog_id, dog_name, attendance, client_package_id, completed_at";
@@ -121,7 +122,7 @@ export function sessionsRepository(db: SupabaseClient) {
         .eq("id", id)
         .maybeSingle();
       if (error) return err(fromDbError(error));
-      if (!data) return err(appError("not_found", "Nie znaleziono zajęć."));
+      if (!data) return err(appError("not_found", msg("errors.not_found.session")));
       return ok(toSession(data as Row));
     },
 

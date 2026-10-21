@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { ConfirmSubmit } from "@/shared/ui/confirm";
+import { Msg } from "@/shared/ui/msg";
 
 /** Wynik akcji na zajęciach: komunikat o skutku albo błąd (z podpowiedzią, gdy brakuje pakietu). */
 export type SessionActionState = {
@@ -184,7 +185,7 @@ export function SessionActions({
       ) : null}
       {error && !completeState.noPackage ? (
         <p role="alert" className="text-sm text-red-600">
-          {error}
+          <Msg text={error} />
         </p>
       ) : null}
     </div>

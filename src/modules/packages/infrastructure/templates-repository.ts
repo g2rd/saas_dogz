@@ -3,6 +3,7 @@ import { fromDbError } from "@/shared/db/errors";
 import { appError } from "@/shared/errors";
 import { err, ok, type Result } from "@/shared/result";
 import type { PackageTemplate, TemplateInput } from "../domain/template";
+import { msg } from "@/shared/i18n/messages";
 
 const COLUMNS =
   "id, organization_id, name, sessions_count, validity_days, price_minor, currency, is_active, archived_at";
@@ -33,7 +34,7 @@ function toTemplate(row: TemplateRow): PackageTemplate {
   };
 }
 
-const notFound = () => appError("not_found", "Nie znaleziono szablonu pakietu.");
+const notFound = () => appError("not_found", msg("errors.not_found.template"));
 
 export function templatesRepository(db: SupabaseClient) {
   return {

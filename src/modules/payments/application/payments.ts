@@ -19,6 +19,7 @@ import {
   type Payment,
 } from "../domain/payment";
 import { paymentsRepository } from "../infrastructure/payments-repository";
+import { msg } from "@/shared/i18n/messages";
 
 export type ChargeView = Charge & { remainingMinor: number; status: ChargeStatus };
 
@@ -104,7 +105,7 @@ export async function recordPayment(ctx: RequestContext, raw: unknown): Promise<
     const target = open.find((c) => c.id === payment.chargeId);
     if (!target) {
       return err(
-        appError("validation", "Popraw zaznaczone pola.", { chargeId: ["Ta należność jest już opłacona lub anulowana"] }),
+        appError("validation", msg("validation.fix_fields"), { chargeId: [msg("validation.charge_settled")] }),
       );
     }
     plan = allocateToCharge(payment.amount, target);
@@ -124,7 +125,7 @@ export async function recordPayment(ctx: RequestContext, raw: unknown): Promise<
   if (!recorded.ok) {
     // Naruszenie niezmienników w bazie przy poprawnych danych oznacza wyścig z inną wpłatą.
     if (recorded.error.code === "validation") {
-      return err(appError("conflict", "Należności zmieniły się w międzyczasie. Odśwież stronę i spróbuj ponownie."));
+      return err(appError("conflict", msg("errors.payments.charges_changed")));
     }
     return recorded;
   }
@@ -150,7 +151,7 @@ export async function voidCharge(ctx: RequestContext, chargeId: string): Promise
   if (!allowed.ok) return allowed;
   const result = await paymentsRepository(ctx.db).voidCharge(ctx.organizationId, chargeId);
   if (!result.ok && result.error.code === "validation") {
-    return err(appError("conflict", "Nie można anulować należności, na którą są już wpłaty."));
+    return err(appError("conflict", msg("errors.payments.charge_has_payments")));
   }
   return result;
 }

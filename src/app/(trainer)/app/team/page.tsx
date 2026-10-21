@@ -5,6 +5,7 @@ import { MEMBER_ROLE_LABELS, MemberInviteForm, getTeam } from "@/modules/invitat
 import { Badge } from "@/shared/ui/badge";
 import { requireContext } from "../../_lib/context";
 import { inviteMemberAction, revokeMemberInvitationAction } from "./actions";
+import { getFormats } from "@/shared/i18n/server";
 
 export default function TeamPage() {
   return (
@@ -19,6 +20,7 @@ export default function TeamPage() {
 
 async function Team() {
   const ctx = await requireContext();
+  const formats = await getFormats();
   const result = await getTeam(ctx);
   if (!result.ok) {
     return <p className="mt-4 text-zinc-600 dark:text-zinc-400">Nie masz uprawnień do przeglądania zespołu.</p>;
@@ -60,7 +62,7 @@ async function Team() {
                       <span className="font-medium">{invitation.email}</span>
                       <span className="text-sm text-zinc-600 dark:text-zinc-400">
                         {" "}
-                        · {MEMBER_ROLE_LABELS[invitation.role]} · ważne do {invitation.expiresAt.toLocaleDateString("pl-PL")}
+                        · {MEMBER_ROLE_LABELS[invitation.role]} · ważne do {formats.date(invitation.expiresAt)}
                       </span>
                       {invitation.expired ? (
                         <>

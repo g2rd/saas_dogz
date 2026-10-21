@@ -4,6 +4,7 @@ import { appError } from "@/shared/errors";
 import { err, ok, type Result } from "@/shared/result";
 import type { Allocation } from "../domain/allocation";
 import type { Charge, ClientBalance, Payment, PaymentMethod } from "../domain/payment";
+import { msg } from "@/shared/i18n/messages";
 
 const CHARGE_COLUMNS =
   "id, client_id, source_type, source_id, amount_minor, allocated_minor, currency, due_date, description, voided_at, created_at";
@@ -117,7 +118,7 @@ export function paymentsRepository(db: SupabaseClient) {
         .eq("client_id", clientId)
         .maybeSingle();
       if (error) return err(fromDbError(error));
-      if (!data) return err(appError("not_found", "Nie znaleziono klienta."));
+      if (!data) return err(appError("not_found", msg("errors.not_found.client")));
       const row = data as { client_id: string; charged_minor: number; allocated_minor: number; paid_minor: number };
       return ok({
         clientId: row.client_id,

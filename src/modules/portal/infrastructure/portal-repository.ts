@@ -3,6 +3,7 @@ import { fromDbError } from "@/shared/db/errors";
 import { appError } from "@/shared/errors";
 import { err, ok, type Result } from "@/shared/result";
 import type { PortalDog, PortalPayment, PortalSession } from "../domain/portal";
+import { msg } from "@/shared/i18n/messages";
 
 // Raw rows from the views and tables the client may read through RLS (read model).
 export type PackageRow = {
@@ -55,7 +56,7 @@ export function portalRepository(db: SupabaseClient, organizationId: string, cli
       ]);
       if (org.error) return err(fromDbError(org.error));
       if (client.error) return err(fromDbError(client.error));
-      if (!client.data) return err(appError("not_found", "Nie znaleziono konta klienta."));
+      if (!client.data) return err(appError("not_found", msg("errors.not_found.client_account")));
       return ok({
         organizationName: (org.data as { name: string } | null)?.name ?? "",
         timezone: (settings.data as { timezone: string } | null)?.timezone ?? "Europe/Warsaw",

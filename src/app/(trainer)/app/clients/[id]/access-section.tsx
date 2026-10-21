@@ -6,6 +6,7 @@ import { formatMoney, money } from "@/shared/money";
 import { Badge } from "@/shared/ui/badge";
 import { requireContext } from "../../../_lib/context";
 import { createInviteAction, deliverInviteAction, revokeAccessAction } from "./invite-actions";
+import { getFormats } from "@/shared/i18n/server";
 
 /** Dostęp klienta do panelu: zaproszenie (link, QR, kod) i odbieranie dostępu. */
 export async function AccessSection({
@@ -17,6 +18,7 @@ export async function AccessSection({
 }) {
   const ctx = await requireContext();
   if (!hasPermission(ctx, "clients.write")) return null;
+  const formats = await getFormats();
 
   const [info, packages] = await Promise.all([getClientAccessInfo(ctx, clientId), listClientPackages(ctx, clientId)]);
   if (!info.ok) return null;
@@ -41,7 +43,7 @@ export async function AccessSection({
                 <span className="font-medium">Konto z dostępem do panelu</span>
                 <span className="text-sm text-zinc-600 dark:text-zinc-400">
                   {" "}
-                  · od {account.since.toLocaleDateString("pl-PL")} · {account.relation === "owner" ? "główne" : "rodzina"}
+                  · od {formats.date(account.since)} · {account.relation === "owner" ? "główne" : "rodzina"}
                 </span>
               </span>
               <form action={revokeAccessAction.bind(null, clientId, account.userId)}>
@@ -68,7 +70,7 @@ export async function AccessSection({
         <p className="mb-4 flex flex-wrap items-center gap-2 text-sm">
           <Badge tone={pending.expired ? "danger" : "warning"}>{pending.expired ? "Zaproszenie wygasło" : "Zaproszenie czeka"}</Badge>
           <span className="text-zinc-600 dark:text-zinc-400">
-            wysłane {pending.createdAt.toLocaleDateString("pl-PL")}, ważne do {pending.expiresAt.toLocaleDateString("pl-PL")}
+            wysłane {formats.date(pending.createdAt)}, ważne do {formats.date(pending.expiresAt)}
             {pending.packageName ? ` · pakiet „${pending.packageName}”` : ""}
             {pending.email ? ` · dla ${pending.email}` : ""}. Kod i link są widoczne tylko tuż po utworzeniu.
           </span>

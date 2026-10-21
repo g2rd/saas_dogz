@@ -6,6 +6,7 @@ Next.js 16 (App Router) + TypeScript + Tailwind 4 + Supabase (PostgreSQL, Auth).
 
 **Stan, architektura i lista zadań: [docs/ARCHITEKTURA-I-STAN-PRAC.md](docs/ARCHITEKTURA-I-STAN-PRAC.md)** (źródło prawdy, czytaj najpierw).
 Ścieżka do sprzedaży, limitacje i ryzyka: [docs/WDROZENIE-PRODUKCYJNE.md](docs/WDROZENIE-PRODUKCYJNE.md). Instrukcje wdrożenia krok po kroku: [wersja demo dla 10 testerów](docs/WDROZENIE-DEMO-10-TESTEROW.md) i [pełne wdrożenie produkcyjne](docs/WDROZENIE-PELNE-PRODUKCJA.md). Decyzje: `docs/adr/`.
+Wielojęzyczność (plan, decyzje, dodawanie języków): [docs/WDROZENIE-WIELOJEZYCZNOSCI.md](docs/WDROZENIE-WIELOJEZYCZNOSCI.md).
 Zasady pracy dla agenta: `CLAUDE.md` i `AGENTS.md` (ten Next.js ma zmiany łamiące zgodność; dokumentacja w `node_modules/next/dist/docs/`).
 
 ## Uruchomienie
@@ -14,7 +15,7 @@ Zasady pracy dla agenta: `CLAUDE.md` i `AGENTS.md` (ten Next.js ma zmiany łami�
 npm install
 npm run db:start             # lokalny Supabase (wymaga Dockera); wypisze URL i klucze
 cp .env.example .env.local   # uzupełnij klucze Supabase i pozostałe zmienne (opis w pliku)
-npm run db:reset             # migracje 0001-0011 (kasuje dane lokalne)
+npm run db:reset             # migracje 0001-0012 (kasuje dane lokalne)
 npm run seed:dev             # dane deweloperskie (tylko lokalnie)
 npm run dev                  # http://localhost:3000
 ```
@@ -46,7 +47,7 @@ Test push i instalacji PWA na telefonie (tunel HTTPS): sekcja 7 dokumentu o stan
 - `src/shared`: Money, Result, błędy, kontekst, klienci Supabase, env, wspólne UI (formularze, potwierdzenie, PWA)
 - `supabase/migrations`: migracje SQL z RLS; `supabase/tests`: testy pgTAP
 - `public`: service worker, strona offline, ikony PWA; `scripts`: seed, outbox, generator ikon
-- `docs`: stan prac i architektura, plan wdrożenia, `adr/` (decyzje 0001-0012)
+- `docs`: stan prac i architektura, plan wdrożenia, `adr/` (decyzje 0001-0013)
 
 ## Stan (2026-10-21)
 

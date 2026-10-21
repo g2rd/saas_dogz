@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { FormMessage, SubmitButton, TextField } from "@/shared/ui/form-fields";
 import type { InviteState } from "../actions";
+import { Msg } from "@/shared/ui/msg";
 
 type SignupAction = (prev: InviteState, formData: FormData) => Promise<InviteState>;
 type AcceptAction = () => Promise<InviteState>;
@@ -19,7 +20,7 @@ export function AcceptInviteForm({ action, email }: { action: AcceptAction; emai
       ) : null}
       {state.error ? (
         <p role="alert" className="text-sm text-red-600">
-          {state.error}
+          <Msg text={state.error} />
         </p>
       ) : null}
       <div>

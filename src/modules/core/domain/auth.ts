@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { formText } from "@/shared/form";
+import { msg } from "@/shared/i18n/messages";
 
 export const PASSWORD_MIN_LENGTH = 8;
 // bcrypt (używany przez Supabase Auth) ignoruje bajty powyżej 72.
@@ -7,7 +8,7 @@ export const PASSWORD_MAX_LENGTH = 72;
 
 const email = formText(254)
   .transform((v) => v.toLowerCase())
-  .pipe(z.email("Podaj poprawny adres e-mail"));
+  .pipe(z.email(msg("validation.email")));
 
 const newPassword = z.preprocess(
   (v) => (v == null ? "" : v),
@@ -19,7 +20,7 @@ const newPassword = z.preprocess(
 
 export const loginSchema = z.object({
   email,
-  password: z.preprocess((v) => (v == null ? "" : v), z.string().min(1, "Podaj hasło")),
+  password: z.preprocess((v) => (v == null ? "" : v), z.string().min(1, msg("validation.password_required"))),
 });
 
 export const signupSchema = z.object({
@@ -36,7 +37,7 @@ export const resetPasswordSchema = z
     confirmPassword: z.preprocess((v) => (v == null ? "" : v), z.string()),
   })
   .refine((v) => v.password === v.confirmPassword, {
-    message: "Hasła nie są takie same",
+    message: msg("validation.password_mismatch"),
     path: ["confirmPassword"],
   });
 

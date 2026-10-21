@@ -3,6 +3,7 @@ import { fromDbError } from "@/shared/db/errors";
 import { appError } from "@/shared/errors";
 import { err, ok, type Result } from "@/shared/result";
 import type { SessionType, SessionTypeInput } from "../domain/session-type";
+import { msg } from "@/shared/i18n/messages";
 
 const COLUMNS = "id, organization_id, name, duration_minutes, default_price_minor, currency, archived_at";
 
@@ -28,7 +29,7 @@ function toType(row: Row): SessionType {
   };
 }
 
-const notFound = () => appError("not_found", "Nie znaleziono rodzaju zajęć.");
+const notFound = () => appError("not_found", msg("errors.not_found.session_type"));
 
 export function sessionTypesRepository(db: SupabaseClient) {
   return {

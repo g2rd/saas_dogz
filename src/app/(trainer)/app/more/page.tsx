@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { hasPermission } from "@/modules/core";
 import { SubmitButton } from "@/shared/ui/form-fields";
+import { LanguageSection } from "@/shared/ui/language-section";
 import { InstallPrompt } from "@/shared/ui/pwa";
 import { requireContext } from "../../_lib/context";
 import { logoutAction } from "../actions";
@@ -14,6 +15,9 @@ export default function MorePage() {
         <InstallPrompt />
         <Suspense fallback={<p className="text-zinc-500">Ładowanie...</p>}>
           <Links />
+        </Suspense>
+        <Suspense fallback={null}>
+          <LanguageSection />
         </Suspense>
         <form action={logoutAction}>
           <SubmitButton variant="secondary" pendingLabel="Wylogowywanie...">

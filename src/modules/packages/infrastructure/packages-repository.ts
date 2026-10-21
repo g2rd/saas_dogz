@@ -4,6 +4,7 @@ import { appError } from "@/shared/errors";
 import { err, ok, type Result } from "@/shared/result";
 import type { SaleDraft } from "../domain/sale";
 import type { LedgerReason } from "../domain/ledger";
+import { msg } from "@/shared/i18n/messages";
 
 const COLUMNS =
   "id, organization_id, client_id, dog_id, name, sessions_total, valid_from, valid_until, price_minor, currency, canceled_at, created_at, balance";
@@ -74,7 +75,7 @@ function toPackage(row: PackageRow): PackageRecord {
   };
 }
 
-const notFound = () => appError("not_found", "Nie znaleziono pakietu.");
+const notFound = () => appError("not_found", msg("errors.not_found.package"));
 
 export function packagesRepository(db: SupabaseClient) {
   return {

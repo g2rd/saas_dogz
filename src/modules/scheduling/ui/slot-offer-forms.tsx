@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { ConfirmSubmit } from "@/shared/ui/confirm";
+import { Msg } from "@/shared/ui/msg";
 
 /** Wynik operacji na ogłoszeniu: błąd (np. termin już minął) pokazujemy przy przycisku zamiast zrywać stronę. */
 export type SlotActionState = { error?: string; message?: string };
@@ -12,7 +13,7 @@ function Feedback({ state }: { state: SlotActionState }) {
   if (state.error) {
     return (
       <p role="alert" className="mt-1 w-full text-sm text-red-600">
-        {state.error}
+        <Msg text={state.error} />
       </p>
     );
   }

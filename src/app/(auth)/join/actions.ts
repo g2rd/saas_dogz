@@ -4,9 +4,11 @@ import { redirect } from "next/navigation";
 import { signUp } from "@/modules/core";
 import { acceptMemberInvitation, invitationProofHash, lookupMemberInvitation } from "@/modules/invitations";
 import { siteUrl } from "@/shared/env";
+import { getLocaleContext } from "@/shared/i18n/server";
 import { toFormState } from "@/shared/form";
 import { createUserClient } from "@/shared/supabase/server";
 import type { InviteState } from "../invite/actions";
+import { msg } from "@/shared/i18n/messages";
 
 const MESSAGES: Record<string, string> = {
   email_mismatch:
@@ -41,7 +43,7 @@ export async function joinSignupAction(token: string, _prev: InviteState, formDa
   }
   if (preview.value.emailMatches === false) {
     return {
-      error: "Popraw zaznaczone pola.",
+      error: msg("validation.fix_fields"),
       fieldErrors: { email: ["Podaj adres e-mail, na który wysłano zaproszenie"] },
       values: { fullName: String(formData.get("fullName") ?? ""), email },
     };
@@ -51,6 +53,7 @@ export async function joinSignupAction(token: string, _prev: InviteState, formDa
     siteUrl: siteUrl(),
     next: `/join/${token}`,
     inviteHash: invitationProofHash(token),
+    locale: (await getLocaleContext()).preferred,
   });
   if (!signedUp.ok) {
     if (signedUp.error.code === "conflict") return { ...toFormState(signedUp.error, formData), existingAccount: true };

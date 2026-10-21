@@ -27,6 +27,7 @@ import { formatMoney, money } from "@/shared/money";
 import { Badge } from "@/shared/ui/badge";
 import { requireContext } from "../../../_lib/context";
 import { recordPaymentAction, sellPackageAction, voidChargeAction, voidPaymentAction } from "../../billing-actions";
+import { getFormats } from "@/shared/i18n/server";
 
 const PACKAGE_TONE: Record<PackageStatus, "success" | "neutral" | "warning" | "danger"> = {
   active: "success",
@@ -123,6 +124,7 @@ export async function BillingSection({
   dogs: { id: string; name: string }[];
 }) {
   const ctx = await requireContext();
+  const formats = await getFormats();
   const canSeePackages = hasPermission(ctx, "packages.read");
   const canWritePackages = hasPermission(ctx, "packages.write");
   const canSeePayments = hasPermission(ctx, "payments.read");
@@ -224,7 +226,7 @@ export async function BillingSection({
                 {paymentList.map((payment) => (
                   <li key={payment.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
                     <span>
-                      {payment.paidAt.toLocaleDateString("pl-PL")} · {PAYMENT_METHOD_LABELS[payment.method]}
+                      {formats.date(payment.paidAt)} · {PAYMENT_METHOD_LABELS[payment.method]}
                       {payment.reference ? ` · ${payment.reference}` : ""}
                     </span>
                     <span className="flex items-center gap-3">

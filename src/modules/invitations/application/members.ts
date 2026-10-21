@@ -17,8 +17,9 @@ import {
 import { composeMemberInvitationMessage } from "../domain/message";
 import { generateToken, hashSecret, invitationExpiry, normalizeSecret } from "../domain/secrets";
 import { membersRepository } from "../infrastructure/members-repository";
+import { msg } from "@/shared/i18n/messages";
 
-const malformed = () => appError("validation", "Niepoprawny link zaproszenia.");
+const malformed = () => appError("validation", msg("errors.invitations.malformed_link"));
 
 /**
  * Zaprasza osobę do zespołu (administrator, trener, asystent). Link jest zwracany tylko tutaj (w bazie jest sam HMAC);
@@ -98,7 +99,7 @@ export async function acceptMemberInvitation(
   if (!token) return err(malformed());
   const result = await membersRepository(db).accept(hashSecret(token, invitationHashSecret()));
   if (!result.ok && result.error.code === "not_found") {
-    return err(appError("not_found", "Nie znaleziono zaproszenia. Sprawdź link."));
+    return err(appError("not_found", msg("errors.not_found.invitation_link")));
   }
   return result;
 }

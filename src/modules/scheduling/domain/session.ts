@@ -2,6 +2,7 @@ import { z } from "zod";
 import { isRealIsoDate } from "@/shared/dates";
 import { emptyToNull, formText } from "@/shared/form";
 import { timeInZone } from "@/shared/time";
+import { msg } from "@/shared/i18n/messages";
 
 export type SessionStatus = "scheduled" | "completed" | "canceled";
 export type AttendanceStatus = "planned" | "attended" | "canceled" | "late_canceled" | "no_show";
@@ -51,13 +52,13 @@ export function formatSessionRange(session: Pick<Session, "startsAt" | "endsAt">
 }
 
 export const scheduleInputSchema = z.object({
-  clientId: z.uuid({ error: "Wybierz klienta" }),
+  clientId: z.uuid({ error: msg("validation.choose_client") }),
   dogId: z.preprocess(emptyToNull, z.uuid().nullable()),
-  sessionTypeId: z.uuid({ error: "Wybierz rodzaj zajęć" }),
-  date: z.string({ error: "Podaj datę" }).refine(isRealIsoDate, "Podaj poprawną datę"),
+  sessionTypeId: z.uuid({ error: msg("validation.choose_session_type") }),
+  date: z.string({ error: msg("validation.enter_date") }).refine(isRealIsoDate, msg("validation.enter_valid_date")),
   time: z
-    .string({ error: "Podaj godzinę" })
-    .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Podaj godzinę w formacie GG:MM"),
+    .string({ error: msg("validation.enter_time") })
+    .regex(/^([01]\d|2[0-3]):[0-5]\d$/, msg("validation.time_format")),
   location: formText(200).transform((v) => (v === "" ? null : v)),
   /** Domyślnie zalogowany trener; wskazanie innego jest dla właściciela i administratora. */
   trainerId: z.preprocess(emptyToNull, z.uuid().nullable()),

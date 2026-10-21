@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { appError, type AppError } from "./errors";
 import { parseAmountToMinor } from "./money";
+import { msg } from "@/shared/i18n/messages";
 
 export type FormState = {
   error?: string;
@@ -37,13 +38,13 @@ export function parseInput<S extends z.ZodType>(
   const { fieldErrors, formErrors } = z.flattenError(parsed.error);
   return {
     ok: false,
-    error: appError("validation", formErrors[0] ?? "Popraw zaznaczone pola.", fieldErrors),
+    error: appError("validation", formErrors[0] ?? msg("validation.fix_fields"), fieldErrors),
   };
 }
 
 /** Pole tekstowe z formularza: brak wartości traktowany jak pusty ciąg. */
 export const formText = (max: number) =>
-  z.preprocess((v) => (v == null ? "" : v), z.string().trim().max(max, `Maksymalnie ${max} znaków`));
+  z.preprocess((v) => (v == null ? "" : v), z.string().trim().max(max, msg("validation.max_length", { max })));
 
 /** Liczba całkowita z formularza (tekst), w podanym zakresie. */
 export const formInt = (min: number, max: number, message: string) =>
@@ -62,7 +63,7 @@ export const formOptionalInt = (min: number, max: number, message: string) =>
     z.number({ error: message }).int(message).min(min, message).max(max, message).nullable(),
   );
 
-const AMOUNT_MESSAGE = "Podaj poprawną kwotę, np. 800 lub 800,50";
+const AMOUNT_MESSAGE = msg("validation.amount_invalid");
 
 /** Kwota z formularza ("800,50") w groszach. */
 export const formAmountMinor = (message = AMOUNT_MESSAGE) =>

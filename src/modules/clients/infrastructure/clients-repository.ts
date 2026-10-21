@@ -3,6 +3,7 @@ import { fromDbError } from "@/shared/db/errors";
 import { appError } from "@/shared/errors";
 import { err, ok, type Result } from "@/shared/result";
 import type { Client, ClientInput, ClientStatus } from "../domain/client";
+import { msg } from "@/shared/i18n/messages";
 
 const COLUMNS =
   "id, organization_id, first_name, last_name, email, phone, assigned_trainer_id, status, archived_at, created_at";
@@ -46,7 +47,7 @@ function toColumns(input: ClientInput) {
   };
 }
 
-const notFound = () => appError("not_found", "Nie znaleziono klienta.");
+const notFound = () => appError("not_found", msg("errors.not_found.client"));
 
 export type ListClientsOptions = {
   /** Fraza już oczyszczona przez sanitizeSearch. */

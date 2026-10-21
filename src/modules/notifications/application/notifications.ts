@@ -12,6 +12,7 @@ import {
   type Notification,
 } from "../domain/notification";
 import { notificationsRepository } from "../infrastructure/notifications-repository";
+import { msg } from "@/shared/i18n/messages";
 
 /** Minimalny kontekst potrzebny do skrzynki: spełniają go zarówno kontekst personelu, jak i klienta. */
 export type InboxScope = Pick<RequestContext, "userId" | "organizationId" | "db" | "clock">;
@@ -71,7 +72,7 @@ export async function createClientRequest(
   const input = parseInput(createRequestInputSchema, raw);
   if (!input.ok) return err(input.error);
   if (input.value.kind === "renew" && !input.value.packageId) {
-    return err(appError("validation", "Wskaż pakiet, który chcesz odnowić."));
+    return err(appError("validation", msg("errors.notifications.choose_package")));
   }
 
   const created = await notificationsRepository(ctx.db, ctx.userId, ctx.organizationId).createRequest(ctx.clientId, input.value);

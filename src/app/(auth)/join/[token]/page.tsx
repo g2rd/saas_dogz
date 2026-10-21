@@ -6,6 +6,7 @@ import { createUserClient } from "@/shared/supabase/server";
 import { AuthShell } from "../../_components/auth-shell";
 import { AcceptInviteForm, InviteSignupForm } from "../../invite/[secret]/invite-forms";
 import { acceptJoinAction, joinSignupAction } from "../actions";
+import { Msg } from "@/shared/ui/msg";
 
 type Props = PageProps<"/join/[token]">;
 
@@ -36,7 +37,7 @@ async function JoinContent({ params }: Pick<Props, "params">) {
   if (!preview.ok) {
     return (
       <p role="alert" className="text-sm text-red-600">
-        {preview.error.message}
+        <Msg text={preview.error.message} />
       </p>
     );
   }

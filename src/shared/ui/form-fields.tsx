@@ -3,6 +3,7 @@
 import { useId } from "react";
 import { useFormStatus } from "react-dom";
 import type { FormState } from "../form";
+import { Msg, MsgList } from "./msg";
 
 const inputClass =
   "h-11 w-full rounded-lg border border-zinc-300 bg-transparent px-3 text-base dark:border-zinc-700";
@@ -36,7 +37,7 @@ function FieldShell({
       {hint && !hasError ? <p className="text-zinc-500">{hint}</p> : null}
       {hasError ? (
         <p id={`${id}-error`} role="alert" className="text-red-600">
-          {errors?.join(", ")}
+          <MsgList items={errors ?? []} />
         </p>
       ) : null}
     </div>
@@ -185,7 +186,7 @@ export function FormMessage({ state }: { state: FormState }) {
   if (!state.error) return null;
   return (
     <p role="alert" className="text-sm text-red-600">
-      {state.error}
+      <Msg text={state.error} />
     </p>
   );
 }
