@@ -2,7 +2,8 @@
 import { DEFAULT_TIMEZONE, dateInZone, timeInZone } from "@/shared/time";
 import type { Notification } from "../domain/notification";
 import { useTranslations } from "next-intl";
-import { getFormats } from "@/shared/i18n/server";
+import { getFormats, getMessageTranslator } from "@/shared/i18n/server";
+import { renderNotification } from "../domain/render";
 import { getTranslations } from "next-intl/server";
 
 type OpenAction = (id: string, link: string | null) => Promise<void>;
@@ -22,12 +23,19 @@ export async function NotificationList({
 }) {
   const formats = await getFormats();
   const t = await getTranslations();
+  const translate = await getMessageTranslator();
   if (items.length === 0) {
     return <p className="text-zinc-600 dark:text-zinc-400">{t("notifications.notificationList.brak_powiadomien_gdy_cos_sie_wydarzy")}</p>;
   }
   return (
     <ul className="divide-y divide-zinc-200 rounded-2xl border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
-      {items.map((item) => (
+      {items.map((item) => {
+        // Treść układana w języku, który użytkownik ma teraz; starsze wpisy (bez klucza) pokazują zapisany tekst
+        const text = (item.messageKey ? renderNotification(translate, formats, item.messageKey, item.params) : null) ?? {
+          title: item.title,
+          body: item.body,
+        };
+        return (
         <li key={item.id}>
           <form action={openAction.bind(null, item.id, item.link)}>
             <button
@@ -41,9 +49,9 @@ export async function NotificationList({
               <span className="min-w-0 flex-1">
                 <span className={`block ${item.read ? "" : "font-semibold"}`}>
                   {item.read ? null : <span className="sr-only">{t("notifications.notificationList.nieprzeczytane")}{" "}</span>}
-                  {item.title}
+                  {text.title}
                 </span>
-                {item.body ? <span className="block text-sm text-zinc-600 dark:text-zinc-400">{item.body}</span> : null}
+                {text.body ? <span className="block text-sm text-zinc-600 dark:text-zinc-400">{text.body}</span> : null}
                 <span className="mt-1 block text-xs text-zinc-500">
                   {formats.calendarDate(dateInZone(item.createdAt, timezone))}, {timeInZone(item.createdAt, timezone)}
                 </span>
@@ -51,7 +59,8 @@ export async function NotificationList({
             </button>
           </form>
         </li>
-      ))}
+        );
+      })}
     </ul>
   );
 }

@@ -249,7 +249,11 @@ export function outboxRepository(db: SupabaseClient) {
     },
 
     /** Zapisuje powiadomienie; gdy już istnieje (ponowienie zdarzenia), zwraca istniejące z `created: false`. */
-    async saveNotification(organizationId: string, draft: NotificationDraft): Promise<{ id: string; created: boolean }> {
+    async saveNotification(
+      organizationId: string,
+      draft: NotificationDraft,
+      text: { title: string; body: string },
+    ): Promise<{ id: string; created: boolean }> {
       const inserted = await db
         .from("notifications")
         .insert({
@@ -258,8 +262,10 @@ export function outboxRepository(db: SupabaseClient) {
           audience: draft.audience,
           client_id: draft.clientId,
           type: draft.type,
-          title: draft.title,
-          body: draft.body,
+          title: text.title,
+          body: text.body,
+          message_key: draft.messageKey,
+          message_params: draft.params,
           link: draft.link,
           data: draft.data,
           dedupe_key: draft.dedupeKey,
@@ -307,6 +313,12 @@ export function outboxRepository(db: SupabaseClient) {
         "preferences",
       ) as ChannelPreferences | null;
       return row;
+    },
+
+    /** Język odbiorcy z profilu (`profiles.locale`); `null`, gdy brak profilu. */
+    async localeFor(userId: string): Promise<string | null> {
+      const row = must(await db.from("profiles").select("locale").eq("id", userId).maybeSingle(), "locale") as { locale: string } | null;
+      return row?.locale ?? null;
     },
 
     async emailFor(userId: string): Promise<string | null> {

@@ -16,7 +16,7 @@
     "wykorzystany": "Wykorzystany",
     "z_sessionstotal_zajec_zostalo": "z {sessionsTotal} zajęć zostało",
     "czesc_clientfirstname": "Cześć, {clientFirstName}",
-    "zostaly_ci_balance_sessionsword": "Zostały Ci {balance} {sessionsWord}.",
+    "zostaly_ci_balance_sessionsword": "{balance, plural, few {Zostały Ci # zajęcia} many {Zostały Ci # zajęć} other {Zostały Ci # zajęcia}}.",
     "zostalo_ci_ostatnie_zajecie": "Zostało Ci ostatnie zajęcie.",
     "twoj_pakiet_sie_skonczyl": "Twój pakiet się skończył.",
     "pakiet_name_co_robisz_dalej_trener": "Pakiet „{name}”. Co robisz dalej? Trener dostanie Twoją odpowiedź.",

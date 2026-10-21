@@ -386,3 +386,55 @@ describe("izolacja", () => {
     expect(data).toEqual([]);
   });
 });
+
+describe("język odbiorcy", () => {
+  /** Tłumacz-atrapa: każdy klucz zwraca jako `EN:<klucz>`, żeby widać było, który język wybrał procesor. */
+  const fakeEnglish = async () => Object.assign((key: string) => `EN:${key}`, { has: () => true });
+
+  async function recordPaymentEvent(amountMinor: number) {
+    const { error } = await adminClient()
+      .from("outbox_events")
+      .insert({ organization_id: orgA, type: "payment.recorded", payload: { client_id: annaId, amount_minor: amountMinor, currency: "PLN" } });
+    expect(error).toBeNull();
+  }
+
+  it("zapisuje klucz i parametry, a e-mail idzie w języku z profilu odbiorcy, gdy język jest włączony", async () => {
+    await adminClient().from("profiles").update({ locale: "en" }).eq("id", clientUser.id);
+    emails.length = 0;
+    await recordPaymentEvent(7700);
+    await drain({ translatorFor: fakeEnglish, enabledLocales: ["pl", "en"] });
+
+    const mail = emails.find((m) => m.to === clientUser.email && m.subject.startsWith("EN:notify.payment_recorded"));
+    expect(mail).toBeDefined();
+    expect(mail?.html).toContain("EN:notify.open_in_app");
+
+    const { data } = await adminClient()
+      .from("notifications")
+      .select("message_key, message_params, title")
+      .eq("recipient_user_id", clientUser.id)
+      .eq("type", "payment.recorded")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+    expect(data).toMatchObject({ message_key: "payment_recorded", message_params: { amountMinor: 7700, currency: "PLN" } });
+    expect(data?.title).toBe("EN:notify.payment_recorded.title");
+  });
+
+  it("język, którego aplikacja jeszcze nie pokazuje, daje powiadomienie po polsku", async () => {
+    await adminClient().from("profiles").update({ locale: "en" }).eq("id", clientUser.id);
+    emails.length = 0;
+    await recordPaymentEvent(1200);
+    await drain({ enabledLocales: ["pl"] });
+
+    const mail = emails.find((m) => m.to === clientUser.email && m.subject === "Zaksięgowano wpłatę");
+    expect(mail).toBeDefined();
+    expect(mail?.html).toContain("Otwórz w aplikacji");
+  });
+
+  it("lista w dzwonku zawiera klucz i parametry do złożenia treści w języku widza", async () => {
+    const list = value(await listNotifications(clientCtx(clientUser)));
+    const payment = list.find((n) => n.type === "payment.recorded");
+    expect(payment).toMatchObject({ messageKey: "payment_recorded" });
+    expect(payment?.params).toHaveProperty("amountMinor");
+  });
+});

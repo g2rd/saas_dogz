@@ -1,9 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
-import { authorize, getOrganization } from "@/modules/core";
+import { authorize, getOrganization, getOrganizationSettings } from "@/modules/core";
 import { createEmailSender, type EmailSender } from "@/modules/notifications";
 import type { RequestContext } from "@/shared/context";
 import { invitationHashSecret, siteUrl } from "@/shared/env";
+import { createFormats } from "@/shared/i18n/formats";
+import { localeOrDefault } from "@/shared/i18n/locale";
+import { translatorFor } from "@/shared/i18n/translator";
 import { appError } from "@/shared/errors";
 import { parseInput } from "@/shared/form";
 import { err, ok, type Result } from "@/shared/result";
@@ -150,14 +153,21 @@ export async function deliverClientInvitation(
   const organization = await getOrganization(ctx);
   if (!organization.ok) return organization;
 
-  const message = composeInvitationMessage({
-    organizationName: organization.value.name,
-    clientFirstName: invitation.clientFirstName,
-    link: input.value.link,
-    code: formatCode(code),
-    expiresAt: invitation.expiresAt,
-    packageName: invitation.packageName,
-  });
+  const settings = await getOrganizationSettings(ctx);
+  if (!settings.ok) return settings;
+  const locale = localeOrDefault(settings.value.locale);
+  const message = composeInvitationMessage(
+    {
+      organizationName: organization.value.name,
+      clientFirstName: invitation.clientFirstName,
+      link: input.value.link,
+      code: formatCode(code),
+      expiresAt: invitation.expiresAt,
+      packageName: invitation.packageName,
+    },
+    await translatorFor(locale),
+    createFormats(locale),
+  );
 
   const to = invitation.email ?? invitation.clientEmail;
   if (!to) return err(appError("validation", msg("errors.invitations.client_no_email")));

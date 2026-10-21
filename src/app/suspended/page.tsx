@@ -7,7 +7,10 @@ import { suspendedLogoutAction } from "./actions";
 import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 
-export const metadata = { title: "Konto niedostępne" };
+export async function generateMetadata() {
+  const t = await getTranslations();
+  return { title: t("common.meta.suspended_title") };
+}
 
 /** Ekran dla osób, których szkoła została zawieszona przez właściciela platformy (np. koniec testów, brak płatności). */
 export default function SuspendedPage() {

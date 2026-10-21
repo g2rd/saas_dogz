@@ -29,6 +29,11 @@ export function formatDateTime(at: Date, locale: string, timeZone?: string): str
   }).format(at);
 }
 
+/** Godzina zegarowa (pl: 10:00, en-US: 10:00 AM) w strefie szkoły, gdy podana. */
+export function formatTime(at: Date, locale: string, timeZone?: string): string {
+  return new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit", timeZone }).format(at);
+}
+
 /** Nagłówek dnia dla daty YYYY-MM-DD: „wtorek, 16 października” / „Tuesday, October 16”. */
 export function formatDayHeading(isoDate: string, locale: string): string {
   return formatDateHeading(isoDate, locale);
@@ -55,6 +60,7 @@ export function createFormats(locale: string) {
     calendarDate: (isoDate: string) => formatCalendarDate(isoDate, locale),
     date: (at: Date, timeZone?: string) => formatDate(at, locale, timeZone),
     dateTime: (at: Date, timeZone?: string) => formatDateTime(at, locale, timeZone),
+    time: (at: Date, timeZone?: string) => formatTime(at, locale, timeZone),
     dayHeading: (isoDate: string) => formatDayHeading(isoDate, locale),
     /** Nagłówek dnia z wielką pierwszą literą („Piątek, 16 października”). */
     dayHeadingTitle: (isoDate: string) => formatDateHeadingTitle(isoDate, locale),

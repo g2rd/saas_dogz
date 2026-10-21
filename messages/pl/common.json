@@ -79,5 +79,12 @@
   "waznosc_dni": "Ważność (dni)",
   "puste_dzis": "Puste = dziś",
   "sessions_count": "{count, plural, one {# zajęcie} few {# zajęcia} many {# zajęć} other {# zajęcia}}",
-  "charge_due": "Termin {date} · {amount}{remaining, select, none {} other { · zostało {remaining}}}"
+  "charge_due": "Termin {date} · {amount}{remaining, select, none {} other { · zostało {remaining}}}",
+  "meta": {
+    "description": "Zarządzanie klientami, pakietami i treningami dla trenerów psów.",
+    "manifest_description": "Klienci, pakiety zajęć, terminy i płatności dla trenerów psów oraz ich klientów.",
+    "shortcut_today": "Dziś",
+    "shortcut_notifications": "Powiadomienia",
+    "suspended_title": "Konto niedostępne"
+  }
 }
