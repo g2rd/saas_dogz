@@ -1,0 +1,83 @@
+{
+  "open_in_app": "Open in the app",
+  "low_balance_client": {
+    "title": "{balance, plural, =0 {Your package is used up} =1 {You have one session left} other {You have # sessions left}}",
+    "body": "In the package “{package}” {balance, plural, =0 {there are no sessions left} =1 {there is 1 session left} other {there are # sessions left}}. What next: renew, pay or end?"
+  },
+  "low_balance_staff": {
+    "title": "Package running out: {client}",
+    "body": "In the package “{package}” {balance, plural, one {there is # session left} other {there are # sessions left}}."
+  },
+  "request_staff": {
+    "title": "{kind, select, renew {{client} wants to renew the package} pay {{client} will pay for the package} end {{client} is ending the cooperation} other {{client} can't make it to the session}}",
+    "body": "{hasPackage, select, yes {Package “{package}”. } other {}}{hasSession, select, yes {Session {date} at {time}. } other {}}{note}"
+  },
+  "charge_due": {
+    "title": "Payment due soon",
+    "body": "{hasLabel, select, yes {{label}} other {Amount due}}: {amount}, due {due}."
+  },
+  "charge_overdue_client": {
+    "title": "Payment overdue",
+    "body": "{hasLabel, select, yes {{label}} other {Amount due}}: {amount}, was due {due}."
+  },
+  "charge_overdue_staff": {
+    "title": "Payment overdue: {client}",
+    "body": "{hasLabel, select, yes {{label}} other {Amount due}}: {amount}, was due {due}."
+  },
+  "session_reminder": {
+    "title": "Session reminder",
+    "body": "Session {date} at {time}."
+  },
+  "session_scheduled": {
+    "title": "Session scheduled",
+    "body": "Session {date} at {time}."
+  },
+  "session_canceled": {
+    "title": "Session canceled",
+    "body": "The session on {date} at {time} has been canceled."
+  },
+  "session_restored": {
+    "title": "Session restored",
+    "body": "The session {date} at {time} is going ahead after all. Sorry for the confusion."
+  },
+  "payment_recorded": {
+    "title": "Payment recorded",
+    "body": "Your trainer recorded a payment of {amount}. Thank you!"
+  },
+  "payment_voided": {
+    "title": "Payment reversed",
+    "body": "Your trainer reversed a recorded payment of {amount} (a bookkeeping mistake). Check your payments."
+  },
+  "slot_offer": {
+    "title": "Open slot: {date} at {time}",
+    "body": "{typeName}. {hasNote, select, yes {{note}. } other {}}Want it? Respond in the app and the trainer will choose who gets it."
+  },
+  "slot_claim_staff": {
+    "title": "{client} wants the open slot",
+    "body": "Slot {date} at {time}. Choose who gets it in Sessions."
+  },
+  "slot_claim_accepted": {
+    "title": "The spot is yours!",
+    "body": "The session {date} at {time} has been booked for you."
+  },
+  "slot_claim_declined": {
+    "title": "The slot has been taken",
+    "body": "The open slot {date} at {time} went to another client. Thanks for responding!"
+  },
+  "org_suspended": {
+    "title": "Account suspended",
+    "body": "Access to your school has been suspended and your data is safe.{hasReason, select, yes { Reason: {reason}.} other {}} Contact support to regain access."
+  },
+  "org_read_only": {
+    "title": "Account is read-only",
+    "body": "You can view data but not change it.{hasReason, select, yes { Reason: {reason}.} other {}} Contact support to unlock editing."
+  },
+  "org_restored": {
+    "title": "Account access restored",
+    "body": "Your account is fully working again.{hasUntil, select, yes { Access is granted until {until}.} other {}}"
+  },
+  "invitation_accepted": {
+    "title": "{client} joined the client area",
+    "body": "The client accepted the invitation and now has access to the area."
+  }
+}

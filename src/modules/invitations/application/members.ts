@@ -1,13 +1,15 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { authorize, getOrganization, hasPermission } from "@/modules/core";
+import { authorize, getOrganization, getOrganizationSettings, hasPermission } from "@/modules/core";
 import { createEmailSender, type EmailSender } from "@/modules/notifications";
 import type { RequestContext } from "@/shared/context";
 import { invitationHashSecret, siteUrl } from "@/shared/env";
+import { createFormats } from "@/shared/i18n/formats";
+import { localeOrDefault } from "@/shared/i18n/locale";
+import { translatorFor } from "@/shared/i18n/translator";
 import { appError } from "@/shared/errors";
 import { parseInput } from "@/shared/form";
 import { err, ok, type Result } from "@/shared/result";
 import {
-  MEMBER_ROLE_LABELS,
   createMemberInvitationSchema,
   type CreatedMemberInvitation,
   type MemberInvitationPreview,
@@ -17,8 +19,9 @@ import {
 import { composeMemberInvitationMessage } from "../domain/message";
 import { generateToken, hashSecret, invitationExpiry, normalizeSecret } from "../domain/secrets";
 import { membersRepository } from "../infrastructure/members-repository";
+import { msg } from "@/shared/i18n/messages";
 
-const malformed = () => appError("validation", "Niepoprawny link zaproszenia.");
+const malformed = () => appError("validation", msg("errors.invitations.malformed_link"));
 
 /**
  * Zaprasza osobę do zespołu (administrator, trener, asystent). Link jest zwracany tylko tutaj (w bazie jest sam HMAC);
@@ -49,13 +52,14 @@ export async function createMemberInvitation(
   const organization = await getOrganization(ctx);
   let emailSent = false;
   if (organization.ok) {
-    const message = composeMemberInvitationMessage({
-      organizationName: organization.value.name,
-      roleLabel: MEMBER_ROLE_LABELS[input.value.role],
-      link,
-      expiresAt,
-    });
     try {
+      const settings = await getOrganizationSettings(ctx);
+      const locale = localeOrDefault(settings.ok ? settings.value.locale : null);
+      const message = composeMemberInvitationMessage(
+        { organizationName: organization.value.name, role: input.value.role, link, expiresAt },
+        await translatorFor(locale),
+        createFormats(locale),
+      );
       const outcome = await email.send({ to: input.value.email, ...message });
       emailSent = outcome.status === "sent";
     } catch {
@@ -98,7 +102,7 @@ export async function acceptMemberInvitation(
   if (!token) return err(malformed());
   const result = await membersRepository(db).accept(hashSecret(token, invitationHashSecret()));
   if (!result.ok && result.error.code === "not_found") {
-    return err(appError("not_found", "Nie znaleziono zaproszenia. Sprawdź link."));
+    return err(appError("not_found", msg("errors.not_found.invitation_link")));
   }
   return result;
 }

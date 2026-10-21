@@ -19,6 +19,7 @@ import {
   type CompleteResult,
 } from "../infrastructure/sessions-repository";
 import { sessionTypesRepository } from "../infrastructure/session-types-repository";
+import { msg } from "@/shared/i18n/messages";
 
 // --- rodzaje zajęć ---------------------------------------------------------------------------------
 
@@ -84,7 +85,7 @@ export async function scheduleSession(ctx: RequestContext, raw: unknown): Promis
 
   const startsAt = zonedDateTimeToUtc(input.value.date, input.value.time, settings.value.timezone);
   if (!startsAt) {
-    return err(appError("validation", "Popraw zaznaczone pola.", { time: ["Niepoprawna data lub godzina"] }));
+    return err(appError("validation", msg("validation.fix_fields"), { time: [msg("validation.time_invalid")] }));
   }
 
   const result = await sessionsRepository(ctx.db).schedule(ctx.organizationId, {
@@ -97,8 +98,8 @@ export async function scheduleSession(ctx: RequestContext, raw: unknown): Promis
   });
   if (!result.ok && result.error.code === "conflict") {
     return err(
-      appError("validation", "Popraw zaznaczone pola.", {
-        time: ["Trener ma już zajęcia w tym czasie. Wybierz inną godzinę albo innego trenera."],
+      appError("validation", msg("validation.fix_fields"), {
+        time: [msg("validation.trainer_busy")],
       }),
     );
   }
@@ -115,6 +116,8 @@ export type SessionAgenda = {
   todaySessions: Session[];
   /** Zaplanowane zajęcia od jutra do końca okna. */
   upcoming: Session[];
+  /** Odwołane zajęcia od jutra do końca okna (do ogłoszenia wolnego terminu). */
+  canceledUpcoming: Session[];
 };
 
 /** Lista „Dziś” i „Najbliższe” (domyślnie 14 dni) w strefie organizacji. */
@@ -134,12 +137,14 @@ export async function getSessionAgenda(
   const windowEnd = startOfDayUtc(addDaysIso(today, 1 + (options.upcomingDays ?? 14)), timezone);
 
   const repo = sessionsRepository(ctx.db);
-  const [todayResult, upcomingResult] = await Promise.all([
+  const [todayResult, upcomingResult, canceledResult] = await Promise.all([
     repo.list(ctx.organizationId, { from: todayRange.from, to: todayRange.to }),
     repo.list(ctx.organizationId, { from: todayRange.to, to: windowEnd, status: "scheduled" }),
+    repo.list(ctx.organizationId, { from: todayRange.to, to: windowEnd, status: "canceled" }),
   ]);
   if (!todayResult.ok) return todayResult;
   if (!upcomingResult.ok) return upcomingResult;
+  if (!canceledResult.ok) return canceledResult;
 
   return ok({
     timezone,
@@ -150,6 +155,7 @@ export async function getSessionAgenda(
     today,
     todaySessions: todayResult.value,
     upcoming: upcomingResult.value,
+    canceledUpcoming: canceledResult.value,
   });
 }
 
@@ -240,6 +246,20 @@ export async function cancelSession(
   }
 
   return repo.cancel(ctx.organizationId, sessionId, consume);
+}
+
+/** Cofa zakończenie zajęć (tego samego dnia): zajęcie wraca do pakietu, nieopłacona należność za zajęcia jest anulowana. */
+export async function undoCompleteSession(ctx: RequestContext, sessionId: string): Promise<Result<void>> {
+  const allowed = authorize(ctx, "sessions.write");
+  if (!allowed.ok) return allowed;
+  return sessionsRepository(ctx.db).undoComplete(ctx.organizationId, sessionId);
+}
+
+/** Przywraca odwołane zajęcia (zanim się zaczną): zajęcie wraca do pakietu, ogłoszenie wolnego terminu jest zamykane. */
+export async function restoreCanceledSession(ctx: RequestContext, sessionId: string): Promise<Result<void>> {
+  const allowed = authorize(ctx, "sessions.write");
+  if (!allowed.ok) return allowed;
+  return sessionsRepository(ctx.db).restore(ctx.organizationId, sessionId);
 }
 
 /** Czy odwołanie „teraz” byłoby według polityki późne (do podpowiedzi w interfejsie). */

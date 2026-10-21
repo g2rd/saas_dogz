@@ -1,0 +1,73 @@
+# Ciągła integracja: każdy pull request do `dev` i `main` (oraz każdy scalony push) przechodzi te same kontrole co lokalnie.
+# Zadanie `quality` sprawdza kod (typy, lint, testy jednostkowe, granice modułów, audyt zależności produkcyjnych, build),
+# zadanie `database` uruchamia lokalny Supabase (Docker) i sprawdza bazę: migracje, RLS i funkcje (pgTAP) oraz przypadki użycia
+# na prawdziwej bazie z pocztą (Mailpit). Wynik widać przy PR-ze; zatwierdza i scala wyłącznie właściciel.
+name: CI
+
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev, main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Kod (typy, lint, testy, build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Typy
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Testy jednostkowe
+        run: npm test
+      - name: Granice modułów
+        run: npm run check:boundaries
+      # Zależności produkcyjne: każda znana luka o wadze wysokiej lub krytycznej wstrzymuje scalenie.
+      # Zależności deweloperskie (narzędzia lint/test) nie trafiają na serwer; ich ostrzeżenia czytamy ręcznie (`npm audit`).
+      - name: Audyt zależności produkcyjnych
+        run: npm audit --omit=dev --audit-level=high
+      - name: Build
+        run: npm run build
+        env:
+          # Wartości zastępcze: build nie łączy się z bazą, ale wymaga poprawnie wyglądających zmiennych
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+          ENABLED_LOCALES: pl,en
+
+  database:
+    name: Baza (migracje, pgTAP, testy integracyjne)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # Bez usług zbędnych dla testów (panel, obrazy, logi, funkcje brzegowe), żeby start był szybszy
+      - name: Uruchom lokalny Supabase
+        run: npx supabase start --exclude studio,imgproxy,logflare,vector,edge-runtime,supavisor
+      - name: Testy bazy (RLS i funkcje, pgTAP)
+        run: npx supabase test db
+      - name: Testy przypadków użycia na prawdziwej bazie
+        run: npm run test:integration
+      - name: Zatrzymaj Supabase
+        if: always()
+        run: npx supabase stop --no-backup

@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { describe, expect, it } from "vitest";
+import { LEGAL_VERSION } from "@/shared/legal";
 import { emailCountTo, waitForEmailTo } from "@/shared/testing/mailpit";
 import { adminClient } from "@/shared/testing/supabase-test";
 import {
@@ -26,7 +27,7 @@ const newPassword = `new-${crypto.randomUUID()}`;
 describe("auth use cases against a real database", () => {
   it("signs up a new user, stores the full name in the profile and starts a session", async () => {
     const db = freshClient();
-    const result = await signUp(db, { fullName: "Jan Trener", email: email.toUpperCase(), password }, { siteUrl: SITE_URL });
+    const result = await signUp(db, { fullName: "Jan Trener", email: email.toUpperCase(), password, acceptTerms: "on" }, { siteUrl: SITE_URL });
     expect(result).toEqual({ ok: true, value: "signed_in" });
 
     const user = await db.auth.getUser();
@@ -34,16 +35,40 @@ describe("auth use cases against a real database", () => {
 
     const profile = await adminClient().from("profiles").select("full_name").eq("id", user.data.user!.id).single();
     expect(profile.data?.full_name).toBe("Jan Trener");
+
+    // Zgoda na regulamin i politykę prywatności zapisana w bazie z wersją dokumentów
+    const consents = await adminClient().from("consents").select("document, version").eq("user_id", user.data.user!.id).order("document");
+    expect(consents.data).toEqual([
+      { document: "privacy", version: LEGAL_VERSION },
+      { document: "terms", version: LEGAL_VERSION },
+    ]);
+  });
+
+  it("requires accepting the terms and the privacy policy", async () => {
+    const result = await signUp(freshClient(), { email: `no-consent-${crypto.randomUUID().slice(0, 8)}@example.test`, password }, { siteUrl: SITE_URL });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.details).toMatchObject({ acceptTerms: ["validation.accept_terms"] });
+  });
+
+  it("does not accept a forged consent version from outside the form", async () => {
+    const forged = await freshClient().auth.signUp({
+      email: `forged-${crypto.randomUUID().slice(0, 8)}@example.test`,
+      password,
+      options: { data: { consent_version: "jutro; drop table" } },
+    });
+    expect(forged.data.user).not.toBeNull();
+    const consents = await adminClient().from("consents").select("id").eq("user_id", forged.data.user!.id);
+    expect(consents.data).toEqual([]);
   });
 
   it("rejects a duplicate e-mail with a conflict error", async () => {
-    const result = await signUp(freshClient(), { email, password }, { siteUrl: SITE_URL });
+    const result = await signUp(freshClient(), { email, password, acceptTerms: "on" }, { siteUrl: SITE_URL });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe("conflict");
   });
 
   it("validates input before talking to Auth", async () => {
-    const result = await signUp(freshClient(), { email: "nie-email", password: "x" }, { siteUrl: SITE_URL });
+    const result = await signUp(freshClient(), { email: "nie-email", password: "x", acceptTerms: "on" }, { siteUrl: SITE_URL });
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.error.code).toBe("validation");

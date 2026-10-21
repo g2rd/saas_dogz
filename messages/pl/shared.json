@@ -1,0 +1,10 @@
+{
+  "pwa": {
+    "instalacja_aplikacji": "Instalacja aplikacji",
+    "dodaj_dogtrainer_do_ekranu_glownego": "Dodaj DogTrainer do ekranu głównego",
+    "aplikacja_otworzy_sie_jak_zwykla_na": "Aplikacja otworzy się jak zwykła, na pełnym ekranie, i będzie mogła wysyłać powiadomienia.",
+    "zainstaluj": "Zainstaluj",
+    "zamknij_podpowiedz_instalacji": "Zamknij podpowiedź instalacji",
+    "ios_steps": "Stuknij <strong>Udostępnij</strong> (kwadrat ze strzałką), potem <strong>Do ekranu początkowego</strong>. Dopiero wtedy na iPhonie dostaniesz powiadomienia push."
+  }
+}

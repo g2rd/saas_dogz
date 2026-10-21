@@ -1,16 +1,12 @@
 import Link from "next/link";
-import {
-  SESSION_STATUS_LABELS,
-  SessionActions,
-  formatSessionRange,
-  shouldConsumeOnCancel,
-  type CancellationPolicy,
-  type Session,
-  type SessionStatus,
-} from "@/modules/scheduling";
-import { formatMoney, money } from "@/shared/money";
+import { AnnounceSlotForm, SessionActions, formatSessionRange, shouldConsumeOnCancel, type CancellationPolicy, type Session, type SessionStatus } from "@/modules/scheduling";
+import { money } from "@/shared/money";
 import { Badge } from "@/shared/ui/badge";
-import { cancelSessionAction, completeSessionAction } from "./actions";
+import { dateInZone } from "@/shared/time";
+import { cancelSessionAction, completeSessionAction, restoreSessionAction, undoCompleteSessionAction } from "./actions";
+import { announceSlotAction } from "./slot-actions";
+import { getFormats } from "@/shared/i18n/server";
+import { getTranslations } from "next-intl/server";
 
 const STATUS_TONE: Record<SessionStatus, "neutral" | "success" | "warning"> = {
   scheduled: "neutral",
@@ -18,7 +14,7 @@ const STATUS_TONE: Record<SessionStatus, "neutral" | "success" | "warning"> = {
   canceled: "warning",
 };
 
-export function SessionCard({
+export async function SessionCard({
   session,
   timezone,
   policy,
@@ -26,6 +22,7 @@ export function SessionCard({
   canCharge,
   canWrite,
   showTrainer,
+  hasOpenOffer,
 }: {
   session: Session;
   timezone: string;
@@ -34,7 +31,11 @@ export function SessionCard({
   canCharge: boolean;
   canWrite: boolean;
   showTrainer: boolean;
+  /** Czy dla tych (odwołanych) zajęć jest już otwarte ogłoszenie wolnego terminu. */
+  hasOpenOffer: boolean;
 }) {
+  const formats = await getFormats();
+  const t = await getTranslations();
   const details = [session.typeName, session.dogName, session.location, showTrainer ? session.trainerName : null]
     .filter(Boolean)
     .join(" · ");
@@ -50,16 +51,24 @@ export function SessionCard({
                 {session.clientName}
               </Link>
             ) : (
-              "Bez klienta"
+              t("common.bez_klienta")
             )}
           </p>
           <p className="text-sm text-zinc-600 dark:text-zinc-400">{details}</p>
         </div>
-        <Badge tone={STATUS_TONE[session.status]}>{SESSION_STATUS_LABELS[session.status]}</Badge>
+        <Badge tone={STATUS_TONE[session.status]}>{t(`labels.sessionStatus.${session.status}`)}</Badge>
       </div>
 
       {session.status === "completed" && session.clientSummary ? (
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">Podsumowanie: {session.clientSummary}</p>
+        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{t("trainer.sessionsSessionCard.podsumowanie_clientsummary", { clientSummary: session.clientSummary })}</p>
+      ) : null}
+
+      {canWrite && session.status === "canceled" && session.startsAt > now ? (
+        hasOpenOffer ? (
+          <p className="mt-3 text-sm text-emerald-700">{t("trainer.sessionsSessionCard.wolny_termin_ogloszony_zgloszenia")}</p>
+        ) : (
+          <AnnounceSlotForm action={announceSlotAction.bind(null, session.id)} />
+        )
       ) : null}
 
       {canWrite ? (
@@ -67,7 +76,15 @@ export function SessionCard({
           status={session.status}
           completeAction={completeSessionAction.bind(null, session.id)}
           cancelAction={cancelSessionAction.bind(null, session.id)}
-          singlePriceLabel={formatMoney(money(session.defaultPriceMinor, session.currency))}
+          undoCompleteAction={undoCompleteSessionAction.bind(null, session.id)}
+          restoreAction={restoreSessionAction.bind(null, session.id)}
+          canUndoComplete={
+            session.status === "completed" &&
+            session.completedAt !== null &&
+            dateInZone(session.completedAt, timezone) === dateInZone(now, timezone)
+          }
+          canRestore={session.status === "canceled" && session.startsAt > now}
+          singlePriceLabel={formats.money(money(session.defaultPriceMinor, session.currency))}
           canCharge={canCharge}
           cancelConsumesByPolicy={shouldConsumeOnCancel(session.startsAt, now, policy)}
           lateCancelHours={policy.lateCancelHours}

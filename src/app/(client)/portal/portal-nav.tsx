@@ -2,23 +2,26 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 const ITEMS = [
-  { href: "/portal", label: "Start", exact: true },
-  { href: "/portal/sessions", label: "Zajęcia", exact: false },
-  { href: "/portal/payments", label: "Płatności", exact: false },
-  { href: "/portal/dogs", label: "Psy", exact: false },
+  { href: "/portal", label: "portal.nav.start", exact: true },
+  { href: "/portal/sessions", label: "portal.nav.sessions", exact: false },
+  { href: "/portal/payments", label: "portal.nav.payments", exact: false },
+  { href: "/portal/dogs", label: "portal.nav.dogs", exact: false },
+  { href: "/portal/more", label: "portal.nav.more", exact: false },
 ] as const;
 
 /** Dolna nawigacja panelu klienta: duże pola dotykowe, układ pod kciuk. */
 export function PortalNav() {
+  const t = useTranslations();
   const pathname = usePathname();
   return (
     <nav
-      aria-label="Panel klienta"
+      aria-label={t("common.panel_klienta")}
       className="fixed inset-x-0 bottom-0 z-10 border-t border-zinc-200 bg-background pb-[env(safe-area-inset-bottom)] dark:border-zinc-800"
     >
-      <ul className="mx-auto grid max-w-xl grid-cols-4">
+      <ul className="mx-auto grid max-w-xl grid-cols-5">
         {ITEMS.map((item) => {
           const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
           return (
@@ -32,9 +35,9 @@ export function PortalNav() {
               >
                 <span
                   aria-hidden
-                  className={`h-1 w-8 rounded-full ${active ? "bg-foreground" : "bg-transparent"}`}
+                  className={`h-1 w-8 rounded-full ${active ? "bg-primary" : "bg-transparent"}`}
                 />
-                {item.label}
+                {t(item.label)}
               </Link>
             </li>
           );

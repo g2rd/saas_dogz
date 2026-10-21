@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { formAmountMinor, formInt } from "@/shared/form";
+import { msg } from "@/shared/i18n/messages";
 
 export type SessionType = {
   id: string;
@@ -15,7 +16,7 @@ export const sessionTypeInputSchema = z
   .object({
     name: z.preprocess(
       (v) => (v == null ? "" : v),
-      z.string().trim().min(1, "Podaj nazwę zajęć").max(100, "Maksymalnie 100 znaków"),
+      z.string().trim().min(1, msg("validation.session_type_name")).max(100, msg("validation.max_length", { max: 100 })),
     ),
     durationMinutes: formInt(5, 480, "Podaj czas trwania w minutach (5-480)"),
     defaultPrice: formAmountMinor(),

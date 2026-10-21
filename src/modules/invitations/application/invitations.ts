@@ -1,9 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
-import { authorize, getOrganization } from "@/modules/core";
+import { authorize, getOrganization, getOrganizationSettings } from "@/modules/core";
 import { createEmailSender, type EmailSender } from "@/modules/notifications";
 import type { RequestContext } from "@/shared/context";
 import { invitationHashSecret, siteUrl } from "@/shared/env";
+import { createFormats } from "@/shared/i18n/formats";
+import { localeOrDefault } from "@/shared/i18n/locale";
+import { translatorFor } from "@/shared/i18n/translator";
 import { appError } from "@/shared/errors";
 import { parseInput } from "@/shared/form";
 import { err, ok, type Result } from "@/shared/result";
@@ -24,6 +27,7 @@ import {
 import { composeInvitationMessage } from "../domain/message";
 import { invitationsRepository } from "../infrastructure/invitations-repository";
 import { renderQrSvg } from "../infrastructure/qr";
+import { msg } from "@/shared/i18n/messages";
 
 /**
  * Tworzy zaproszenie klienta do panelu: link (dla QR) i krótki kod. Sekrety są pokazywane tylko tutaj;
@@ -78,7 +82,7 @@ export async function revokeClientAccess(
   return invitationsRepository(ctx.db).revokeAccess(ctx.organizationId, clientId, userId);
 }
 
-const malformed = () => appError("validation", "Niepoprawny kod lub link zaproszenia.");
+const malformed = () => appError("validation", msg("errors.invitations.malformed_code"));
 
 /** Publiczny podgląd zaproszenia (bez logowania) po tokenie z linku albo krótkim kodzie. */
 export async function lookupInvitation(
@@ -100,7 +104,7 @@ export async function acceptInvitation(
   if (!secret) return err(malformed());
   const result = await invitationsRepository(db).accept(hashSecret(secret, invitationHashSecret()));
   if (!result.ok && result.error.code === "not_found") {
-    return err(appError("not_found", "Nie znaleziono zaproszenia. Sprawdź kod lub link."));
+    return err(appError("not_found", msg("errors.not_found.invitation_code")));
   }
   return result;
 }
@@ -143,30 +147,37 @@ export async function deliverClientInvitation(
   if (!found.ok) return found;
   const invitation = found.value;
   if (!invitation || invitation.codeHash !== hashSecret(code, pepper)) {
-    return err(appError("not_found", "To zaproszenie jest już nieważne. Utwórz nowe."));
+    return err(appError("not_found", msg("errors.not_found.invitation_expired")));
   }
 
   const organization = await getOrganization(ctx);
   if (!organization.ok) return organization;
 
-  const message = composeInvitationMessage({
-    organizationName: organization.value.name,
-    clientFirstName: invitation.clientFirstName,
-    link: input.value.link,
-    code: formatCode(code),
-    expiresAt: invitation.expiresAt,
-    packageName: invitation.packageName,
-  });
+  const settings = await getOrganizationSettings(ctx);
+  if (!settings.ok) return settings;
+  const locale = localeOrDefault(settings.value.locale);
+  const message = composeInvitationMessage(
+    {
+      organizationName: organization.value.name,
+      clientFirstName: invitation.clientFirstName,
+      link: input.value.link,
+      code: formatCode(code),
+      expiresAt: invitation.expiresAt,
+      packageName: invitation.packageName,
+    },
+    await translatorFor(locale),
+    createFormats(locale),
+  );
 
   const to = invitation.email ?? invitation.clientEmail;
-  if (!to) return err(appError("validation", "Klient nie ma adresu e-mail. Uzupełnij go w kartotece."));
+  if (!to) return err(appError("validation", msg("errors.invitations.client_no_email")));
   try {
     const outcome = await sender.email.send({ to, subject: message.subject, text: message.text, html: message.html });
     if (outcome.status === "skipped") {
-      return err(appError("internal", `E-mail nie został wysłany: ${outcome.detail ?? "brak konfiguracji"}.`));
+      return err(appError("internal", msg("errors.invitations.email_not_sent", { detail: outcome.detail ?? "—" })));
     }
   } catch {
-    return err(appError("internal", "Nie udało się wysłać e-maila. Spróbuj ponownie albo przekaż link osobiście."));
+    return err(appError("internal", msg("errors.invitations.email_send_failed")));
   }
   return ok({ recipient: maskEmail(to) });
 }

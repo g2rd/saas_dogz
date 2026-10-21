@@ -1,6 +1,7 @@
 export {
   adjustPackage,
   archiveTemplate,
+  cancelPackage,
   createTemplate,
   getClientPackage,
   getTemplate,

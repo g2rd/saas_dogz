@@ -9,8 +9,10 @@ export {
   listClientSessions,
   listSessionTypes,
   previewCancelConsumes,
+  restoreCanceledSession,
   restoreSessionType,
   scheduleSession,
+  undoCompleteSession,
   updateSessionType,
   type CompleteOutcome,
   type SessionAgenda,
@@ -29,3 +31,8 @@ export type { CancelResult } from "./infrastructure/sessions-repository";
 export { ScheduleSessionForm, type ScheduleClientOption, type ScheduleDogOption, type ScheduleTrainerOption, type ScheduleTypeOption } from "./ui/schedule-session-form";
 export { SessionActions, type SessionActionState } from "./ui/session-actions";
 export { SessionTypeForm, type SessionTypeFormValues } from "./ui/session-type-form";
+export { acceptSlotClaim, closeSlotOffer, createSlotOffer, listOpenSlotOffers } from "./application/slots";
+export type { SlotClaim, SlotOffer } from "./domain/slots";
+export { AnnounceSlotForm, type AnnounceSlotState } from "./ui/announce-slot-form";
+export { type SlotActionState } from "./ui/slot-offer-forms";
+export { SlotOfferPanel } from "./ui/slot-offer-panel";

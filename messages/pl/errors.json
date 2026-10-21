@@ -1,0 +1,99 @@
+{
+  "internal": "Operacja nie powiodła się.",
+  "forbidden": "Brak uprawnień do tej operacji.",
+  "read_only": "Konto Twojej szkoły jest w trybie tylko do odczytu, więc nie można zapisywać zmian. Skontaktuj się z obsługą.",
+  "signup_closed": "Rejestracja jest zamknięta. Potrzebny jest kod zaproszenia.",
+  "not_found": {
+    "generic": "Nie znaleziono rekordu.",
+    "client": "Nie znaleziono klienta.",
+    "dog": "Nie znaleziono psa.",
+    "note": "Nie znaleziono notatki.",
+    "package": "Nie znaleziono pakietu.",
+    "template": "Nie znaleziono szablonu pakietu.",
+    "session_type": "Nie znaleziono rodzaju zajęć.",
+    "session": "Nie znaleziono zajęć.",
+    "organization": "Nie znaleziono organizacji.",
+    "school": "Nie znaleziono szkoły.",
+    "client_account": "Nie znaleziono konta klienta.",
+    "invitation_code": "Nie znaleziono zaproszenia. Sprawdź kod lub link.",
+    "invitation_link": "Nie znaleziono zaproszenia. Sprawdź link.",
+    "invitation_expired": "To zaproszenie jest już nieważne. Utwórz nowe."
+  },
+  "auth": {
+    "invalid_credentials": "Nieprawidłowy e-mail lub hasło.",
+    "signup_failed": "Nie udało się utworzyć konta. Spróbuj ponownie.",
+    "account_exists": "Konto z tym adresem już istnieje. Zaloguj się lub zresetuj hasło.",
+    "password_weak": "Hasło jest zbyt słabe.",
+    "too_many_attempts": "Za dużo prób. Spróbuj ponownie za kilka minut.",
+    "email_not_sent": "Nie udało się wysłać wiadomości. Spróbuj ponownie.",
+    "password_change_failed": "Nie udało się zmienić hasła. Spróbuj ponownie.",
+    "link_expired": "Link wygasł. Poproś o nowy.",
+    "link_invalid": "Nieprawidłowy link.",
+    "link_used": "Link wygasł lub został już użyty.",
+    "sign_in_required": "Zaloguj się, aby kontynuować.",
+    "gate_closed": "Rejestracja jest teraz zamknięta. Wpisz kod zaproszenia, który dostałeś(-aś) od zespołu DogTrainer.",
+    "gate_invalid_code": "Ten kod jest nieprawidłowy, wygasł albo został już wykorzystany.",
+    "gate_invalid_invitation": "To zaproszenie wygasło lub zostało już użyte."
+  },
+  "context": {
+    "load_organization": "Nie udało się wczytać organizacji.",
+    "no_organization": "Najpierw utwórz organizację.",
+    "school_suspended": "Konto Twojej szkoły jest zawieszone.",
+    "load_client_access": "Nie udało się wczytać dostępu klienta.",
+    "no_client_access": "To konto nie ma dostępu do panelu klienta.",
+    "school_unavailable": "Szkoła jest chwilowo niedostępna."
+  },
+  "invitations": {
+    "malformed_code": "Niepoprawny kod lub link zaproszenia.",
+    "malformed_link": "Niepoprawny link zaproszenia.",
+    "client_no_email": "Klient nie ma adresu e-mail. Uzupełnij go w kartotece.",
+    "email_not_sent": "E-mail nie został wysłany: {detail}.",
+    "email_send_failed": "Nie udało się wysłać e-maila. Spróbuj ponownie albo przekaż link osobiście."
+  },
+  "notifications": {
+    "choose_package": "Wskaż pakiet, który chcesz odnowić."
+  },
+  "payments": {
+    "charges_changed": "Należności zmieniły się w międzyczasie. Odśwież stronę i spróbuj ponownie.",
+    "charge_has_payments": "Nie można anulować należności, na którą są już wpłaty."
+  },
+  "platform": {
+    "reason_needed": "Podaj powód (zobaczy go trener).",
+    "valid_date": "Podaj poprawną datę."
+  },
+  "db": {
+    "forbidden": "Brak uprawnień do tej operacji.",
+    "not_found": "Nie znaleziono rekordu.",
+    "overlap": "Trener ma już zajęcia w tym czasie.",
+    "no_package": "Klient nie ma pakietu z wolnymi zajęciami.",
+    "throttled": "Zbyt wiele nieudanych prób. Spróbuj ponownie za kilka minut.",
+    "invitation_unusable": "To zaproszenie wygasło lub zostało już użyte.",
+    "email_mismatch": "To zaproszenie jest przypisane do innego adresu e-mail.",
+    "not_free_slot": "Wolny termin można ogłosić tylko dla odwołanych zajęć, które jeszcze się nie odbyły.",
+    "offer_exists": "Ten termin jest już ogłoszony.",
+    "offer_closed": "To ogłoszenie nie jest już otwarte (termin zajęty lub zamknięty).",
+    "charge_paid": "Nie można cofnąć: należność jest już opłacona. Najpierw anuluj wpłatę.",
+    "package_used": "Pakiet był już używany, więc nie można go anulować. Użyj korekty salda.",
+    "undo_window": "Cofnięcie zakończenia jest możliwe tylko do końca dnia. Użyj korekty salda pakietu.",
+    "slot_filled": "Ten termin został już oddany innej osobie, więc zajęć nie można przywrócić.",
+    "already_voided": "Ta wpłata jest już anulowana.",
+    "already_member": "Ta osoba ma już dostęp do tej organizacji.",
+    "not_scheduled": "Te zajęcia zostały już rozliczone lub odwołane.",
+    "duplicate": "Taki rekord już istnieje.",
+    "constraint": "Dane nie spełniają ograniczeń bazy.",
+    "generic": "Operacja nie powiodła się.",
+    "read_only": "Konto szkoły jest w trybie tylko do odczytu, więc nie można zapisywać zmian. Skontaktuj się z obsługą.",
+    "signup_closed": "Rejestracja jest zamknięta. Potrzebny jest kod zaproszenia.",
+    "rate_limited": "Zbyt wiele zgłoszeń w krótkim czasie. Spróbuj ponownie później."
+  },
+  "invite": {
+    "invalid_code": "Niepoprawny kod.",
+    "code_hint": "Kod ma 10 znaków (litery i cyfry), np. ABCDE-FGHJK",
+    "email_mismatch": "To zaproszenie jest przypisane do innego adresu e-mail. Wyloguj się i użyj konta z właściwym adresem.",
+    "unusable_client": "To zaproszenie wygasło lub zostało już użyte. Poproś trenera o nowe.",
+    "unusable_member": "To zaproszenie wygasło lub zostało już użyte. Poproś o nowe.",
+    "throttled": "Zbyt wiele nieudanych prób. Spróbuj ponownie za kilka minut.",
+    "already_member": "Masz już dostęp do tej organizacji.",
+    "use_invited_email": "Podaj adres e-mail, na który wysłano zaproszenie"
+  }
+}

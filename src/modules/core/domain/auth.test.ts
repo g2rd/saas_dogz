@@ -9,10 +9,11 @@ import {
 
 describe("signupSchema", () => {
   it("normalizes e-mail and treats an empty name as missing", () => {
-    expect(signupSchema.parse({ fullName: "  ", email: " Anna@Example.PL ", password: "dlugie-haslo" })).toEqual({
+    expect(signupSchema.parse({ fullName: "  ", email: " Anna@Example.PL ", password: "dlugie-haslo", acceptTerms: "on" })).toEqual({
       fullName: null,
       email: "anna@example.pl",
       password: "dlugie-haslo",
+      acceptTerms: true,
     });
   });
 
@@ -23,6 +24,17 @@ describe("signupSchema", () => {
     expect(long.success).toBe(false);
   });
 
+  it("requires the consent checkbox (on, true) and rejects anything else", () => {
+    const base = { email: "a@b.pl", password: "dlugie-haslo" };
+    expect(signupSchema.safeParse(base).success).toBe(false);
+    expect(signupSchema.safeParse({ ...base, acceptTerms: "" }).success).toBe(false);
+    expect(signupSchema.safeParse({ ...base, acceptTerms: "off" }).success).toBe(false);
+    expect(signupSchema.safeParse({ ...base, acceptTerms: "on" }).success).toBe(true);
+    expect(signupSchema.safeParse({ ...base, acceptTerms: "true" }).success).toBe(true);
+    const missing = signupSchema.safeParse(base);
+    if (!missing.success) expect(missing.error.issues.find((i) => i.path[0] === "acceptTerms")?.message).toBe("validation.accept_terms");
+  });
+
   it("rejects an invalid e-mail", () => {
     const result = signupSchema.safeParse({ email: "nie-email", password: "dlugie-haslo" });
     expect(result.success).toBe(false);
@@ -30,7 +42,7 @@ describe("signupSchema", () => {
   });
 
   it("does not trim the password", () => {
-    expect(signupSchema.parse({ email: "a@b.pl", password: "  spacje  " }).password).toBe("  spacje  ");
+    expect(signupSchema.parse({ email: "a@b.pl", password: "  spacje  ", acceptTerms: "on" }).password).toBe("  spacje  ");
   });
 });
 

@@ -1,0 +1,47 @@
+{
+  "clientForm": {
+    "imie": "Imię",
+    "nazwisko": "Nazwisko",
+    "telefon": "Telefon",
+    "numer_polski_bez_prefiksu_zapiszemy_jako": "Numer polski bez prefiksu zapiszemy jako +48",
+    "status": "Status"
+  },
+  "import": {
+    "title": "Import klientów z pliku",
+    "intro": "Przenieś klientów z arkusza lub zeszytu: wgraj plik CSV (Excel: Zapisz jako CSV) albo wklej tabelę. Najpierw zobaczysz podgląd i listę problemów, nic się nie zapisze bez Twojego potwierdzenia. Klienci nie dostają żadnych zaproszeń ani wiadomości.",
+    "file_label": "Plik CSV",
+    "paste_label": "Albo wklej dane",
+    "paste_placeholder": "Imię;Nazwisko;E-mail;Telefon;Pies;Rasa",
+    "format_hint": "Pierwszy wiersz to nagłówki. Rozpoznajemy kolumny: Imię, Nazwisko (albo Imię i nazwisko), E-mail, Telefon, Pies, Rasa. Separator: średnik, przecinek lub tabulator. Do 500 klientów naraz.",
+    "check": "Sprawdź plik",
+    "checking": "Sprawdzanie...",
+    "preview_title": "Podgląd importu",
+    "summary": "Do zaimportowania: {rows} z {total} wierszy, w tym {dogs, plural, one {# pies} few {# psy} many {# psów} other {# psa}}.",
+    "truncated": "Plik ma więcej niż 500 wierszy: importujemy pierwsze 500, resztę wczytasz w kolejnym pliku.",
+    "ignored_columns": "Pominięte kolumny (nierozpoznane): {columns}.",
+    "col_name": "Imię i nazwisko",
+    "col_dog": "Pies",
+    "more_rows": "…i jeszcze {count}.",
+    "errors_title": "{count, plural, one {# wiersz pominięty} few {# wiersze pominięte} many {# wierszy pominiętych} other {# wiersza pominiętego}}",
+    "warnings_title": "{count, plural, one {# uwaga (wiersz zaimportowany bez jednego pola)} few {# uwagi (wiersze zaimportowane bez jednego pola)} many {# uwag (wiersze zaimportowane bez jednego pola)} other {# uwagi (wiersze zaimportowane bez jednego pola)}}",
+    "issue_line": "Wiersz {line}",
+    "issue": {
+      "first_name_required": "brak imienia",
+      "too_long": "któreś pole jest zbyt długie",
+      "email_dropped": "niepoprawny e-mail „{value}” (pominięty)",
+      "phone_dropped": "niepoprawny telefon „{value}” (pominięty)",
+      "duplicate_in_file": "powtórzony klient w pliku „{value}”",
+      "already_exists": "taki klient już jest w szkole „{value}”"
+    },
+    "confirm": "Importuj {count, plural, one {# klienta} few {# klientów} many {# klientów} other {# klienta}}",
+    "importing": "Importowanie...",
+    "done": "Gotowe! Zaimportowano {clients, plural, one {# klienta} few {# klientów} many {# klientów} other {# klienta}} i {dogs, plural, one {# psa} few {# psy} many {# psów} other {# psa}}.",
+    "done_skipped": "Pominięto {count, plural, one {# klienta, który już był} few {# klientów, którzy już byli} many {# klientów, którzy już byli} other {# klienta, który już był}} w szkole.",
+    "back_to_clients": "Przejdź do listy klientów",
+    "empty": "Wklej dane albo wybierz plik.",
+    "too_large": "Plik jest za duży (limit 1 MB). Podziel go na mniejsze.",
+    "no_name_column": "Nie znaleziono kolumny z imieniem. Dodaj nagłówek „Imię” (albo „Imię i nazwisko”) w pierwszym wierszu.",
+    "nothing_to_import": "Nie ma nic do zaimportowania: wszystkie wiersze zostały pominięte.",
+    "link": "Importuj z pliku"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "announceSlotForm": {
+    "oglos_wolny_termin": "Announce an open slot",
+    "klienci_zapisani_na_liste_chetnych": "Clients on the waitlist get a notification. They respond with “I'll take it” and you choose who gets the slot.",
+    "notatka_opcjonalnie": "Note (optional)",
+    "np_trening_w_parku_godzina_17_00": "E.g. “Training in the park, 5 pm”.",
+    "wyslij_ogloszenie": "Send announcement",
+    "oglosic_wolny_termin": "Announce the open slot?",
+    "klienci_zapisani_na_liste_chetnych_2": "Clients on the waitlist will get a notification. For 30 seconds you can still close the announcement without sending it.",
+    "oglaszanie": "Announcing..."
+  },
+  "scheduleSessionForm": {
+    "klient": "Client",
+    "wybierz_klienta": "Choose a client",
+    "rodzaj_zajec": "Session type",
+    "data": "Date",
+    "godzina": "Time",
+    "miejsce_opcjonalnie": "Location (optional)",
+    "trener": "Trainer",
+    "planowanie": "Scheduling...",
+    "client_has_no_dogs": "The client has no dogs",
+    "no_dog": "No dog specified"
+  },
+  "sessionActions": {
+    "zakoncz_zajecia": "Complete session",
+    "zakonczyc_zajecia": "Complete the session?",
+    "zajecia_zostana_rozliczone_zuzyjemy_jedno": "The session will be settled: one session is used from the client's package (without a package we'll ask about the charge).",
+    "pomylke_mozesz_cofnac_do_konca_dnia": "You can undo a mistake until the end of the day.",
+    "rozliczanie": "Settling...",
+    "odwolaj_zajecia": "Cancel session",
+    "odwolanie_bez_konsekwencji_dla_pakietu": "Cancellation with no effect on the package.",
+    "do_zajec_zostalo_mniej_niz": "Less than {lateCancelHours} h until the session, so under the policy the package session is forfeited.",
+    "zgodnie_z_polityka": "According to policy",
+    "nalicz_zajecie_z_pakietu": "Use a session from the package",
+    "nie_nalicz_zajecia_wyjatek": "Don't use a session (exception)",
+    "odwolac_zajecia": "Cancel the session?",
+    "klient_dostanie_powiadomienie_o_odwolaniu": "The client gets the cancellation notification in 30 seconds. If you restore the session in that time, they get none.",
+    "termin_zwolni_sie_i_bedziesz_mogl_oglosic": "The slot becomes free and you can announce it to clients on the waitlist.",
+    "cofnij_zakonczenie": "Undo completion",
+    "cofnac_zakonczenie_zajec": "Undo the session completion?",
+    "zajecie_wroci_do_pakietu_klienta_a": "The session returns to the client's package and the unpaid amount for it is canceled. The session goes back to “Scheduled”.",
+    "cofanie": "Undoing...",
+    "mozliwe_do_konca_dnia": "Possible until the end of the day.",
+    "przywroc_zajecia": "Restore session",
+    "przywrocic_zajecia": "Restore the session?",
+    "zajecia_wroca_do_kalendarza_zajecie": "The session returns to the calendar, the session taken from the package is returned and the open-slot announcement is closed. If the client already got the cancellation notification, they'll be told it was restored.",
+    "przywracanie": "Restoring...",
+    "klient_nie_ma_pakietu_z_wolnymi_zajeciami": "The client has no package with sessions left.",
+    "zakoncz_bez_pakietu_nalicz": "Complete without a package (charge {singlePriceLabel})",
+    "zakonczyc_bez_pakietu": "Complete without a package?",
+    "zajecia_zostana_rozliczone_jako": "The session will be settled as a single session: we'll charge {singlePriceLabel}. You can undo this until the end of the day as long as the client hasn't paid yet.",
+    "zakoncz_i_nalicz": "Complete and charge",
+    "popros_trenera_o_rozliczenie_bez_pakietu": "Ask the trainer to settle without a package."
+  },
+  "sessionTypeForm": {
+    "nazwa_zajec": "Session name",
+    "np_trening_indywidualny_konsultacja": "E.g. Private training, Consultation",
+    "czas_trwania_minuty": "Duration (minutes)",
+    "cena_pojedynczych_zajec_zl": "Single session price",
+    "naliczana_gdy_zajecia_rozliczasz_bez": "Charged when you settle a session without a package"
+  },
+  "slotOfferForms": {
+    "wybierz": "Choose",
+    "wybrac_clientname": "Choose {clientName}?",
+    "zajecia_when_zostana_zarezerwowane_dla": "The session {when} will be booked for {clientName}, who will get the message “The spot is yours!”.",
+    "pozostale_osoby_dostana_informacje_ze": "Everyone else will be told the slot is taken.",
+    "wybierz_i_zarezerwuj": "Choose and book",
+    "zamknij_ogloszenie": "Close announcement",
+    "zamknac_ogloszenie": "Close the announcement?",
+    "ogloszenie_zniknie_a_osoby_ktore_zglosily": "The announcement disappears and people who responded with “I'll take it” are told the slot is taken. If you close it within 30 seconds of announcing, nobody gets a notification.",
+    "zamykanie": "Closing..."
+  },
+  "slotOfferPanel": {
+    "zgloszen_length": "Requests: {length}",
+    "czeka_na_zgloszenia": "Waiting for requests",
+    "value_zglosil_a_sie_timeinzone": "{value} · requested {timeInZone}"
+  }
+}

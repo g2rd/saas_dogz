@@ -16,12 +16,14 @@ export {
   restoreDog,
   updateDog,
 } from "./application/dogs";
+export { dogAgeText } from "./ui/dog-age";
 export {
   APPROVAL_STATUS_LABELS,
   DOG_SEXES,
   DOG_SEX_LABELS,
   NOTE_KINDS,
   NOTE_KIND_LABELS,
+  dogAgeMessage,
   formatDogAge,
   type ApprovalStatus,
   type Dog,

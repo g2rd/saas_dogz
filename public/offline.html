@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#171717" />
+    <meta name="theme-color" content="#ffffff" />
     <title>Brak połączenia | DogTrainer</title>
     <style>
-      :root { color-scheme: light dark; }
+      :root { color-scheme: light; }
       body {
         margin: 0;
         min-height: 100vh;
@@ -18,20 +18,15 @@
         background: #ffffff;
         color: #171717;
       }
-      @media (prefers-color-scheme: dark) {
-        body { background: #0a0a0a; color: #ededed; }
-        button { background: #ededed; color: #0a0a0a; }
-      }
       main { max-width: 360px; text-align: center; }
       h1 { font-size: 1.5rem; margin: 0 0 12px; }
       p { line-height: 1.5; color: #52525b; margin: 0 0 24px; }
-      @media (prefers-color-scheme: dark) { p { color: #a1a1aa; } }
       button {
         height: 44px;
         padding: 0 28px;
         border: 0;
         border-radius: 999px;
-        background: #171717;
+        background: #059669;
         color: #ffffff;
         font-size: 1rem;
         font-weight: 600;
@@ -40,9 +35,27 @@
   </head>
   <body>
     <main>
-      <h1>Brak połączenia</h1>
-      <p>Nie udało się wczytać strony. Sprawdź internet i spróbuj ponownie. Twoje dane są bezpieczne na serwerze.</p>
-      <button type="button" onclick="location.reload()">Spróbuj ponownie</button>
+      <h1 data-t="title">Brak połączenia</h1>
+      <p data-t="text">Nie udało się wczytać strony. Sprawdź internet i spróbuj ponownie. Twoje dane są bezpieczne na serwerze.</p>
+      <button type="button" data-t="retry" onclick="location.reload()">Spróbuj ponownie</button>
     </main>
+    <script>
+      // Strona offline jest statyczna (serwis worker trzyma ją w pamięci podręcznej), więc język wybiera po stronie przeglądarki:
+      // najpierw wybór z aplikacji (ciasteczko dt_locale), potem język przeglądarki; bez tłumaczenia zostaje polski.
+      (function () {
+        var texts = {
+          pl: { title: "Brak połączenia", text: "Nie udało się wczytać strony. Sprawdź internet i spróbuj ponownie. Twoje dane są bezpieczne na serwerze.", retry: "Spróbuj ponownie" },
+          en: { title: "You are offline", text: "The page could not be loaded. Check your internet connection and try again. Your data is safe on the server.", retry: "Try again" }
+        };
+        var match = document.cookie.match(/(?:^|; )dt_locale=([a-z]{2})/);
+        var lang = (match ? match[1] : (navigator.language || "pl")).slice(0, 2).toLowerCase();
+        var dict = texts[lang] || texts.pl;
+        document.documentElement.lang = texts[lang] ? lang : "pl";
+        document.title = dict.title + " | DogTrainer";
+        Array.prototype.forEach.call(document.querySelectorAll("[data-t]"), function (el) {
+          el.textContent = dict[el.getAttribute("data-t")];
+        });
+      })();
+    </script>
   </body>
 </html>

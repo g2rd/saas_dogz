@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { emptyToNull, formText } from "@/shared/form";
+import { msg } from "@/shared/i18n/messages";
 
 export const CLIENT_STATUSES = ["lead", "active", "inactive"] as const;
 export type ClientStatus = (typeof CLIENT_STATUSES)[number];
@@ -66,7 +67,7 @@ export function sanitizeSearch(raw: string): string {
 export const clientInputSchema = z.object({
   firstName: z.preprocess(
     (v) => (v == null ? "" : v),
-    z.string().trim().min(1, "Podaj imię").max(100, "Maksymalnie 100 znaków"),
+    z.string().trim().min(1, msg("validation.first_name_required")).max(100, msg("validation.max_length", { max: 100 })),
   ),
   lastName: formText(100),
   email: formText(254)

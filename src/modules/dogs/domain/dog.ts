@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { isRealIsoDate } from "@/shared/dates";
 import { emptyToNull, formText } from "@/shared/form";
+import { msg } from "@/shared/i18n/messages";
 
 export const DOG_SEXES = ["male", "female", "unknown"] as const;
 export type DogSex = (typeof DOG_SEXES)[number];
@@ -64,6 +65,18 @@ export function ageInMonths(birthDate: string | null, now: Date): number | null 
   return months < 0 ? null : months;
 }
 
+/** Wiek psa jako klucz komunikatu z parametrami (tłumaczy go interfejs): `dogs.age.*`; `null`, gdy nie znamy daty urodzenia. */
+export function dogAgeMessage(birthDate: string | null, now: Date): { key: string; params: { months?: number; years?: number } } | null {
+  const months = ageInMonths(birthDate, now);
+  if (months === null) return null;
+  if (months < 1) return { key: "dogs.age.lt_month", params: {} };
+  if (months < 24) return { key: "dogs.age.months", params: { months } };
+  const years = Math.floor(months / 12);
+  const rest = months % 12;
+  return rest === 0 ? { key: "dogs.age.years", params: { years } } : { key: "dogs.age.years_months", params: { years, months: rest } };
+}
+
+/** Wiek psa po polsku (zapasowo; interfejs używa `dogAgeMessage`). */
 export function formatDogAge(birthDate: string | null, now: Date): string | null {
   const months = ageInMonths(birthDate, now);
   if (months === null) return null;
@@ -76,13 +89,13 @@ export function formatDogAge(birthDate: string | null, now: Date): string | null
 
 const optionalIsoDate = z.preprocess(
   emptyToNull,
-  z.string().refine(isRealIsoDate, "Niepoprawna data").nullable(),
+  z.string().refine(isRealIsoDate, msg("validation.invalid_date")).nullable(),
 );
 
 export const dogInputSchema = z.object({
   name: z.preprocess(
     (v) => (v == null ? "" : v),
-    z.string().trim().min(1, "Podaj imię psa").max(100, "Maksymalnie 100 znaków"),
+    z.string().trim().min(1, msg("validation.dog_name_required")).max(100, msg("validation.max_length", { max: 100 })),
   ),
   breed: formText(100).transform((v) => (v === "" ? null : v)),
   birthDate: optionalIsoDate.default(null),
@@ -95,7 +108,7 @@ export const dogNoteInputSchema = z.object({
   kind: z.enum(NOTE_KINDS).default("other"),
   content: z.preprocess(
     (v) => (v == null ? "" : v),
-    z.string().trim().min(1, "Wpisz treść notatki").max(2000, "Maksymalnie 2000 znaków"),
+    z.string().trim().min(1, msg("validation.note_required")).max(2000, msg("validation.max_length", { max: 2000 })),
   ),
   visibleToClient: z.preprocess(
     (v) => v === "on" || v === "true" || v === true,

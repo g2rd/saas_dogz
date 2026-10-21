@@ -1,0 +1,13 @@
+{
+  "recordPaymentForm": {
+    "kwota_zl": "Kwota (zł)",
+    "np_300_lub_300_50": "Np. 300 lub 300,50",
+    "sposob_platnosci": "Sposób płatności",
+    "na_ktora_naleznosc": "Na którą należność",
+    "data_wplaty": "Data wpłaty",
+    "opis_opcjonalnie": "Opis (opcjonalnie)",
+    "zaksiegowac_wplate": "Zaksięgować wpłatę?",
+    "wplata_zostanie_zapisana_i_rozliczona_z": "Wpłata zostanie zapisana i rozliczona z należnościami klienta. Klient dostanie powiadomienie po 30 sekundach. Pomyłkę poprawisz stornem wpłaty w historii wpłat.",
+    "zaksieguj": "Zaksięguj"
+  }
+}

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { isRealIsoDate } from "@/shared/dates";
 import { emptyToNull, formAmountMinor, formText } from "@/shared/form";
+import { msg } from "@/shared/i18n/messages";
 
 export const PAYMENT_METHODS = ["cash", "transfer", "blik", "card", "other"] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
@@ -21,6 +22,8 @@ export type Payment = {
   paidAt: Date;
   method: PaymentMethod;
   reference: string | null;
+  /** Wpłata anulowana (storno); zostaje w historii, ale nie liczy się do salda. */
+  voidedAt: Date | null;
 };
 
 export type Charge = {
@@ -56,11 +59,11 @@ export function creditMinor(balance: ClientBalance): number {
 
 export const paymentInputSchema = z.object({
   clientId: z.uuid(),
-  amount: formAmountMinor().refine((v) => v > 0, "Kwota musi być większa od zera"),
-  method: z.enum(PAYMENT_METHODS, "Wybierz sposób płatności"),
+  amount: formAmountMinor().refine((v) => v > 0, msg("validation.amount_positive")),
+  method: z.enum(PAYMENT_METHODS, msg("validation.choose_payment_method")),
   paidAt: z.preprocess(
     emptyToNull,
-    z.string().refine(isRealIsoDate, "Niepoprawna data").nullable(),
+    z.string().refine(isRealIsoDate, msg("validation.invalid_date")).nullable(),
   ),
   reference: formText(200).transform((v) => (v === "" ? null : v)),
   /** Gdy podane, wpłata trafia tylko na tę należność (reszta to nadpłata). */

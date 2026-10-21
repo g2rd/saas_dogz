@@ -14,6 +14,7 @@ import {
   type PackageRecord,
 } from "../infrastructure/packages-repository";
 import { templatesRepository } from "../infrastructure/templates-repository";
+import { msg } from "@/shared/i18n/messages";
 
 export type ClientPackage = PackageRecord & { status: PackageStatus };
 
@@ -141,15 +142,22 @@ const adjustmentSchema = z.object({
   delta: z.preprocess(
     (v) => (typeof v === "string" && v.trim() !== "" ? Number(v.trim()) : v),
     z
-      .number({ error: "Podaj liczbę zajęć, np. 1 lub -1" })
-      .int("Podaj liczbę całkowitą")
-      .min(-500, "Za duża korekta")
-      .max(500, "Za duża korekta")
-      .refine((v) => v !== 0, "Korekta nie może być zerowa"),
+      .number({ error: msg("validation.adjust_delta") })
+      .int(msg("validation.integer"))
+      .min(-500, msg("validation.adjustment_too_large"))
+      .max(500, msg("validation.adjustment_too_large"))
+      .refine((v) => v !== 0, msg("validation.adjustment_zero")),
   ),
   reason: z.enum(["adjustment", "refund"]).default("adjustment"),
   note: formText(300).transform((v) => (v === "" ? null : v)),
 });
+
+/** Anuluje nieużywany pakiet (razem z jego nieopłaconą należnością); użyty pakiet koryguje się saldem. */
+export async function cancelPackage(ctx: RequestContext, packageId: string): Promise<Result<void>> {
+  const allowed = authorize(ctx, "packages.write");
+  if (!allowed.ok) return allowed;
+  return packagesRepository(ctx.db).cancel(ctx.organizationId, packageId);
+}
 
 /** Ręczna korekta salda (np. zwrot zajęć); saldo nie może zejść poniżej zera. */
 export async function adjustPackage(
@@ -172,8 +180,8 @@ export async function adjustPackage(
   );
   if (!result.ok && result.error.code === "validation") {
     return err(
-      appError("validation", "Popraw zaznaczone pola.", {
-        delta: ["Saldo nie może zejść poniżej zera"],
+      appError("validation", msg("validation.fix_fields"), {
+        delta: [msg("validation.balance_below_zero")],
       }),
     );
   }

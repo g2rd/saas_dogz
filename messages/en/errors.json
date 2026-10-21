@@ -1,0 +1,99 @@
+{
+  "internal": "The operation failed.",
+  "forbidden": "You don’t have permission to do this.",
+  "read_only": "Your school’s account is read-only, so changes can’t be saved. Please contact support.",
+  "signup_closed": "Sign-up is closed. An invitation code is required.",
+  "not_found": {
+    "generic": "Record not found.",
+    "client": "Client not found.",
+    "dog": "Dog not found.",
+    "note": "Note not found.",
+    "package": "Package not found.",
+    "template": "Package template not found.",
+    "session_type": "Session type not found.",
+    "session": "Session not found.",
+    "organization": "Organization not found.",
+    "school": "School not found.",
+    "client_account": "Client account not found.",
+    "invitation_code": "Invitation not found. Check the code or link.",
+    "invitation_link": "Invitation not found. Check the link.",
+    "invitation_expired": "This invitation is no longer valid. Create a new one."
+  },
+  "auth": {
+    "invalid_credentials": "Incorrect email or password.",
+    "signup_failed": "We couldn’t create the account. Please try again.",
+    "account_exists": "An account with this address already exists. Sign in or reset your password.",
+    "password_weak": "The password is too weak.",
+    "too_many_attempts": "Too many attempts. Please try again in a few minutes.",
+    "email_not_sent": "We couldn’t send the message. Please try again.",
+    "password_change_failed": "We couldn’t change the password. Please try again.",
+    "link_expired": "The link has expired. Request a new one.",
+    "link_invalid": "Invalid link.",
+    "link_used": "The link has expired or was already used.",
+    "sign_in_required": "Sign in to continue.",
+    "gate_closed": "Sign-up is currently closed. Enter the invitation code you received from the DogTrainer team.",
+    "gate_invalid_code": "This code is invalid, has expired or was already used.",
+    "gate_invalid_invitation": "This invitation has expired or was already used."
+  },
+  "context": {
+    "load_organization": "We couldn’t load the organization.",
+    "no_organization": "Create an organization first.",
+    "school_suspended": "Your school’s account is suspended.",
+    "load_client_access": "We couldn’t load the client access.",
+    "no_client_access": "This account doesn’t have access to the client portal.",
+    "school_unavailable": "The school is temporarily unavailable."
+  },
+  "invitations": {
+    "malformed_code": "Invalid invitation code or link.",
+    "malformed_link": "Invalid invitation link.",
+    "client_no_email": "The client has no email address. Add it to the client’s record.",
+    "email_not_sent": "The email wasn’t sent: {detail}.",
+    "email_send_failed": "We couldn’t send the email. Try again or share the link in person."
+  },
+  "notifications": {
+    "choose_package": "Select the package you want to renew."
+  },
+  "payments": {
+    "charges_changed": "The charges changed in the meantime. Refresh the page and try again.",
+    "charge_has_payments": "A charge that already has payments can’t be canceled."
+  },
+  "platform": {
+    "reason_needed": "Enter a reason (the trainer will see it).",
+    "valid_date": "Enter a valid date."
+  },
+  "db": {
+    "forbidden": "You don’t have permission to do this.",
+    "not_found": "Record not found.",
+    "overlap": "The trainer already has a session at that time.",
+    "no_package": "The client has no package with sessions left.",
+    "throttled": "Too many failed attempts. Please try again in a few minutes.",
+    "invitation_unusable": "This invitation has expired or was already used.",
+    "email_mismatch": "This invitation is assigned to a different email address.",
+    "not_free_slot": "An open slot can only be announced for canceled sessions that haven’t taken place yet.",
+    "offer_exists": "This slot has already been announced.",
+    "offer_closed": "This announcement is no longer open (the slot is taken or closed).",
+    "charge_paid": "Can’t undo: the charge is already paid. Void the payment first.",
+    "package_used": "The package has already been used, so it can’t be canceled. Use a balance adjustment.",
+    "undo_window": "Completing a session can only be undone until the end of the day. Use a package balance adjustment.",
+    "slot_filled": "This slot was already given to someone else, so the session can’t be restored.",
+    "already_voided": "This payment is already voided.",
+    "already_member": "This person already has access to this organization.",
+    "not_scheduled": "This session was already settled or canceled.",
+    "duplicate": "Such a record already exists.",
+    "constraint": "The data doesn’t meet the database constraints.",
+    "generic": "The operation failed.",
+    "read_only": "The school’s account is read-only, so changes can’t be saved. Please contact support.",
+    "signup_closed": "Sign-up is closed. An invitation code is required.",
+    "rate_limited": "Too many submissions in a short time. Please try again later."
+  },
+  "invite": {
+    "invalid_code": "Invalid code.",
+    "code_hint": "The code has 10 characters (letters and digits), e.g. ABCDE-FGHJK",
+    "email_mismatch": "This invitation is assigned to a different email address. Log out and use the account with the right address.",
+    "unusable_client": "This invitation has expired or has already been used. Ask your trainer for a new one.",
+    "unusable_member": "This invitation has expired or has already been used. Ask for a new one.",
+    "throttled": "Too many failed attempts. Try again in a few minutes.",
+    "already_member": "You already have access to this organization.",
+    "use_invited_email": "Enter the email address the invitation was sent to"
+  }
+}

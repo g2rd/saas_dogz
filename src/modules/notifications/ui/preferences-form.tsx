@@ -3,28 +3,31 @@
 import { useActionState, useEffect, useState } from "react";
 import type { FormState } from "@/shared/form";
 import { CheckboxField, FormMessage, SubmitButton } from "@/shared/ui/form-fields";
-import { CHANNEL_LABELS, type ChannelPreferences } from "../domain/notification";
+import { type ChannelPreferences } from "../domain/notification";
+import { useTranslations } from "next-intl";
+import { Msg } from "@/shared/ui/msg";
 
 type SaveAction = (prev: FormState & { saved?: boolean }, formData: FormData) => Promise<FormState & { saved?: boolean }>;
 
 /** Preferencje kanałów powiadomień. Powiadomienia w aplikacji są zawsze włączone. */
 export function PreferencesForm({ action, preferences }: { action: SaveAction; preferences: ChannelPreferences }) {
+  const t = useTranslations();
   const [state, formAction] = useActionState(action, {});
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        Powiadomienia w aplikacji (dzwonek) są zawsze włączone. Wybierz, gdzie jeszcze mają do Ciebie docierać.
+        {t("notifications.preferencesForm.powiadomienia_w_aplikacji_dzwonek_sa")}
       </p>
-      <CheckboxField name="push" label={CHANNEL_LABELS.push} defaultChecked={preferences.push} />
-      <CheckboxField name="email" label={CHANNEL_LABELS.email} defaultChecked={preferences.email} />
+      <CheckboxField name="push" label={t("labels.channel.push")} defaultChecked={preferences.push} />
+      <CheckboxField name="email" label={t("labels.channel.email")} defaultChecked={preferences.email} />
       <FormMessage state={state} />
       {state.saved ? (
         <p role="status" className="text-sm text-emerald-700 dark:text-emerald-400">
-          Zapisano.
+          {t("notifications.preferencesForm.zapisano")}
         </p>
       ) : null}
       <div>
-        <SubmitButton>Zapisz</SubmitButton>
+        <SubmitButton>{t("notifications.preferencesForm.zapisz")}</SubmitButton>
       </div>
     </form>
   );
@@ -57,6 +60,7 @@ export function PushToggle({
   subscribeAction: SubscribeAction;
   unsubscribeAction: UnsubscribeAction;
 }) {
+  const t = useTranslations();
   const [status, setStatus] = useState<PushStatus>("checking");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -115,9 +119,9 @@ export function PushToggle({
         return;
       }
       setStatus("on");
-      setMessage("Powiadomienia push włączone na tym urządzeniu.");
+      setMessage(t("notifications.preferencesForm.push_enabled"));
     } catch {
-      setMessage("Nie udało się włączyć powiadomień push na tym urządzeniu.");
+      setMessage(t("notifications.preferencesForm.push_enable_failed"));
     } finally {
       setBusy(false);
     }
@@ -134,7 +138,7 @@ export function PushToggle({
         await subscription.unsubscribe();
       }
       setStatus("off");
-      setMessage("Powiadomienia push wyłączone na tym urządzeniu.");
+      setMessage(t("notifications.preferencesForm.push_disabled"));
     } finally {
       setBusy(false);
     }
@@ -142,19 +146,18 @@ export function PushToggle({
 
   return (
     <div className="flex flex-col gap-2 rounded-2xl border border-zinc-200 p-4 dark:border-zinc-800">
-      <p className="font-medium">To urządzenie</p>
+      <p className="font-medium">{t("notifications.preferencesForm.to_urzadzenie")}</p>
       {status === "needs-install" ? (
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          Na iPhonie powiadomienia push działają dopiero po dodaniu aplikacji do ekranu głównego: stuknij{" "}
-          <strong>Udostępnij</strong>, potem <strong>Do ekranu początkowego</strong>, otwórz aplikację z ikony i wróć tutaj.
+          {t.rich("notifications.preferencesForm.ios_install", { strong: (chunks) => <strong>{chunks}</strong> })}
         </p>
       ) : status === "unsupported" ? (
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          Ta przeglądarka nie obsługuje powiadomień push lub serwer nie ma ich skonfigurowanych.
+          {t("notifications.preferencesForm.ta_przegladarka_nie_obsluguje_powiadomien")}
         </p>
       ) : status === "denied" ? (
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          Powiadomienia są zablokowane w ustawieniach przeglądarki. Zmień to w ustawieniach strony.
+          {t("notifications.preferencesForm.powiadomienia_sa_zablokowane_w")}
         </p>
       ) : status === "on" ? (
         <button
@@ -163,21 +166,21 @@ export function PushToggle({
           disabled={busy}
           className="h-11 self-start rounded-full border border-zinc-300 px-5 font-medium disabled:opacity-60 dark:border-zinc-700"
         >
-          Wyłącz push na tym urządzeniu
+          {t("notifications.preferencesForm.wylacz_push_na_tym_urzadzeniu")}
         </button>
       ) : (
         <button
           type="button"
           onClick={enable}
           disabled={busy || status === "checking"}
-          className="h-11 self-start rounded-full bg-foreground px-5 font-medium text-background disabled:opacity-60"
+          className="h-11 self-start rounded-full bg-primary hover:bg-primary-hover px-5 font-medium text-primary-foreground disabled:opacity-60"
         >
-          Włącz push na tym urządzeniu
+          {t("notifications.preferencesForm.wlacz_push_na_tym_urzadzeniu")}
         </button>
       )}
       {message ? (
         <p role="status" className="text-sm text-zinc-600 dark:text-zinc-400">
-          {message}
+          <Msg text={message} />
         </p>
       ) : null}
     </div>

@@ -5,12 +5,14 @@ export {
   LOGIN_NEXT_PREFIXES,
   exchangeAuthCode,
   requestPasswordReset,
+  getSignupMode,
   signIn,
   signUp,
   updatePassword,
   type SignupOutcome,
 } from "./application/auth";
 export { safeNextPath } from "./domain/redirect";
+export { BETA_CODE_LENGTH, formatBetaCode, generateBetaCode, hashBetaCode, normalizeBetaCode } from "./domain/beta-code";
 export { createOrganization } from "./application/create-organization";
 export {
   getOrganization,
@@ -29,3 +31,4 @@ export {
 } from "./domain/permissions";
 export { slugify } from "./domain/slug";
 export { getRequestContext, getSessionUser, type SessionUser } from "./infrastructure/request-context";
+export { findAccessNotice, isBlockedStatus, loadOrgAccess, type AccessNotice } from "./infrastructure/org-access";

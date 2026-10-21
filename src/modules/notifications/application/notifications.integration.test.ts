@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { createClient } from "@/modules/clients/application/clients";
 import { createOrganization } from "@/modules/core/application/create-organization";
+import { acceptInvitation, createClientInvitation } from "@/modules/invitations/application/invitations";
 import { sellPackage } from "@/modules/packages/application/packages";
 import { completeSession, createSessionType, scheduleSession, listClientSessions } from "@/modules/scheduling/application/scheduling";
 import { systemClock } from "@/shared/clock";
@@ -67,6 +68,8 @@ const deps = (overrides: Partial<OutboxDeps> = {}): OutboxDeps => ({
 
 /** Przetwarza outbox, aż nie będzie nic do pobrania (zdarzenia zablokowane po błędzie czekają na odblokowanie). */
 async function drain(overrides: Partial<OutboxDeps> = {}, runDailyRules = false) {
+  // Zdarzenia z akcji trenera czekają 30 s (okno „Cofnij”); w testach zdejmujemy to opóźnienie
+  await adminClient().from("outbox_events").update({ not_before: null }).is("processed_at", null);
   for (let i = 0; i < 12; i++) {
     const run = await processOutbox(deps(overrides), { limit: 100, runDailyRules: runDailyRules && i === 0 });
     if (run.claimed === 0) return;
@@ -348,6 +351,32 @@ describe("reguły dzienne", () => {
   });
 });
 
+describe("zaproszenie przyjęte przez klienta", () => {
+  it("trener dostaje powiadomienie w aplikacji, push i e-mail, gdy klient zakłada konto po zeskanowaniu QR", async () => {
+    const newClientId = value(await createClient(ctx, { firstName: "Ola", lastName: "Skaner" })).id;
+    const invitation = value(await createClientInvitation(ctx, { clientId: newClientId, packageId: "", email: "" }));
+    const newcomer = await createTestUser("nt-scan");
+
+    // Trener ma włączony push na telefonie
+    value(await saveNotificationPreferences(ctx, { push: true, email: true }));
+    value(await savePushSubscription(ctx, { endpoint: "https://push.example.test/trainer-phone", keys: { p256dh: "BKey", auth: "authkey" } }));
+
+    pushSent.length = 0;
+    emails.length = 0;
+    value(await acceptInvitation(newcomer.db, invitation.link.split("/invite/")[1]));
+    await drain();
+
+    const forTrainer = value(await listNotifications(ctx));
+    expect(forTrainer.find((n) => n.type === "invitation.accepted" && n.title.startsWith("Ola Skaner"))).toMatchObject({
+      title: "Ola Skaner dołączył(a) do panelu klienta",
+      audience: "staff",
+      link: `/app/clients/${newClientId}`,
+    });
+    expect(pushSent.some((p) => p.endpoint.endsWith("/trainer-phone") && p.title.startsWith("Ola Skaner"))).toBe(true);
+    expect(emails.some((m) => m.to === owner.email && m.subject.startsWith("Ola Skaner"))).toBe(true);
+  });
+});
+
 describe("izolacja", () => {
   it("personel innej organizacji nie dostaje powiadomień o klientach organizacji A", async () => {
     const foreign = value(await listNotifications({ ...ctx, userId: otherOwner.id, organizationId: orgB, db: otherOwner.db }));
@@ -355,5 +384,57 @@ describe("izolacja", () => {
     // Trener A nie widzi skrzynki klienta nawet z podmienionym identyfikatorem odbiorcy
     const { data } = await owner.db.from("notifications").select("id").eq("recipient_user_id", clientUser.id);
     expect(data).toEqual([]);
+  });
+});
+
+describe("język odbiorcy", () => {
+  /** Tłumacz-atrapa: każdy klucz zwraca jako `EN:<klucz>`, żeby widać było, który język wybrał procesor. */
+  const fakeEnglish = async () => Object.assign((key: string) => `EN:${key}`, { has: () => true });
+
+  async function recordPaymentEvent(amountMinor: number) {
+    const { error } = await adminClient()
+      .from("outbox_events")
+      .insert({ organization_id: orgA, type: "payment.recorded", payload: { client_id: annaId, amount_minor: amountMinor, currency: "PLN" } });
+    expect(error).toBeNull();
+  }
+
+  it("zapisuje klucz i parametry, a e-mail idzie w języku z profilu odbiorcy, gdy język jest włączony", async () => {
+    await adminClient().from("profiles").update({ locale: "en" }).eq("id", clientUser.id);
+    emails.length = 0;
+    await recordPaymentEvent(7700);
+    await drain({ translatorFor: fakeEnglish, enabledLocales: ["pl", "en"] });
+
+    const mail = emails.find((m) => m.to === clientUser.email && m.subject.startsWith("EN:notify.payment_recorded"));
+    expect(mail).toBeDefined();
+    expect(mail?.html).toContain("EN:notify.open_in_app");
+
+    const { data } = await adminClient()
+      .from("notifications")
+      .select("message_key, message_params, title")
+      .eq("recipient_user_id", clientUser.id)
+      .eq("type", "payment.recorded")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+    expect(data).toMatchObject({ message_key: "payment_recorded", message_params: { amountMinor: 7700, currency: "PLN" } });
+    expect(data?.title).toBe("EN:notify.payment_recorded.title");
+  });
+
+  it("język, którego aplikacja jeszcze nie pokazuje, daje powiadomienie po polsku", async () => {
+    await adminClient().from("profiles").update({ locale: "en" }).eq("id", clientUser.id);
+    emails.length = 0;
+    await recordPaymentEvent(1200);
+    await drain({ enabledLocales: ["pl"] });
+
+    const mail = emails.find((m) => m.to === clientUser.email && m.subject === "Zaksięgowano wpłatę");
+    expect(mail).toBeDefined();
+    expect(mail?.html).toContain("Otwórz w aplikacji");
+  });
+
+  it("lista w dzwonku zawiera klucz i parametry do złożenia treści w języku widza", async () => {
+    const list = value(await listNotifications(clientCtx(clientUser)));
+    const payment = list.find((n) => n.type === "payment.recorded");
+    expect(payment).toMatchObject({ messageKey: "payment_recorded" });
+    expect(payment?.params).toHaveProperty("amountMinor");
   });
 });

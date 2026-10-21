@@ -4,6 +4,7 @@ import { appError } from "@/shared/errors";
 import { err, ok, type Result } from "@/shared/result";
 import type { Allocation } from "../domain/allocation";
 import type { Charge, ClientBalance, Payment, PaymentMethod } from "../domain/payment";
+import { msg } from "@/shared/i18n/messages";
 
 const CHARGE_COLUMNS =
   "id, client_id, source_type, source_id, amount_minor, allocated_minor, currency, due_date, description, voided_at, created_at";
@@ -30,6 +31,7 @@ type PaymentRow = {
   paid_at: string;
   method: PaymentMethod;
   reference: string | null;
+  voided_at: string | null;
 };
 
 function toCharge(row: ChargeRow): Charge {
@@ -89,7 +91,7 @@ export function paymentsRepository(db: SupabaseClient) {
     async listPaymentsByClient(organizationId: string, clientId: string): Promise<Result<Payment[]>> {
       const { data, error } = await db
         .from("payments")
-        .select("id, client_id, amount_minor, currency, paid_at, method, reference")
+        .select("id, client_id, amount_minor, currency, paid_at, method, reference, voided_at")
         .eq("organization_id", organizationId)
         .eq("client_id", clientId)
         .order("paid_at", { ascending: false });
@@ -103,6 +105,7 @@ export function paymentsRepository(db: SupabaseClient) {
           paidAt: new Date(row.paid_at),
           method: row.method,
           reference: row.reference,
+          voidedAt: row.voided_at ? new Date(row.voided_at) : null,
         })),
       );
     },
@@ -115,7 +118,7 @@ export function paymentsRepository(db: SupabaseClient) {
         .eq("client_id", clientId)
         .maybeSingle();
       if (error) return err(fromDbError(error));
-      if (!data) return err(appError("not_found", "Nie znaleziono klienta."));
+      if (!data) return err(appError("not_found", msg("errors.not_found.client")));
       const row = data as { client_id: string; charged_minor: number; allocated_minor: number; paid_minor: number };
       return ok({
         clientId: row.client_id,
@@ -139,6 +142,12 @@ export function paymentsRepository(db: SupabaseClient) {
       });
       if (error) return err(fromDbError(error));
       return ok(data as string);
+    },
+
+    async voidPayment(organizationId: string, paymentId: string): Promise<Result<void>> {
+      const { error } = await db.rpc("void_payment", { p_org: organizationId, p_payment: paymentId });
+      if (error) return err(fromDbError(error));
+      return ok(undefined);
     },
 
     async voidCharge(organizationId: string, chargeId: string): Promise<Result<void>> {

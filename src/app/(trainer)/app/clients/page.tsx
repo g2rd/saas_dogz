@@ -1,21 +1,32 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { CLIENT_STATUS_LABELS, clientFullName, listClients } from "@/modules/clients";
+import { clientFullName, listClients } from "@/modules/clients";
 import { requireContext } from "../../_lib/context";
+import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 
 export default function ClientsPage({ searchParams }: PageProps<"/app/clients">) {
+  const t = useTranslations();
   return (
     <>
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold">Klienci</h1>
-        <Link
-          href="/app/clients/new"
-          className="inline-flex h-11 items-center rounded-full bg-foreground px-6 font-medium text-background"
-        >
-          Dodaj klienta
-        </Link>
+        <h1 className="text-2xl font-semibold">{t("common.klienci_2")}</h1>
+        <div className="flex items-center gap-3">
+          <Link href="/app/clients/import" className="hidden text-sm underline sm:inline">
+            {t("clients.import.link")}
+          </Link>
+          <Link
+            href="/app/clients/new"
+            className="inline-flex h-11 items-center rounded-full bg-primary hover:bg-primary-hover px-6 font-medium text-primary-foreground"
+          >
+            {t("common.dodaj_klienta")}
+          </Link>
+        </div>
       </div>
-      <Suspense fallback={<p className="mt-6 text-zinc-500">Ładowanie...</p>}>
+      <Link href="/app/clients/import" className="mt-2 inline-block text-sm underline sm:hidden">
+        {t("clients.import.link")}
+      </Link>
+      <Suspense fallback={<p className="mt-6 text-zinc-500">{t("common.ladowanie")}</p>}>
         <ClientList searchParams={searchParams} />
       </Suspense>
     </>
@@ -27,6 +38,7 @@ function first(value: string | string[] | undefined): string {
 }
 
 async function ClientList({ searchParams }: Pick<PageProps<"/app/clients">, "searchParams">) {
+  const t = await getTranslations();
   const params = await searchParams;
   const q = first(params.q);
   const showArchived = first(params.archived) === "1";
@@ -42,25 +54,25 @@ async function ClientList({ searchParams }: Pick<PageProps<"/app/clients">, "sea
         <input
           name="q"
           defaultValue={q}
-          placeholder="Szukaj po imieniu, nazwisku, e-mailu lub telefonie"
+          placeholder={t("trainer.clientsPage.szukaj_po_imieniu_nazwisku_e_mailu_lub")}
           className="h-11 min-w-0 flex-1 rounded-lg border border-zinc-300 bg-transparent px-3 dark:border-zinc-700"
         />
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" name="archived" value="1" defaultChecked={showArchived} />
-          Pokaż archiwalnych
+          {t("trainer.clientsPage.pokaz_archiwalnych")}
         </label>
         <button type="submit" className="h-11 rounded-full border border-zinc-300 px-5 dark:border-zinc-700">
-          Szukaj
+          {t("trainer.clientsPage.szukaj")}
         </button>
       </form>
 
       {clients.length === 0 ? (
         <p className="text-zinc-600 dark:text-zinc-400">
           {q
-            ? "Brak klientów pasujących do wyszukiwania."
+            ? t("trainer.clientsPage.brak_klientow_pasujacych_do_wyszukiwania")
             : showArchived
-              ? "Brak klientów. Dodaj pierwszego."
-              : "Brak aktywnych klientów. Dodaj nowego albo zaznacz „Pokaż archiwalnych”."}
+              ? t("trainer.clientsPage.brak_klientow_dodaj_pierwszego")
+              : t("trainer.clientsPage.brak_aktywnych_klientow_dodaj_nowego_albo")}
         </p>
       ) : (
         <ul className="divide-y divide-zinc-200 rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
@@ -72,10 +84,10 @@ async function ClientList({ searchParams }: Pick<PageProps<"/app/clients">, "sea
               >
                 <span className="font-medium">
                   {clientFullName(client)}
-                  {client.archivedAt ? <span className="ml-2 text-sm text-zinc-500">(archiwum)</span> : null}
+                  {client.archivedAt ? <span className="ml-2 text-sm text-zinc-500">{t("common.archiwum")}</span> : null}
                 </span>
                 <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                  {[client.phone, client.email].filter(Boolean).join(" · ") || CLIENT_STATUS_LABELS[client.status]}
+                  {[client.phone, client.email].filter(Boolean).join(" · ") || t(`labels.clientStatus.${client.status}`)}
                 </span>
               </Link>
             </li>

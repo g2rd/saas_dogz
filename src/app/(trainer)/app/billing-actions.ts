@@ -4,12 +4,13 @@ import { redirect } from "next/navigation";
 import {
   adjustPackage,
   archiveTemplate,
+  cancelPackage,
   createTemplate,
   restoreTemplate,
   sellPackage,
   updateTemplate,
 } from "@/modules/packages";
-import { recordPayment, voidCharge } from "@/modules/payments";
+import { recordPayment, voidCharge, voidPayment } from "@/modules/payments";
 import { toFormState, type FormState } from "@/shared/form";
 import type { Result } from "@/shared/result";
 import { requireContext } from "../_lib/context";
@@ -91,6 +92,20 @@ export async function recordPaymentAction(
   const result = await recordPayment(ctx, withIds(formData, { clientId }));
   if (!result.ok) return toFormState(result.error, formData);
   redirect(clientPath(clientId));
+}
+
+/** Storno wpłaty: wpłata zostaje w historii jako anulowana, należności wracają do stanu sprzed wpłaty. */
+export async function voidPaymentAction(clientId: string, paymentId: string) {
+  const ctx = await requireContext();
+  unwrap(await voidPayment(ctx, paymentId));
+  redirect(clientPath(clientId));
+}
+
+/** Anulowanie nieużywanego pakietu (razem z nieopłaconą należnością). */
+export async function cancelPackageAction(clientId: string, packageId: string) {
+  const ctx = await requireContext();
+  unwrap(await cancelPackage(ctx, packageId));
+  redirect(packagePath(clientId, packageId));
 }
 
 export async function voidChargeAction(clientId: string, chargeId: string) {

@@ -1,25 +1,28 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { LOGIN_NEXT_PREFIXES, safeNextPath } from "@/modules/core";
+import { LOGIN_NEXT_PREFIXES, getSignupMode, safeNextPath } from "@/modules/core";
+import { createUserClient } from "@/shared/supabase/server";
 import { AuthShell } from "../_components/auth-shell";
 import { signupAction } from "./actions";
 import { SignupForm } from "./signup-form";
+import { useTranslations } from "next-intl";
 
 export default function SignupPage({ searchParams }: PageProps<"/signup">) {
+  const t = useTranslations();
   return (
     <AuthShell
-      title="Załóż konto"
-      description="Po założeniu konta utworzysz swoją organizację i dodasz pierwszych klientów."
+      title={t("common.zaloz_konto")}
+      description={t("auth.signupPage.po_zalozeniu_konta_utworzysz_swoja")}
       footer={
         <span>
-          Masz już konto?{" "}
+          {t("common.masz_juz_konto")}{" "}
           <Link href="/login" className="underline">
-            Zaloguj się
+            {t("common.zaloguj_sie")}
           </Link>
         </span>
       }
     >
-      <Suspense fallback={<p className="text-zinc-500">Ładowanie...</p>}>
+      <Suspense fallback={<p className="text-zinc-500">{t("common.ladowanie")}</p>}>
         <SignupFormWithNext searchParams={searchParams} />
       </Suspense>
     </AuthShell>
@@ -29,5 +32,6 @@ export default function SignupPage({ searchParams }: PageProps<"/signup">) {
 async function SignupFormWithNext({ searchParams }: Pick<PageProps<"/signup">, "searchParams">) {
   const { next } = await searchParams;
   const raw = Array.isArray(next) ? next[0] : next;
-  return <SignupForm action={signupAction} next={safeNextPath(raw, LOGIN_NEXT_PREFIXES, "")} />;
+  const mode = await getSignupMode(await createUserClient());
+  return <SignupForm action={signupAction} next={safeNextPath(raw, LOGIN_NEXT_PREFIXES, "")} requireCode={mode === "closed"} />;
 }

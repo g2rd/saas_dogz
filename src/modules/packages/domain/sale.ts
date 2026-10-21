@@ -4,10 +4,11 @@ import { appError } from "@/shared/errors";
 import { emptyToNull, formAmountMinor, formOptionalInt, formText } from "@/shared/form";
 import { err, ok, type Result } from "@/shared/result";
 import type { PackageTemplate } from "./template";
+import { msg } from "@/shared/i18n/messages";
 
 const optionalDate = z.preprocess(
   emptyToNull,
-  z.string().refine(isRealIsoDate, "Niepoprawna data").nullable(),
+  z.string().refine(isRealIsoDate, msg("validation.invalid_date")).nullable(),
 );
 
 /** Dane z formularza sprzedaży: albo szablon, albo własny pakiet (nazwa, liczba zajęć, cena). */
@@ -16,9 +17,9 @@ export const saleInputSchema = z.object({
   dogId: z.preprocess(emptyToNull, z.uuid().nullable()),
   templateId: z.preprocess(emptyToNull, z.uuid().nullable()),
   name: formText(100),
-  sessionsCount: formOptionalInt(1, 500, "Podaj liczbę zajęć (1-500)"),
+  sessionsCount: formOptionalInt(1, 500, msg("validation.sessions_count_range")),
   price: z.preprocess(emptyToNull, formAmountMinor().nullable()),
-  validityDays: formOptionalInt(1, 3650, "Podaj ważność w dniach (1-3650) albo zostaw puste"),
+  validityDays: formOptionalInt(1, 3650, msg("validation.validity_days_range")),
   validFrom: optionalDate,
   dueDate: optionalDate,
 });
@@ -46,7 +47,7 @@ type TemplateSnapshot = Pick<
 >;
 
 function fieldErrors(errors: Record<string, string[]>): Result<never> {
-  return err(appError("validation", "Popraw zaznaczone pola.", errors));
+  return err(appError("validation", msg("validation.fix_fields"), errors));
 }
 
 /**
@@ -77,9 +78,9 @@ export function resolveSale(
     validityDays = validityDays ?? template.validityDays;
   } else {
     const missing: Record<string, string[]> = {};
-    if (input.name === "") missing.name = ["Podaj nazwę pakietu albo wybierz szablon"];
-    if (input.sessionsCount === null) missing.sessionsCount = ["Podaj liczbę zajęć albo wybierz szablon"];
-    if (input.price === null) missing.price = ["Podaj cenę albo wybierz szablon"];
+    if (input.name === "") missing.name = [msg("validation.sale_name_or_template")];
+    if (input.sessionsCount === null) missing.sessionsCount = [msg("validation.sale_sessions_or_template")];
+    if (input.price === null) missing.price = [msg("validation.sale_price_or_template")];
     if (Object.keys(missing).length > 0) return fieldErrors(missing);
 
     name = input.name;

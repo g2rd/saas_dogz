@@ -1,0 +1,45 @@
+{
+  "inviteForm": {
+    "wyslij_klientowi_link_i_kod": "Send the client a link and code",
+    "wyslij_e_mailem": "Send by email",
+    "brak_e_maila_klienta_w_kartotece": "The client has no email on file.",
+    "skopiowano": "Copied",
+    "pakiet_do_potwierdzenia_przez_klienta": "Package for the client to confirm",
+    "e_mail_klienta_opcjonalnie": "Client email (optional)",
+    "gdy_podasz_e_mail_tylko_konto_z_tym": "If you enter an email, only an account with that address can accept the invitation. Empty: the invitation works for anyone with the code.",
+    "utworz_zaproszenie": "Create invitation",
+    "zaproszenie_gotowe_pokaz_klientowi_kod_qr": "The invitation is ready. Show the client the QR code or send the link. It won't be visible after you refresh the page.",
+    "kod_qr_zaproszenia": "Invitation QR code",
+    "kod_do_wpisania_na_stronie_invite": "Code to enter on the /invite page",
+    "kopiuj_kod": "Copy code",
+    "link": "Link",
+    "kopiuj_link": "Copy link",
+    "wazne_do_date_nowe_zaproszenie_uniewaznia": "Valid until {date}. A new invitation cancels this one."
+  },
+  "memberInviteForm": {
+    "e_mail_zapraszanej_osoby": "Email of the person you're inviting",
+    "zaproszenie_przyjmie_tylko_konto_z_tym": "Only an account with this address can accept the invitation.",
+    "rola": "Role",
+    "zaproszenie_gotowe_ale_e_mail_nie_zostal": "The invitation is ready, but the email was not sent. Pass the link on in person.",
+    "wyslano_zaproszenie_na_adres_email": "Invitation sent to {email}.",
+    "link_jest_widoczny_tylko_teraz_wazny_do": "The link is visible only now. Valid until {date}."
+  },
+  "emails": {
+    "greeting": "{hasName, select, yes {Hi {name}!} other {Hi!}}",
+    "valid_until": "The invitation is valid until {date}.",
+    "accept_button": "Accept the invitation",
+    "client": {
+      "subject": "Invitation to the client area: {organization}",
+      "lead": "{organization} invites you to the client area{hasPackage, select, yes { (package “{package}”)} other {}}, where you'll see your session balance, payments and schedule.",
+      "open_link": "Open the link: {link}",
+      "enter_code": "Or go to /invite and enter the code: {code}",
+      "enter_code_html": "Or enter the code on the invitation page:"
+    },
+    "member": {
+      "subject": "Team invitation: {organization}",
+      "lead": "{organization} invites you to join the team in DogTrainer as: {role}.",
+      "join": "Create an account or log in with the same email address and accept the invitation: {link}",
+      "join_html": "Create an account or log in with the same email address."
+    }
+  }
+}

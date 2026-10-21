@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
+import { useTranslations } from "next-intl";
 
 /** Rejestruje service worker (offline, push, pamięć podręczna zasobów) na produkcji; lokalnie robi to dopiero włączenie push. */
 export function PwaRegister() {
@@ -49,6 +50,7 @@ function readInitialMode(): "ios" | "none" {
 const subscribeNoop = () => () => {};
 
 export function InstallPrompt() {
+  const t = useTranslations();
   const initial = useSyncExternalStore(subscribeNoop, readInitialMode, () => "none" as const);
   const [event, setEvent] = useState<InstallEvent | null>(null);
   const [closed, setClosed] = useState(false);
@@ -91,35 +93,34 @@ export function InstallPrompt() {
 
   return (
     <aside
-      aria-label="Instalacja aplikacji"
+      aria-label={t("shared.pwa.instalacja_aplikacji")}
       className="flex items-start gap-3 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm dark:border-zinc-800 dark:bg-zinc-900"
     >
       <div className="flex-1">
-        <p className="font-medium">Dodaj DogTrainer do ekranu głównego</p>
+        <p className="font-medium">{t("shared.pwa.dodaj_dogtrainer_do_ekranu_glownego")}</p>
         {mode === "ios" ? (
           <p className="mt-1 text-zinc-600 dark:text-zinc-400">
-            Stuknij <strong>Udostępnij</strong> (kwadrat ze strzałką), potem <strong>Do ekranu początkowego</strong>. Dopiero
-            wtedy na iPhonie dostaniesz powiadomienia push.
+            {t.rich("shared.pwa.ios_steps", { strong: (chunks) => <strong>{chunks}</strong> })}
           </p>
         ) : (
           <p className="mt-1 text-zinc-600 dark:text-zinc-400">
-            Aplikacja otworzy się jak zwykła, na pełnym ekranie, i będzie mogła wysyłać powiadomienia.
+            {t("shared.pwa.aplikacja_otworzy_sie_jak_zwykla_na")}
           </p>
         )}
         {mode === "prompt" ? (
           <button
             type="button"
             onClick={install}
-            className="mt-3 inline-flex h-11 items-center rounded-full bg-foreground px-5 font-medium text-background"
+            className="mt-3 inline-flex h-11 items-center rounded-full bg-primary hover:bg-primary-hover px-5 font-medium text-primary-foreground"
           >
-            Zainstaluj
+            {t("shared.pwa.zainstaluj")}
           </button>
         ) : null}
       </div>
       <button
         type="button"
         onClick={dismiss}
-        aria-label="Zamknij podpowiedź instalacji"
+        aria-label={t("shared.pwa.zamknij_podpowiedz_instalacji")}
         className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-zinc-500"
       >
         <span aria-hidden>✕</span>

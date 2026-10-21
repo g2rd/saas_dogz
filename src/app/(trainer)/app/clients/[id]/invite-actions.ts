@@ -12,6 +12,7 @@ import {
 } from "@/modules/invitations";
 import { toFormState } from "@/shared/form";
 import { requireContext } from "../../../_lib/context";
+import { msg } from "@/shared/i18n/messages";
 
 /** Identyfikator klienta z adresu zawsze wygrywa z polami formularza. */
 export async function createInviteAction(
@@ -37,7 +38,7 @@ export async function deliverInviteAction(
   const ctx = await requireContext();
   const result = await deliverClientInvitation(ctx, { ...Object.fromEntries(formData), clientId });
   if (!result.ok) return { error: result.error.message };
-  return { message: `Wysłano e-mail na adres ${result.value.recipient}.` };
+  return { message: msg("feedback.invitation_email_sent", { recipient: result.value.recipient }) };
 }
 
 export async function revokeAccessAction(clientId: string, userId: string) {

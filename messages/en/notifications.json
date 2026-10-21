@@ -1,0 +1,24 @@
+{
+  "notificationList": {
+    "brak_powiadomien_gdy_cos_sie_wydarzy": "No notifications. When something happens, you'll see it here.",
+    "nieprzeczytane": "Unread:",
+    "nieprzeczytanych": "unread"
+  },
+  "preferencesForm": {
+    "powiadomienia_w_aplikacji_dzwonek_sa": "In-app notifications (the bell) are always on. Choose where else they should reach you.",
+    "zapisano": "Saved.",
+    "zapisz": "Save",
+    "to_urzadzenie": "This device",
+    "ta_przegladarka_nie_obsluguje_powiadomien": "This browser doesn't support push notifications or the server doesn't have them configured.",
+    "powiadomienia_sa_zablokowane_w": "Notifications are blocked in your browser settings. Change this in the site settings.",
+    "wylacz_push_na_tym_urzadzeniu": "Turn off push on this device",
+    "wlacz_push_na_tym_urzadzeniu": "Turn on push on this device",
+    "push_enabled": "Push notifications are on for this device.",
+    "push_enable_failed": "Couldn't turn on push notifications on this device.",
+    "push_disabled": "Push notifications are off for this device.",
+    "ios_install": "On iPhone, push notifications only work after you add the app to your home screen: tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>, open the app from the icon and come back here."
+  },
+  "requestButtons": {
+    "wyslano_trenerowi_join": "Sent to your trainer: {join}."
+  }
+}

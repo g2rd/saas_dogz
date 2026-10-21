@@ -1,0 +1,10 @@
+{
+  "pwa": {
+    "instalacja_aplikacji": "Install the app",
+    "dodaj_dogtrainer_do_ekranu_glownego": "Add DogTrainer to your home screen",
+    "aplikacja_otworzy_sie_jak_zwykla_na": "The app opens like a regular one, full screen, and can send you notifications.",
+    "zainstaluj": "Install",
+    "zamknij_podpowiedz_instalacji": "Dismiss the install tip",
+    "ios_steps": "Tap <strong>Share</strong> (the square with an arrow), then <strong>Add to Home Screen</strong>. Only then will you get push notifications on iPhone."
+  }
+}

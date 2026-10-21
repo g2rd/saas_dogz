@@ -1,3 +1,7 @@
+import type { Formats } from "@/shared/i18n/formats";
+import type { Translator } from "@/shared/i18n/messages";
+import type { MemberRole } from "./invitation";
+
 export type InvitationMessageInput = {
   organizationName: string;
   clientFirstName: string;
@@ -10,59 +14,60 @@ export type InvitationMessageInput = {
 const escapeHtml = (value: string) =>
   value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-const formatDate = (at: Date) =>
-  `${String(at.getUTCDate()).padStart(2, "0")}.${String(at.getUTCMonth() + 1).padStart(2, "0")}.${at.getUTCFullYear()}`;
+/** Data ważności zaproszenia liczona w UTC (jak dotąd), zapisana wg języka wiadomości. */
+const validUntil = (t: Translator, formats: Formats, expiresAt: Date) =>
+  t("invitations.emails.valid_until", { date: formats.date(expiresAt, "UTC") });
 
-/** Treść zaproszenia wysyłanego klientowi e-mailem (link i krótki kod razem). */
-export function composeInvitationMessage(input: InvitationMessageInput): {
-  subject: string;
-  text: string;
-  html: string;
-} {
-  const until = formatDate(input.expiresAt);
-  const greeting = input.clientFirstName ? `Cześć ${input.clientFirstName}!` : "Cześć!";
-  const lead = `${input.organizationName} zaprasza Cię do panelu klienta${
-    input.packageName ? ` (pakiet „${input.packageName}”)` : ""
-  }, gdzie zobaczysz saldo zajęć, płatności i terminy.`;
+/**
+ * Treść zaproszenia wysyłanego klientowi e-mailem (link i krótki kod razem). Osoba zapraszana nie ma jeszcze konta ani
+ * języka, więc tłumacz i formatery są w języku szkoły.
+ */
+export function composeInvitationMessage(
+  input: InvitationMessageInput,
+  t: Translator,
+  formats: Formats,
+): { subject: string; text: string; html: string } {
+  const until = validUntil(t, formats, input.expiresAt);
+  const greeting = t("invitations.emails.greeting", { hasName: input.clientFirstName ? "yes" : "no", name: input.clientFirstName });
+  const lead = t("invitations.emails.client.lead", {
+    organization: input.organizationName,
+    hasPackage: input.packageName ? "yes" : "no",
+    package: input.packageName ?? "",
+  });
 
   const text = [
     greeting,
     lead,
-    `Otwórz link: ${input.link}`,
-    `Albo wejdź na stronę /invite i wpisz kod: ${input.code}`,
-    `Zaproszenie jest ważne do ${until}.`,
+    t("invitations.emails.client.open_link", { link: input.link }),
+    t("invitations.emails.client.enter_code", { code: input.code }),
+    until,
   ].join("\n\n");
 
   const html =
     `<p>${escapeHtml(greeting)}</p>` +
     `<p>${escapeHtml(lead)}</p>` +
-    `<p><a href="${escapeHtml(input.link)}">Przyjmij zaproszenie</a></p>` +
-    `<p>Albo wpisz kod na stronie zaproszenia: <strong>${escapeHtml(input.code)}</strong></p>` +
-    `<p>Zaproszenie jest ważne do ${until}.</p>`;
+    `<p><a href="${escapeHtml(input.link)}">${escapeHtml(t("invitations.emails.accept_button"))}</a></p>` +
+    `<p>${escapeHtml(t("invitations.emails.client.enter_code_html"))} <strong>${escapeHtml(input.code)}</strong></p>` +
+    `<p>${escapeHtml(until)}</p>`;
 
-  return { subject: `Zaproszenie do panelu klienta: ${input.organizationName}`, text, html };
+  return { subject: t("invitations.emails.client.subject", { organization: input.organizationName }), text, html };
 }
 
-/** Treść zaproszenia do zespołu (trener, asystent, administrator) wysyłanego e-mailem. */
-export function composeMemberInvitationMessage(input: {
-  organizationName: string;
-  roleLabel: string;
-  link: string;
-  expiresAt: Date;
-}): { subject: string; text: string; html: string } {
-  const until = formatDate(input.expiresAt);
-  const lead = `${input.organizationName} zaprasza Cię do zespołu w DogTrainer jako: ${input.roleLabel}.`;
-  const text = [
-    "Cześć!",
-    lead,
-    `Załóż konto lub zaloguj się na ten sam adres e-mail i przyjmij zaproszenie: ${input.link}`,
-    `Zaproszenie jest ważne do ${until}.`,
-  ].join("\n\n");
+/** Treść zaproszenia do zespołu (trener, asystent, administrator) wysyłanego e-mailem, w języku szkoły. */
+export function composeMemberInvitationMessage(
+  input: { organizationName: string; role: MemberRole; link: string; expiresAt: Date },
+  t: Translator,
+  formats: Formats,
+): { subject: string; text: string; html: string } {
+  const until = validUntil(t, formats, input.expiresAt);
+  const greeting = t("invitations.emails.greeting", { hasName: "no", name: "" });
+  const lead = t("invitations.emails.member.lead", { organization: input.organizationName, role: t(`labels.memberRole.${input.role}`) });
+  const text = [greeting, lead, t("invitations.emails.member.join", { link: input.link }), until].join("\n\n");
   const html =
-    "<p>Cześć!</p>" +
+    `<p>${escapeHtml(greeting)}</p>` +
     `<p>${escapeHtml(lead)}</p>` +
-    `<p><a href="${escapeHtml(input.link)}">Przyjmij zaproszenie</a></p>` +
-    "<p>Załóż konto lub zaloguj się na ten sam adres e-mail.</p>" +
-    `<p>Zaproszenie jest ważne do ${until}.</p>`;
-  return { subject: `Zaproszenie do zespołu: ${input.organizationName}`, text, html };
+    `<p><a href="${escapeHtml(input.link)}">${escapeHtml(t("invitations.emails.accept_button"))}</a></p>` +
+    `<p>${escapeHtml(t("invitations.emails.member.join_html"))}</p>` +
+    `<p>${escapeHtml(until)}</p>`;
+  return { subject: t("invitations.emails.member.subject", { organization: input.organizationName }), text, html };
 }

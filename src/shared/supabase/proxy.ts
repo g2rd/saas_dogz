@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { hasSupabaseEnv, publicEnv } from "../env";
 
-const PROTECTED_PREFIXES = ["/app", "/portal"];
+const PROTECTED_PREFIXES = ["/app", "/portal", "/admin"];
 
 /** Odświeża sesję Supabase i przekierowuje niezalogowanych z tras chronionych. */
 export async function updateSession(request: NextRequest) {

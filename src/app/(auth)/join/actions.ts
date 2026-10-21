@@ -2,18 +2,19 @@
 
 import { redirect } from "next/navigation";
 import { signUp } from "@/modules/core";
-import { acceptMemberInvitation, lookupMemberInvitation } from "@/modules/invitations";
+import { acceptMemberInvitation, invitationProofHash, lookupMemberInvitation } from "@/modules/invitations";
 import { siteUrl } from "@/shared/env";
+import { getLocaleContext } from "@/shared/i18n/server";
 import { toFormState } from "@/shared/form";
 import { createUserClient } from "@/shared/supabase/server";
 import type { InviteState } from "../invite/actions";
+import { msg } from "@/shared/i18n/messages";
 
 const MESSAGES: Record<string, string> = {
-  email_mismatch:
-    "To zaproszenie jest przypisane do innego adresu e-mail. Wyloguj się i użyj konta z właściwym adresem.",
-  invitation_unusable: "To zaproszenie wygasło lub zostało już użyte. Poproś o nowe.",
-  already_member: "Masz już dostęp do tej organizacji.",
-  throttled: "Zbyt wiele nieudanych prób. Spróbuj ponownie za kilka minut.",
+  email_mismatch: msg("errors.invite.email_mismatch"),
+  invitation_unusable: msg("errors.invite.unusable_member"),
+  already_member: msg("errors.invite.already_member"),
+  throttled: msg("errors.invite.throttled"),
 };
 
 function acceptError(error: { message: string; details?: unknown }): string {
@@ -37,17 +38,22 @@ export async function joinSignupAction(token: string, _prev: InviteState, formDa
   const preview = await lookupMemberInvitation(db, token, email.trim() === "" ? null : email);
   if (!preview.ok) return toFormState(preview.error, formData);
   if (preview.value.status !== "valid") {
-    return { error: "To zaproszenie wygasło lub zostało już użyte. Poproś o nowe.", values: {} };
+    return { error: msg("errors.invite.unusable_member"), values: {} };
   }
   if (preview.value.emailMatches === false) {
     return {
-      error: "Popraw zaznaczone pola.",
-      fieldErrors: { email: ["Podaj adres e-mail, na który wysłano zaproszenie"] },
+      error: msg("validation.fix_fields"),
+      fieldErrors: { email: [msg("errors.invite.use_invited_email")] },
       values: { fullName: String(formData.get("fullName") ?? ""), email },
     };
   }
 
-  const signedUp = await signUp(db, Object.fromEntries(formData), { siteUrl: siteUrl(), next: `/join/${token}` });
+  const signedUp = await signUp(db, Object.fromEntries(formData), {
+    siteUrl: siteUrl(),
+    next: `/join/${token}`,
+    inviteHash: invitationProofHash(token),
+    locale: (await getLocaleContext()).preferred,
+  });
   if (!signedUp.ok) {
     if (signedUp.error.code === "conflict") return { ...toFormState(signedUp.error, formData), existingAccount: true };
     return toFormState(signedUp.error, formData);

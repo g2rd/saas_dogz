@@ -1,8 +1,9 @@
 import { appError } from "@/shared/errors";
 import { err, ok, type Result } from "@/shared/result";
 import { ORG_ROLES, roleCan, type OrgRole, type Permission } from "../domain/permissions";
+import { msg } from "@/shared/i18n/messages";
 
-type AuthContext = { role: string };
+type AuthContext = { role: string; access?: { status: string } };
 
 function isOrgRole(role: string): role is OrgRole {
   return (ORG_ROLES as readonly string[]).includes(role);
@@ -16,7 +17,18 @@ export function hasPermission(ctx: AuthContext, permission: Permission): boolean
 /** Pierwsza warstwa autoryzacji w przypadku użycia; drugą jest RLS w bazie. */
 export function authorize(ctx: AuthContext, permission: Permission): Result<void> {
   if (!isOrgRole(ctx.role) || !roleCan(ctx.role, permission)) {
-    return err(appError("forbidden", `Missing permission: ${permission}`));
+    return err(appError("forbidden", msg("errors.forbidden"), { permission }));
+  }
+  if (ctx.access?.status === "read_only" && isWritePermission(permission)) {
+    return err(appError("forbidden", READ_ONLY_MESSAGE, { reason: "read_only" }));
   }
   return ok(undefined);
+}
+
+export const READ_ONLY_MESSAGE =
+  msg("errors.read_only");
+
+/** Uprawnienia zmieniające dane; w trybie „tylko do odczytu” są zablokowane (drugą warstwą jest wyzwalacz w bazie). */
+function isWritePermission(permission: Permission): boolean {
+  return permission.endsWith(".write") || permission === "organization.update" || permission === "members.manage" || permission === "billing.manage";
 }

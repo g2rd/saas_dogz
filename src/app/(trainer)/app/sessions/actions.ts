@@ -7,14 +7,17 @@ import {
   cancelSession,
   completeSession,
   createSessionType,
+  restoreCanceledSession,
   restoreSessionType,
   scheduleSession,
+  undoCompleteSession,
   updateSessionType,
   type SessionActionState,
 } from "@/modules/scheduling";
 import { toFormState, type FormState } from "@/shared/form";
 import type { Result } from "@/shared/result";
 import { requireContext } from "../../_lib/context";
+import { msg } from "@/shared/i18n/messages";
 
 function unwrap<T>(result: Result<T>): T {
   if (!result.ok) throw new Error(result.error.message);
@@ -50,13 +53,13 @@ export async function completeSessionAction(
   const { packageName, balanceAfter, chargeCreated } = result.value;
   if (packageName !== null) {
     return {
-      message: `Zajęcia odbyte. Zużyto 1 zajęcie z pakietu „${packageName}”. Zostało ${balanceAfter}.`,
+      message: msg("feedback.session_completed_with_package", { packageName, balanceAfter: balanceAfter ?? 0 }),
     };
   }
   return {
     message: chargeCreated
-      ? "Zajęcia odbyte. Naliczono należność za pojedyncze zajęcia."
-      : "Zajęcia odbyte (bez opłaty).",
+      ? msg("feedback.session_completed_charged")
+      : msg("feedback.session_completed_free"),
   };
 }
 
@@ -72,9 +75,31 @@ export async function cancelSessionAction(
   refreshPanel();
   return {
     message: result.value.consumed
-      ? `Zajęcia odwołane. Zajęcie z pakietu przepadło (późne odwołanie). Zostało ${result.value.balanceAfter}.`
-      : "Zajęcia odwołane bez naliczenia.",
+      ? msg("feedback.session_canceled_consumed", { balanceAfter: result.value.balanceAfter ?? 0 })
+      : msg("feedback.session_canceled_free"),
   };
+}
+
+/** Cofnięcie zakończenia zajęć (tylko tego samego dnia): zajęcie wraca do pakietu. */
+export async function undoCompleteSessionAction(
+  sessionId: string,
+): Promise<SessionActionState> {
+  const ctx = await requireContext();
+  const result = await undoCompleteSession(ctx, sessionId);
+  if (!result.ok) return { error: result.error.message };
+  refreshPanel();
+  return { message: msg("feedback.session_completion_undone") };
+}
+
+/** Przywrócenie odwołanych zajęć: zajęcie wraca do pakietu, ogłoszenie wolnego terminu jest zamykane. */
+export async function restoreSessionAction(
+  sessionId: string,
+): Promise<SessionActionState> {
+  const ctx = await requireContext();
+  const result = await restoreCanceledSession(ctx, sessionId);
+  if (!result.ok) return { error: result.error.message };
+  refreshPanel();
+  return { message: msg("feedback.session_restored") };
 }
 
 // --- rodzaje zajęć ----------------------------------------------------------------------------------

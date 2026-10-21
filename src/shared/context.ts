@@ -11,6 +11,16 @@ export type ClientRequestContext = {
   clientId: string;
   db: SupabaseClient;
   clock: Clock;
+  /** Stan dostępu szkoły; brak = pełny dostęp (np. w testach). */
+  access?: OrgAccess;
+};
+
+/** Stan dostępu szkoły ustawiany przez właściciela platformy. Zawieszona szkoła nie dostaje kontekstu w ogóle. */
+export type OrgAccess = {
+  status: "trial" | "active" | "read_only";
+  /** Koniec okresu próbnego lub opłaconego okresu; `null` = bez terminu. */
+  until: Date | null;
+  reason: string | null;
 };
 
 /** Kontekst żądania personelu przekazywany do każdego przypadku użycia. */
@@ -22,4 +32,6 @@ export type RequestContext = {
   /** Klient bazy działający jako zalogowany użytkownik, więc RLS zawsze obowiązuje. */
   db: SupabaseClient;
   clock: Clock;
+  /** Stan dostępu szkoły; brak = pełny dostęp (np. w testach). */
+  access?: OrgAccess;
 };

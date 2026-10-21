@@ -8,6 +8,7 @@ import {
   type ClientRequest,
   type CreateRequestInput,
   type Notification,
+  type NotificationParams,
   type PushSubscriptionInput,
   type RequestKind,
 } from "../domain/notification";
@@ -18,6 +19,8 @@ type NotificationRow = {
   type: string;
   title: string;
   body: string;
+  message_key: string | null;
+  message_params: NotificationParams | null;
   link: string | null;
   data: Record<string, unknown>;
   read_at: string | null;
@@ -29,6 +32,7 @@ type RequestRow = {
   client_id: string;
   client_package_id: string | null;
   charge_id: string | null;
+  session_id: string | null;
   kind: RequestKind;
   status: "new" | "seen";
   note: string | null;
@@ -41,7 +45,7 @@ export function notificationsRepository(db: SupabaseClient, userId: string, orga
     async list(limit: number): Promise<Result<Notification[]>> {
       const { data, error } = await db
         .from("notifications")
-        .select("id, audience, type, title, body, link, data, read_at, created_at")
+        .select("id, audience, type, title, body, message_key, message_params, link, data, read_at, created_at")
         .eq("recipient_user_id", userId)
         .eq("organization_id", organizationId)
         .order("created_at", { ascending: false })
@@ -54,6 +58,8 @@ export function notificationsRepository(db: SupabaseClient, userId: string, orga
           type: row.type,
           title: row.title,
           body: row.body,
+          messageKey: row.message_key,
+          params: row.message_params ?? {},
           link: row.link,
           data: row.data ?? {},
           read: row.read_at !== null,
@@ -150,6 +156,7 @@ export function notificationsRepository(db: SupabaseClient, userId: string, orga
         p_kind: input.kind,
         p_package: input.packageId,
         p_charge: input.chargeId,
+        p_session: input.sessionId,
         p_note: input.note || null,
       });
       if (error) return err(fromDbError(error));
@@ -161,7 +168,7 @@ export function notificationsRepository(db: SupabaseClient, userId: string, orga
     async listRequests(options: { status?: "new" | "seen"; clientId?: string; limit: number }): Promise<Result<ClientRequest[]>> {
       let query = db
         .from("client_requests")
-        .select("id, client_id, client_package_id, charge_id, kind, status, note, created_at")
+        .select("id, client_id, client_package_id, charge_id, session_id, kind, status, note, created_at")
         .eq("organization_id", organizationId)
         .order("created_at", { ascending: false })
         .limit(options.limit);
@@ -204,6 +211,7 @@ export function notificationsRepository(db: SupabaseClient, userId: string, orga
           status: row.status,
           packageId: row.client_package_id,
           chargeId: row.charge_id,
+          sessionId: row.session_id,
           packageName: row.client_package_id ? (packageNames.get(row.client_package_id) ?? null) : null,
           chargeDescription: row.charge_id ? (chargeNames.get(row.charge_id) ?? null) : null,
           note: row.note,
