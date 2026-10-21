@@ -44,7 +44,8 @@
     "wyslane_date_wazne_do_date2_value_value2": "wysłane {date}, ważne do {date2}{value}{value2}. Kod i link są widoczne tylko tuż po utworzeniu.",
     "zapros_klienta_do_panelu": "Zaproś klienta do panelu",
     "nowe_zaproszenie_uniewaznia_poprzednie": "Nowe zaproszenie (unieważnia poprzednie)",
-    "rodzina": "rodzina"
+    "rodzina": "rodzina",
+    "since": "od {date}"
   },
   "clientsBillingSection": {
     "historia_i_korekta": "Historia i korekta",
@@ -126,7 +127,10 @@
     "zaden_pakiet_sie_nie_konczy": "Żaden pakiet się nie kończy.",
     "zostalo_balance": "zostało {balance}",
     "platnosci_po_terminie": "Płatności po terminie",
-    "brak_zaleglosci": "Brak zaległości."
+    "brak_zaleglosci": "Brak zaległości.",
+    "client_fallback": "Klient",
+    "organization": "Organizacja: <strong>{name}</strong>",
+    "overdue_line": "{label}, termin {date}"
   },
   "requestsPage": {
     "prosby_klientow": "Prośby klientów",

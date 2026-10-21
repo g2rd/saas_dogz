@@ -1,0 +1,29 @@
+{
+  "adjustPackageForm": {
+    "zmiana_liczby_zajec": "Change in number of sessions",
+    "np_1_odjecie_zajec_lub_1_dodanie_saldo": "E.g. -1 (remove a session) or 1 (add one). The balance can't go negative.",
+    "powod_opcjonalnie": "Reason (optional)",
+    "zapisz_korekte": "Save adjustment",
+    "zapisac_korekte_salda": "Save the balance adjustment?",
+    "saldo_pakietu_zmieni_sie_od_razu_a_wpis": "The package balance changes immediately and the entry stays in the history (an adjustment can't be deleted, only corrected with another entry)."
+  },
+  "sellPackageForm": {
+    "szablon_pakietu": "Package template",
+    "wlasny_pakiet_lub_zmiana_ustawien_z": "Custom package or changed template settings",
+    "nazwa": "Name",
+    "przy_szablonie_wpisz_tylko_zeby_zmienic": "With a template, fill this in only to change the price (e.g. a discount)",
+    "poczatek_waznosci": "Valid from",
+    "termin_platnosci": "Payment due date",
+    "puste_za_7_dni": "Empty = in 7 days",
+    "sprzedac_pakiet": "Sell the package?",
+    "klient_dostanie_pakiet_zajec_i_powstanie": "The client gets a session package and an amount due for it is created. You can cancel an unused package later (together with the unpaid amount).",
+    "sprzedawanie": "Selling...",
+    "custom_package": "Custom package (fill in the details below)",
+    "template_option": "{name}: {sessions}, {price}"
+  },
+  "templateForm": {
+    "nazwa_pakietu": "Package name",
+    "np_800_lub_800_50": "E.g. 800 or 800.50",
+    "zostaw_puste_jesli_pakiet_nie_wygasa": "Leave empty if the package doesn't expire"
+  }
+}

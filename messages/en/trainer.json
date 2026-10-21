@@ -1,0 +1,191 @@
+{
+  "accessBanner": {
+    "read_only": "The account is read-only: you can view data but not save changes.{contact, select, none {} other { Write to: {contact}.}}",
+    "ending": "{kind, select, trial {The trial period} other {Your access}} ends {date}{lastDay, select, yes { (today is the last day)} other { (in {days} days)}}. After that the account becomes read-only.{contact, select, none {} other { Write to: {contact}.}}"
+  },
+  "clientsNewPage": {
+    "nowy_klient": "New client"
+  },
+  "clientsPage": {
+    "szukaj_po_imieniu_nazwisku_e_mailu_lub": "Search by first name, last name, email or phone",
+    "pokaz_archiwalnych": "Show archived",
+    "szukaj": "Search",
+    "brak_aktywnych_klientow_dodaj_nowego_albo": "No active clients. Add a new one or tick “Show archived”.",
+    "brak_klientow_dodaj_pierwszego": "No clients. Add your first one.",
+    "brak_klientow_pasujacych_do_wyszukiwania": "No clients match your search.",
+    "zarchiwizowac_klienta": "Archive the client?",
+    "klient_zniknie_z_list_i_nie_da_sie_mu": "The client disappears from lists and you can't schedule sessions or sell packages to them. Data and history stay, and you can restore them from the archive at any time.",
+    "psy": "Dogs",
+    "ten_klient_nie_ma_jeszcze_dodanych_psow": "This client has no dogs added yet.",
+    "pies_dodany_przez_klienta_zatwierdz_zeby": "Dog added by the client. Approve it to use it in sessions and packages.",
+    "zatwierdz": "Approve",
+    "zatwierdzanie": "Approving...",
+    "odrzuc": "Reject",
+    "odrzucic_psa": "Reject the dog?",
+    "pies_dodany_przez_klienta_zostanie": "The dog added by the client will be rejected and can't be used in sessions or packages. The client can add it again.",
+    "odrzuc_psa": "Reject the dog",
+    "odrzucanie": "Rejecting...",
+    "ladowanie_zajec": "Loading sessions...",
+    "ladowanie_pakietow_i_platnosci": "Loading packages and payments...",
+    "ladowanie_panelu_klienta": "Loading the client area...",
+    "edytuj_dane_klienta": "Edit client details"
+  },
+  "clientsAccessSection": {
+    "name_sessionstotal_zajec_formatmoney": "{name}: {sessionsTotal} sessions, {formatMoney}",
+    "konto_z_dostepem_do_panelu": "Account with access to the client area",
+    "glowne": "primary",
+    "odbierz_dostep": "Remove access",
+    "odebrac_dostep_do_panelu": "Remove access to the client area?",
+    "ta_osoba_przestanie_widziec_saldo_zajec": "This person will no longer see the client's session balance, payments and schedule. To come back they need a new invitation.",
+    "odbieranie": "Removing...",
+    "klient_nie_ma_jeszcze_dostepu_do_panelu_w": "The client doesn't have access to the client area yet, where they'd see their session balance, payments and schedule.",
+    "zaproszenie_czeka": "Invitation pending",
+    "zaproszenie_wygaslo": "Invitation expired",
+    "wyslane_date_wazne_do_date2_value_value2": "sent {date}, valid until {date2}{value}{value2}. The code and link are visible only right after creation.",
+    "zapros_klienta_do_panelu": "Invite the client to the client area",
+    "nowe_zaproszenie_uniewaznia_poprzednie": "New invitation (cancels the previous one)",
+    "rodzina": "family",
+    "since": "since {date}"
+  },
+  "clientsBillingSection": {
+    "historia_i_korekta": "History and adjustment",
+    "anulowac_naleznosc": "Cancel the amount due?",
+    "naleznosc_zniknie_z_salda_klienta_mozna": "The amount due disappears from the client's balance. You can cancel it only if nothing has been paid towards it.",
+    "anuluj_naleznosc": "Cancel amount due",
+    "ten_klient_nie_ma_jeszcze_pakietu_zajec": "This client doesn't have a session package yet.",
+    "do_zaplaty": "To pay:",
+    "anulowana": "Canceled",
+    "anuluj_wplate": "Reverse payment",
+    "anulowac_wplate": "Reverse the payment?",
+    "wplata_fmt_zostanie_anulowana_storno": "The payment of {fmt} will be reversed: it disappears from the balance and the amounts it covered become due again. The payment stays in the history as reversed. If the client hasn't received the payment notification yet, they won't; otherwise they'll be told about the reversal.",
+    "package_balance": "<strong>{balance}</strong> of {total, plural, one {# session} other {# sessions}} left ({used} used)",
+    "open_charge_label": "{description}: {remaining} left (due {date})",
+    "credit": "Credit: <strong>{amount}</strong>"
+  },
+  "clientsDogsPage": {
+    "zarchiwizowac_psa": "Archive the dog?",
+    "pies_zniknie_z_list_i_nie_da_sie_go": "The dog disappears from lists and can't be chosen in sessions or packages. Data stays and you can restore it from the archive.",
+    "notatki": "Notes",
+    "brak_notatek": "No notes.",
+    "wazna_do_validuntil": "valid until {validUntil}",
+    "usun": "Delete",
+    "usunac_notatke": "Delete the note?",
+    "notatka_zostanie_usunieta_na_stale_tej": "The note will be deleted permanently. This can't be undone.",
+    "usun_notatke": "Delete note",
+    "usuwanie": "Deleting...",
+    "edytuj_dane_psa": "Edit dog details"
+  },
+  "clientsPackagesPage": {
+    "bez_terminu_waznosci": "no expiry date",
+    "wazny_do_formatisodate": "valid until {formatIsoDate}",
+    "historia_zajec_w_pakiecie": "Session history in the package",
+    "anuluj_pakiet": "Cancel package",
+    "anulowac_pakiet": "Cancel the package?",
+    "pakiet_zostanie_anulowany_razem_z_jego": "The package will be canceled together with its unpaid amount due. You can cancel only a package with no sessions used yet and not paid for by the client (if they paid, reverse the payment first).",
+    "dostepne_dopoki_pakiet_nie_zostal_uzyty": "Available until the package is used.",
+    "korekta_salda": "Balance adjustment",
+    "summary": "{balance} of {total, plural, one {# session} other {# sessions}} left · {price} · {validity}"
+  },
+  "clientsSessionsSection": {
+    "ten_klient_nie_ma_jeszcze_zajec": "This client has no sessions yet."
+  },
+  "morePage": {
+    "ustawienia_powiadomien_i_push": "Notification and push settings",
+    "panel_wlasciciela_platformy": "Platform owner panel"
+  },
+  "notificationsSettingsPage": {
+    "urzadzenia_z_wlaczonym_push_pushdevices": "Devices with push turned on: {pushDevices}."
+  },
+  "onboardingForm": {
+    "nazwa_twojej_szkoly_lub_dzialalnosci": "Name of your school or business",
+    "utworz_organizacje": "Create organization"
+  },
+  "packagesNewPage": {
+    "nowy_szablon_pakietu": "New package template",
+    "dodaj_szablon": "Add template"
+  },
+  "packagesPage": {
+    "nowy_szablon": "New template",
+    "szablony_pakietow_z_ktorych_sprzedajesz": "Package templates you sell sessions from. You can change the price and validity when selling.",
+    "sessionscount_zajec_formatmoney_value": "{sessionsCount} sessions · {formatMoney} · {value}",
+    "pokaz_archiwalne": "Show archived",
+    "ukryj_archiwalne": "Hide archived",
+    "zarchiwizowac_szablon_pakietu": "Archive the package template?",
+    "szablon_zniknie_z_listy_przy_sprzedazy": "The template disappears from the list when selling. Packages already sold stay unchanged, and you can restore the template.",
+    "zmiany_dotycza_tylko_nowych_sprzedazy": "Changes apply only to new sales. Packages already sold keep the name, number of sessions and price from the time of purchase.",
+    "empty": "You don't have any package templates yet.{canWrite, select, yes { Add the first one, e.g. “10-session package”.} other {}}"
+  },
+  "page": {
+    "zacznij_od_utworzenia_organizacji_potem": "Start by creating an organization. Then you'll add clients and their dogs.",
+    "klienci_i_psy": "Clients and dogs",
+    "nowe_prosby_klientow_requestcount": "New client requests: {requestCount}",
+    "1_nowa_prosba_klienta": "1 new client request",
+    "psy_do_zatwierdzenia": "Dogs to approve",
+    "czeka_na_zatwierdzenie": "Awaiting approval",
+    "dzis": "Today",
+    "konczace_sie_pakiety": "Packages running out",
+    "zaden_pakiet_sie_nie_konczy": "No package is running out.",
+    "zostalo_balance": "{balance} left",
+    "platnosci_po_terminie": "Overdue payments",
+    "brak_zaleglosci": "Nothing overdue.",
+    "client_fallback": "Client",
+    "organization": "Organization: <strong>{name}</strong>",
+    "overdue_line": "{label}, due {date}"
+  },
+  "requestsPage": {
+    "prosby_klientow": "Client requests",
+    "odpowiedzi_klientow_na_powiadomienia": "Client replies to notifications: package renewal, payment declaration, end of cooperation.",
+    "oznacz_jako_obejrzana": "Mark as seen",
+    "nowe": "New",
+    "brak_nowych_prosb": "No new requests.",
+    "obejrzane": "Seen"
+  },
+  "sessionsNewPage": {
+    "najpierw_dodaj_rodzaj_zajec_w_sekcji": "First add a session type in the section"
+  },
+  "sessionsPage": {
+    "zanim_zaplanujesz_zajecia_dodaj_rodzaj": "Before you schedule sessions, add a session type (e.g. “Private training”) in the section",
+    "odwolane_terminy": "Canceled slots",
+    "zwolnione_miejsce_mozesz_oglosic_klientom": "You can announce the freed slot to clients on the waitlist.",
+    "najblizsze": "Upcoming",
+    "brak_zaplanowanych_zajec_w_najblizszych": "No sessions scheduled in the coming days.",
+    "today_heading": "Today <muted>· {date}</muted>"
+  },
+  "sessionsSessionCard": {
+    "podsumowanie_clientsummary": "Summary: {clientSummary}",
+    "wolny_termin_ogloszony_zgloszenia": "Open slot announced. You'll see requests in the “Open slots” section."
+  },
+  "sessionsTypesPage": {
+    "rodzaj_zajec_okresla_czas_trwania_i_cene": "A session type sets the duration and price of a single session (charged when you settle a session without a package).",
+    "nie_masz_jeszcze_rodzajow_zajec": "You don't have any session types yet.",
+    "durationminutes_min_formatmoney": "{durationMinutes} min · {formatMoney}",
+    "dodaj_rodzaj_zajec": "Add a session type",
+    "dodaj_rodzaj": "Add type",
+    "rodzaje_zajec": "← Session types",
+    "zarchiwizowac_rodzaj_zajec": "Archive the session type?",
+    "rodzaj_zniknie_z_listy_przy_planowaniu": "The type disappears from the list when scheduling sessions. Existing sessions stay unchanged, and you can restore the type.",
+    "zmiana_czasu_trwania_dotyczy_nowo": "A change of duration applies to newly scheduled sessions; existing ones keep their end time."
+  },
+  "teamPage": {
+    "nie_masz_uprawnien_do_przegladania_zespolu": "You don't have permission to view the team.",
+    "osoby_w_organizacji": "People in the organization",
+    "ty": "(You)",
+    "zawieszony": "Suspended",
+    "oczekujace_zaproszenia": "Pending invitations",
+    "label_wazne_do_date": "· {label} · valid until {date}",
+    "wygaslo": "Expired",
+    "odwolaj": "Withdraw",
+    "odwolac_zaproszenie": "Withdraw the invitation?",
+    "link_wyslany_do_email_przestanie_dzialac": "The link sent to {email} will stop working. You can invite this person again.",
+    "odwolaj_zaproszenie": "Withdraw invitation",
+    "you_self": "You",
+    "unnamed": "User without a name"
+  },
+  "nav": {
+    "today": "Today",
+    "clients": "Clients",
+    "sessions": "Sessions",
+    "requests": "Requests",
+    "more": "More"
+  }
+}

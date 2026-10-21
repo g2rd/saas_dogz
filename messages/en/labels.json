@@ -1,0 +1,89 @@
+{
+  "clientStatus": {
+    "lead": "Interested",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "dogSex": {
+    "male": "Male",
+    "female": "Female",
+    "unknown": "Not specified"
+  },
+  "noteKind": {
+    "health": "Health",
+    "behavior": "Behavior",
+    "vaccination": "Vaccination",
+    "other": "Other"
+  },
+  "approvalStatus": {
+    "pending": "Awaiting approval",
+    "approved": "Approved",
+    "rejected": "Rejected"
+  },
+  "memberRole": {
+    "owner": "Owner",
+    "admin": "Administrator",
+    "trainer": "Trainer",
+    "assistant": "Assistant"
+  },
+  "requestAction": {
+    "renew": "Renew package",
+    "pay": "I'll pay",
+    "end": "End cooperation",
+    "cancel": "I can't come"
+  },
+  "requestConfirmation": {
+    "renew": "Thank you! Your trainer has been told you want to renew the package.",
+    "pay": "Thank you! Your trainer has been told you will pay.",
+    "end": "Thank you! Your trainer has been told you are ending the cooperation.",
+    "cancel": "Thank you! Your trainer has been told you can't come and will decide whether to cancel the session."
+  },
+  "requestStatus": {
+    "new": "New",
+    "seen": "Seen"
+  },
+  "channel": {
+    "push": "Push notifications on your phone",
+    "email": "Email"
+  },
+  "packageStatus": {
+    "active": "Active",
+    "depleted": "Used up",
+    "expired": "Expired",
+    "canceled": "Canceled"
+  },
+  "ledgerReason": {
+    "purchase": "Package purchase",
+    "session": "Session",
+    "late_cancel": "Late cancellation",
+    "adjustment": "Adjustment",
+    "refund": "Refund",
+    "expiry": "Expiry"
+  },
+  "chargeStatus": {
+    "void": "Canceled",
+    "unpaid": "Unpaid",
+    "partial": "Partially paid",
+    "paid": "Paid",
+    "overdue": "Overdue"
+  },
+  "paymentMethod": {
+    "cash": "Cash",
+    "transfer": "Bank transfer",
+    "blik": "BLIK",
+    "card": "Card",
+    "other": "Other"
+  },
+  "sessionStatus": {
+    "scheduled": "Scheduled",
+    "completed": "Held",
+    "canceled": "Canceled"
+  },
+  "attendance": {
+    "planned": "Scheduled",
+    "attended": "Attended",
+    "canceled": "Canceled",
+    "late_canceled": "Late canceled",
+    "no_show": "No-show"
+  }
+}

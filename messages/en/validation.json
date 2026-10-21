@@ -43,5 +43,8 @@
   "charge_settled": "This charge is already paid or canceled",
   "password_weak_hint": "Choose a stronger password",
   "password_same_as_old": "The new password must differ from the current one",
-  "reason_required": "A reason is required when blocking access"
+  "reason_required": "A reason is required when blocking access",
+  "password_min": "The password must be at least {min} characters",
+  "password_max": "The password can be at most {max} characters",
+  "adjustment_zero": "The adjustment can't be zero"
 }

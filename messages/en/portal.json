@@ -1,0 +1,73 @@
+{
+  "dogsPage": {
+    "moje_psy": "My dogs",
+    "nie_dodano_jeszcze_zadnego_psa": "No dog added yet.",
+    "brak_dodatkowych_danych": "No additional details",
+    "trener_zatwierdzi_psa_zanim_pojawi_sie_w": "Your trainer approves a dog before it appears in sessions and packages.",
+    "wyslij_do_zatwierdzenia": "Submit for approval"
+  },
+  "morePage": {
+    "zobacz_wszystkie_powiadomienia": "See all notifications"
+  },
+  "notificationsPage": {
+    "ustawienia": "Settings"
+  },
+  "page": {
+    "wykorzystany": "Used up",
+    "z_sessionstotal_zajec_zostalo": "of {sessionsTotal} sessions left",
+    "czesc_clientfirstname": "Hi, {clientFirstName}",
+    "zostaly_ci_balance_sessionsword": "{balance, plural, one {You have # session left} other {You have # sessions left}}.",
+    "zostalo_ci_ostatnie_zajecie": "You have one session left.",
+    "twoj_pakiet_sie_skonczyl": "Your package is used up.",
+    "pakiet_name_co_robisz_dalej_trener": "Package “{name}”. What next? Your trainer gets your answer.",
+    "twoje_zajecia": "Your sessions",
+    "nie_masz_jeszcze_pakietu_zajec": "You don't have a session package yet.",
+    "platnosc": "Payment",
+    "po_terminie_termin_minal_formatisodate": "Overdue, was due {formatIsoDate}",
+    "termin_platnosci_formatisodate": "Due date: {formatIsoDate}",
+    "lacznie_do_zaplaty_formatmoney": "Total due: {formatMoney}",
+    "wszystko_oplacone_dziekujemy": "All paid. Thank you!",
+    "wplate_ksieguje_trener_po_jej_otrzymaniu": "Your trainer records the payment once received, so the balance changes shortly after you pay.",
+    "najblizsze_zajecia": "Next sessions",
+    "wszystkie": "All",
+    "psy_czekajace_na_zatwierdzenie_przez": "Dogs awaiting your trainer's approval: {pendingDogs}."
+  },
+  "paymentsPage": {
+    "do_zaplaty": "To pay",
+    "nadplata_na_koncie_fmt": "Credit on account: {fmt}",
+    "wplate_ksieguje_trener_po_jej_otrzymaniu": "Your trainer records the payment once received, so the balance changes shortly after you pay.",
+    "naleznosci": "Amounts due",
+    "nie_ma_jeszcze_zaksiegowanych_wplat": "No payments recorded yet."
+  },
+  "pushPrompt": {
+    "wlacz": "Turn on",
+    "text": "<strong>Turn on push notifications.</strong> You'll get session reminders, open slots and messages from your trainer."
+  },
+  "sessionsPage": {
+    "nie_moge_przyjsc_wysyla_informacje": "“I can't come” sends a message to your trainer. The trainer cancels the session (according to the school's rules) and may offer the slot to others.",
+    "nie_ma_jeszcze_odbytych_zajec": "No sessions held yet."
+  },
+  "slotsSection": {
+    "zgloszono_czekasz_na_decyzje_trenera": "Request sent. You're waiting for the trainer's decision.",
+    "wycofaj_zgloszenie": "Withdraw request",
+    "wycofywanie": "Withdrawing...",
+    "jestes_na_liscie_chetnych": "You're on the waitlist",
+    "gdy_zwolni_sie_termin_dostaniesz": "When a slot opens up, you'll get a notification. Whoever taps “I'll take it” first has priority, but the trainer chooses.",
+    "wypisz_mnie_z_listy_chetnych": "Remove me from the waitlist",
+    "chcesz_wczesniejszy_termin": "Want an earlier slot?",
+    "zapisz_sie_na_liste_chetnych_gdy_ktos": "Join the waitlist: when someone cancels, you'll get a notification and can take the open slot.",
+    "zapisz_mnie_na_liste_chetnych": "Add me to the waitlist"
+  },
+  "claimSlotForm": {
+    "ktory_pies": "Which dog?",
+    "biore": "I'll take it",
+    "zglaszanie": "Sending..."
+  },
+  "nav": {
+    "start": "Home",
+    "sessions": "Sessions",
+    "payments": "Payments",
+    "dogs": "Dogs",
+    "more": "More"
+  }
+}

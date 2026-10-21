@@ -1,6 +1,10 @@
 import { DEFAULT_LOCALE, type Locale } from "@/shared/i18n/locale";
 
-/** Przestrzenie nazw katalogów: `messages/<język>/<przestrzeń>.json`. Rosną wraz z migracją modułów (etap 3). */
+/**
+ * Przestrzenie nazw katalogów: `messages/<język>/<przestrzeń>.json`. Każdy język może mieć podzbiór (brakujące pliki uzupełnia polski).
+ * Uwaga: Vite rozwija dynamiczny `import()` w czasie transformacji i buforuje wynik, więc po dodaniu plików nowego języka
+ * zmień ten plik (albo wyczyść `node_modules/.vite`), inaczej testy nie zobaczą nowych katalogów.
+ */
 export const NAMESPACES = [
   "common",
   "errors",

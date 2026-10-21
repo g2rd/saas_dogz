@@ -1,0 +1,9 @@
+{
+  "clientForm": {
+    "imie": "First name",
+    "nazwisko": "Last name",
+    "telefon": "Phone",
+    "numer_polski_bez_prefiksu_zapiszemy_jako": "A number without a country code is saved as Polish (+48)",
+    "status": "Status"
+  }
+}

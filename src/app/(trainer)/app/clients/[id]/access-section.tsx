@@ -45,7 +45,7 @@ export async function AccessSection({
                 <span className="font-medium">{t("trainer.clientsAccessSection.konto_z_dostepem_do_panelu")}</span>
                 <span className="text-sm text-zinc-600 dark:text-zinc-400">
                   {" "}
-                  · od {formats.date(account.since)} · {account.relation === "owner" ? t("trainer.clientsAccessSection.glowne") : t("trainer.clientsAccessSection.rodzina")}
+                  · {t("trainer.clientsAccessSection.since", { date: formats.date(account.since) })} · {account.relation === "owner" ? t("trainer.clientsAccessSection.glowne") : t("trainer.clientsAccessSection.rodzina")}
                 </span>
               </span>
               <form action={revokeAccessAction.bind(null, clientId, account.userId)}>

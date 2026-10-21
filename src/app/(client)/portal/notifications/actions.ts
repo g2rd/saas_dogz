@@ -10,10 +10,10 @@ import {
   removePushSubscription,
   saveNotificationPreferences,
   savePushSubscription,
-  REQUEST_CONFIRMATIONS,
   type RespondState,
 } from "@/modules/notifications";
 import { toFormState, type FormState } from "@/shared/form";
+import { msg } from "@/shared/i18n/messages";
 import { requirePortalContext } from "../../_lib/context";
 
 const refresh = () => revalidatePath("/portal", "layout");
@@ -63,5 +63,5 @@ export async function respondAction(_prev: RespondState, formData: FormData): Pr
   const result = await createClientRequest(ctx, Object.fromEntries(formData));
   if (!result.ok) return { error: result.error.message };
   refresh();
-  return { message: REQUEST_CONFIRMATIONS[result.value.kind] };
+  return { message: msg(`labels.requestConfirmation.${result.value.kind}`) };
 }
