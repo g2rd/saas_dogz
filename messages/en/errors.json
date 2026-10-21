@@ -83,7 +83,8 @@
     "constraint": "The data doesn’t meet the database constraints.",
     "generic": "The operation failed.",
     "read_only": "The school’s account is read-only, so changes can’t be saved. Please contact support.",
-    "signup_closed": "Sign-up is closed. An invitation code is required."
+    "signup_closed": "Sign-up is closed. An invitation code is required.",
+    "rate_limited": "Too many submissions in a short time. Please try again later."
   },
   "invite": {
     "invalid_code": "Invalid code.",

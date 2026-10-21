@@ -83,7 +83,8 @@
     "constraint": "Dane nie spełniają ograniczeń bazy.",
     "generic": "Operacja nie powiodła się.",
     "read_only": "Konto szkoły jest w trybie tylko do odczytu, więc nie można zapisywać zmian. Skontaktuj się z obsługą.",
-    "signup_closed": "Rejestracja jest zamknięta. Potrzebny jest kod zaproszenia."
+    "signup_closed": "Rejestracja jest zamknięta. Potrzebny jest kod zaproszenia.",
+    "rate_limited": "Zbyt wiele zgłoszeń w krótkim czasie. Spróbuj ponownie później."
   },
   "invite": {
     "invalid_code": "Niepoprawny kod.",

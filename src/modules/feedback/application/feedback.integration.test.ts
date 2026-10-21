@@ -48,6 +48,19 @@ describe("zgłoszenia testerów", () => {
     expect(badKind.ok).toBe(false);
   });
 
+  it("limit: pięć zgłoszeń na 10 minut, szóste dostaje komunikat o limicie, a inna osoba może pisać", async () => {
+    const spammer = await createTestUser("fb-spammer");
+    await adminClient().from("organization_members").insert({ organization_id: orgId, user_id: spammer.id, role: "trainer" });
+    for (let i = 0; i < 5; i++) {
+      value(await submitFeedback(scope(spammer), "staff", "pl", { kind: "other", message: `Zgłoszenie ${i}` }));
+    }
+    const sixth = await submitFeedback(scope(spammer), "staff", "pl", { kind: "other", message: "Za dużo" });
+    expect(sixth.ok).toBe(false);
+    if (!sixth.ok) expect(sixth.error.message).toBe("errors.db.rate_limited");
+    // Limit jest per osoba: właściciel szkoły dalej może zgłaszać
+    value(await submitFeedback(scope(owner), "staff", "pl", { kind: "idea", message: "Mój pomysł po limicie spamera" }));
+  });
+
   it("RLS: obca osoba nie zgłosi w cudzej szkole, a klient nie podszyje się pod personel", async () => {
     const foreign = await submitFeedback(scope(stranger), "staff", "pl", { kind: "idea", message: "Cudza szkoła" });
     expect(foreign.ok).toBe(false);
@@ -66,8 +79,9 @@ describe("zgłoszenia testerów", () => {
 
   it("właściciel platformy widzi zgłoszenia z nazwą szkoły i adresem autora i oznacza je jako obejrzane", async () => {
     const all = value(await listFeedback(admin)).filter((row) => row.organizationName === ORG_NAME);
-    expect(all).toHaveLength(2);
-    const staffEntry = all.find((row) => row.audience === "staff");
+    expect(all.length).toBeGreaterThanOrEqual(2);
+    expect(all.map((row) => row.message)).toEqual(expect.arrayContaining(["Nie widzę zajęć", "Add a week view"]));
+    const staffEntry = all.find((row) => row.message === "Nie widzę zajęć");
     expect(staffEntry).toMatchObject({ kind: "problem", message: "Nie widzę zajęć", authorEmail: owner.email, status: "new" });
 
     value(await setFeedbackSeen(admin, staffEntry!.id, true));

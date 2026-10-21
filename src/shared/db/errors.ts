@@ -39,6 +39,8 @@ export function fromDbError(error: DbError): AppError {
       return appError("conflict", msg("errors.db.already_voided"), { reason: "already_voided" });
     case "DT015":
       return appError("forbidden", msg("errors.db.read_only"), { reason: "read_only" });
+    case "DT017":
+      return appError("conflict", msg("errors.db.rate_limited"), { reason: "rate_limited" });
     case "DT016":
       return appError("forbidden", msg("errors.db.signup_closed"), { reason: "signup_closed" });
     case "DT006":

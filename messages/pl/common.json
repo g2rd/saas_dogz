@@ -86,5 +86,17 @@
     "shortcut_today": "Dziś",
     "shortcut_notifications": "Powiadomienia",
     "suspended_title": "Konto niedostępne"
+  },
+  "errorPage": {
+    "title": "Coś poszło nie tak",
+    "text": "Wystąpił nieoczekiwany błąd. Twoje dane są bezpieczne. Spróbuj ponownie; jeśli problem się powtarza, użyj „Zgłoś problem lub pomysł” w menu Więcej i podaj kod poniżej.",
+    "reference": "Kod zgłoszenia: {code}",
+    "retry": "Spróbuj ponownie",
+    "home": "Wróć do strony głównej"
+  },
+  "notFoundPage": {
+    "title": "Nie znaleziono strony",
+    "text": "Ta strona nie istnieje albo nie masz do niej dostępu. Sprawdź adres albo wróć do strony głównej.",
+    "home": "Wróć do strony głównej"
   }
 }

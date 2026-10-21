@@ -70,6 +70,7 @@ Link do formularza opinii (Tally/Google Forms) w menu „Więcej” obu paneli i
 Trener z 30-100 klientami nie wpisze ich ręcznie, więc test bez importu da zafałszowany obraz. Minimum: przesłanie pliku (imię, nazwisko, telefon, e-mail, pies), podgląd i raport błędów, zapis do `clients`/`dogs`, bez zaproszeń. Jeśli nie zdążysz, importuj **Ty** dane testerów skryptem jednorazowo (ustalasz z nimi wzór arkusza).
 
 ### 1.6. Jakość i bezpieczeństwo minimum (przed pierwszym obcym użytkownikiem)
+**Zrobione 2026-10-21 (PR `feat/ci-quality-minimum`, szczegóły: [PRZEGLAD-BEZPIECZENSTWA.md](PRZEGLAD-BEZPIECZENSTWA.md)):** CI w GitHub Actions (blokadę scalania włączasz w rulesecie), `error.tsx`/`not-found.tsx`/`global-error.tsx`, limity (opinie, zaproszenia, import, rozmiar akcji), przegląd `npm audit` (produkcja bez podatności) i RLS z testem niezmienników, nagłówki bezpieczeństwa. **Zostaje:** Sentry i monitor dostępności (konta), komunikat wygasłej sesji, limity Supabase Auth i Resend przy wdrożeniu. Pierwotny plan:
 - CI w GitHub Actions: typecheck, lint, testy jednostkowe, pgTAP, integracyjne, granice, build; blokada scalania przy czerwonym CI.
 - `error.tsx` i `not-found.tsx`, komunikat wygasłej sesji, linki powrotu w trybie `standalone` PWA.
 - Limity: ograniczenie wysyłki zaproszeń e-mailem na trenera na dobę; captcha lub kod beta (jest) na rejestracji.
@@ -198,7 +199,7 @@ Po 4-6 tygodniach zbierz: metryki z `/admin` względem kryteriów z sekcji 0, an
 - [ ] Zamknięta rejestracja kodem, sprawdzona przez bezpośrednie API (1.2)
 - [ ] Regulamin testów, polityka prywatności, zgoda przy rejestracji (1.3)
 - [x] Formularz opinii (1.4) i import CSV (1.5) zrobione; do tego dać testerom wzór arkusza
-- [ ] CI zielone, Sentry i monitor dostępności włączone (1.6)
+- [ ] CI zielone i wymagane w rulesecie (jest, 1.6); Sentry i monitor dostępności włączone (zostaje)
 - [ ] Supabase Pro w UE, migracje wdrożone, Auth (URL-e, potwierdzenie e-mail, własny SMTP), kopia przetestowana
 - [ ] Resend z zweryfikowaną domeną, e-maile trafiają do głównej skrzynki
 - [ ] Vercel Pro, zmienne środowiskowe, `vercel.json` z cronem, domena z HTTPS
