@@ -97,7 +97,7 @@ Najważniejsza zmiana architektury. `notifications` przechowuje `message_key` i 
 
 ## 6. Plan etapów
 
-Każdy etap to osobny PR (ocena: `claude-review.yml`, zatwierdza właściciel). Szacunki dla jednej osoby z agentem.
+Każdy etap to osobny PR (review i zatwierdzenie: właściciel). Szacunki dla jednej osoby z agentem.
 
 ### Etap 0. Spike i decyzje ✅ (1 dzień)
 - [x] `next-intl` zainstalowane i sprawdzone z Next 16.4, Cache Components i `proxy.ts` (konfiguracja bez routingu językowego, dostawca w `<Suspense>`).
