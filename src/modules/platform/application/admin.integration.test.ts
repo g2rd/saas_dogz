@@ -183,7 +183,7 @@ describe("kody beta i zamknięta rejestracja", () => {
 
       const noCode = await signUp(anon, { email: `no-code-${stamp}@example.test`, password: "Haslo-Testowe-123" }, options);
       expect(noCode.ok).toBe(false);
-      if (!noCode.ok) expect(noCode.error.details).toMatchObject({ betaCode: [expect.stringContaining("zamknięta")] });
+      if (!noCode.ok) expect(noCode.error.details).toMatchObject({ betaCode: ["errors.auth.gate_closed"] });
 
       const created = value(await createBetaCode(admin, { label: "Rejestracja testowa", maxUses: "1", validDays: "1" }));
       const first = await signUp(
@@ -199,7 +199,7 @@ describe("kody beta i zamknięta rejestracja", () => {
         options,
       );
       expect(reused.ok).toBe(false);
-      if (!reused.ok) expect(reused.error.details).toMatchObject({ betaCode: [expect.stringContaining("wykorzystany")] });
+      if (!reused.ok) expect(reused.error.details).toMatchObject({ betaCode: ["errors.auth.gate_invalid_code"] });
 
       const used = value(await listBetaCodes(admin)).find((c) => c.label === "Rejestracja testowa")!;
       expect(used.usedCount).toBe(1);

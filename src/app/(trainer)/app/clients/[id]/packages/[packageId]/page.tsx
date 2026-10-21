@@ -16,6 +16,7 @@ import { formatMoney, money } from "@/shared/money";
 import { Badge } from "@/shared/ui/badge";
 import { requireContext } from "../../../../../_lib/context";
 import { adjustPackageAction, cancelPackageAction } from "../../../../billing-actions";
+import { getFormats } from "@/shared/i18n/server";
 
 type Props = PageProps<"/app/clients/[id]/packages/[packageId]">;
 
@@ -30,6 +31,7 @@ export default function PackagePage({ params }: Props) {
 async function PackageDetails({ params }: Pick<Props, "params">) {
   const { id: clientId, packageId } = await params;
   const ctx = await requireContext();
+  const formats = await getFormats();
 
   const [pkgResult, clientResult, ledgerResult] = await Promise.all([
     getClientPackage(ctx, packageId),
@@ -67,7 +69,7 @@ async function PackageDetails({ params }: Pick<Props, "params">) {
               <div>
                 <p className="font-medium">{LEDGER_REASON_LABELS[entry.reason]}</p>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  {entry.createdAt.toLocaleString("pl-PL")}
+                  {formats.dateTime(entry.createdAt)}
                   {entry.note ? ` · ${entry.note}` : ""}
                 </p>
               </div>

@@ -14,6 +14,7 @@ import {
   type PackageRecord,
 } from "../infrastructure/packages-repository";
 import { templatesRepository } from "../infrastructure/templates-repository";
+import { msg } from "@/shared/i18n/messages";
 
 export type ClientPackage = PackageRecord & { status: PackageStatus };
 
@@ -141,10 +142,10 @@ const adjustmentSchema = z.object({
   delta: z.preprocess(
     (v) => (typeof v === "string" && v.trim() !== "" ? Number(v.trim()) : v),
     z
-      .number({ error: "Podaj liczbę zajęć, np. 1 lub -1" })
-      .int("Podaj liczbę całkowitą")
-      .min(-500, "Za duża korekta")
-      .max(500, "Za duża korekta")
+      .number({ error: msg("validation.adjust_delta") })
+      .int(msg("validation.integer"))
+      .min(-500, msg("validation.adjustment_too_large"))
+      .max(500, msg("validation.adjustment_too_large"))
       .refine((v) => v !== 0, "Korekta nie może być zerowa"),
   ),
   reason: z.enum(["adjustment", "refund"]).default("adjustment"),
@@ -179,8 +180,8 @@ export async function adjustPackage(
   );
   if (!result.ok && result.error.code === "validation") {
     return err(
-      appError("validation", "Popraw zaznaczone pola.", {
-        delta: ["Saldo nie może zejść poniżej zera"],
+      appError("validation", msg("validation.fix_fields"), {
+        delta: [msg("validation.balance_below_zero")],
       }),
     );
   }

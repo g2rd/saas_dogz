@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { emptyToNull, formText } from "@/shared/form";
+import { msg } from "@/shared/i18n/messages";
 
 export const createInvitationInputSchema = z.object({
   clientId: z.uuid(),
@@ -74,8 +75,8 @@ export const MEMBER_ROLE_LABELS: Record<MemberRole | "owner", string> = {
 export const createMemberInvitationSchema = z.object({
   email: formText(254)
     .transform((v) => v.toLowerCase())
-    .refine((v) => z.email().safeParse(v).success, "Podaj poprawny adres e-mail"),
-  role: z.enum(MEMBER_ROLES, { error: "Wybierz rolę" }),
+    .refine((v) => z.email().safeParse(v).success, msg("validation.email")),
+  role: z.enum(MEMBER_ROLES, { error: msg("validation.choose_role") }),
 });
 
 export type CreatedMemberInvitation = {

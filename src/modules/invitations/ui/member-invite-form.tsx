@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import type { FormState } from "@/shared/form";
 import { FormMessage, SelectField, SubmitButton, TextField } from "@/shared/ui/form-fields";
 import { MEMBER_ROLE_LABELS, type MemberRole } from "../domain/invitation";
+import { useFormats } from "@/shared/i18n/client";
 
 export type MemberInviteState = FormState & {
   created?: { link: string; email: string; emailSent: boolean; expiresAt: string };
@@ -18,6 +19,7 @@ export function MemberInviteForm({
   roles: readonly MemberRole[];
 }) {
   const [state, formAction] = useActionState(action, {});
+  const formats = useFormats();
   const errors = state.fieldErrors ?? {};
 
   return (
@@ -61,7 +63,7 @@ export function MemberInviteForm({
             className="h-11 w-full rounded-lg border border-zinc-300 bg-transparent px-3 dark:border-zinc-700"
           />
           <p className="text-zinc-600 dark:text-zinc-400">
-            Link jest widoczny tylko teraz. Ważny do {new Date(state.created.expiresAt).toLocaleDateString("pl-PL")}.
+            Link jest widoczny tylko teraz. Ważny do {formats.date(new Date(state.created.expiresAt))}.
           </p>
         </div>
       ) : null}

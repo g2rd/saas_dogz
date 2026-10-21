@@ -1,6 +1,6 @@
 # DogTrainer SaaS: architektura, stan prac i lista zadań
 
-Stan na 2026-10-21 (`origin/dev` = `ee20159`, `origin/main` = `19b334a`). Dokument opisuje, jak zbudowana jest aplikacja, co jest zrobione i sprawdzone, co zostało do zrobienia i jakie decyzje podjął właściciel. Pokrewne pliki: [WDROZENIE-PRODUKCYJNE.md](WDROZENIE-PRODUKCYJNE.md) (ścieżka do pierwszej sprzedaży, limitacje i ryzyka), [WDROZENIE-DEMO-10-TESTEROW.md](WDROZENIE-DEMO-10-TESTEROW.md) (instrukcja: demo dla 10 trenerów z panelem właściciela i blokowaniem dostępu), [WDROZENIE-PELNE-PRODUKCJA.md](WDROZENIE-PELNE-PRODUKCJA.md) (instrukcja: pełne wdrożenie i sprzedaż), `docs/adr/` (zapisy decyzji), `CLAUDE.md` i `AGENTS.md` (zasady pracy dla agenta), `README.md` (skrót dla nowej osoby).
+Stan na 2026-10-21 (`origin/dev` = `ee20159`, `origin/main` = `19b334a`). Dokument opisuje, jak zbudowana jest aplikacja, co jest zrobione i sprawdzone, co zostało do zrobienia i jakie decyzje podjął właściciel. Pokrewne pliki: [WDROZENIE-PRODUKCYJNE.md](WDROZENIE-PRODUKCYJNE.md) (ścieżka do pierwszej sprzedaży, limitacje i ryzyka), [WDROZENIE-DEMO-10-TESTEROW.md](WDROZENIE-DEMO-10-TESTEROW.md) (instrukcja: demo dla 10 trenerów z panelem właściciela i blokowaniem dostępu), [WDROZENIE-PELNE-PRODUKCJA.md](WDROZENIE-PELNE-PRODUKCJA.md) (instrukcja: pełne wdrożenie i sprzedaż), [WDROZENIE-WIELOJEZYCZNOSCI.md](WDROZENIE-WIELOJEZYCZNOSCI.md) (plan i dziennik wielojęzyczności), `docs/adr/` (zapisy decyzji), `CLAUDE.md` i `AGENTS.md` (zasady pracy dla agenta), `README.md` (skrót dla nowej osoby).
 
 ## 0. Start nowej sesji: czytaj to najpierw
 
@@ -21,6 +21,7 @@ Stan na 2026-10-21 (`origin/dev` = `ee20159`, `origin/main` = `19b334a`). Dokume
 | 7. Wolne terminy: lista chętnych, „Biorę”, wybór trenera, „Nie mogę przyjść” | ✅ (ADR 0010, migracja 0009) | `dev` |
 | 8. Potwierdzenia, cofanie pomyłek, okno 30 s (ADR 0011, migracja 0010) | ✅ | `dev` |
 | 9. Panel właściciela `/admin`, status szkoły (próba/aktywna/tylko do odczytu/zawieszona) z blokadą w bazie, zamknięta rejestracja kodami beta, MFA admina, poprawka błędu 500 przy wyborze zgłoszenia na wolny termin (ADR 0012, migracja 0011) | ✅ kod i testy, ⏳ zostały przeklikać rejestrację z kodem w przeglądarce i test na środowisku zdalnym | `dev` (lokalnie, niewypchnięte) |
+| 9b. Wielojęzyczność, etapy 0-2: `next-intl`, wybór języka z urządzenia i w `Więcej`, formatery, waluta i strefa szkoły z urządzenia, błędy i walidacja jako klucze (ADR 0013, migracja 0012, [WDROZENIE-WIELOJEZYCZNOSCI.md](WDROZENIE-WIELOJEZYCZNOSCI.md)) | ✅ kod i testy; teksty interfejsu dalej po polsku (etap 3) | PR `feat/i18n-foundation` (czeka na zatwierdzenie właściciela) |
 | **10. Oddanie testerom na 2 tygodnie** (staging z HTTPS, regulamin i zgody, formularz opinii, import CSV, seed demo) | ⏳ **następny krok** (sekcja 8, instrukcja: `WDROZENIE-DEMO-10-TESTEROW.md`) | |
 
 Zdalne repozytorium: `https://github.com/g2rd/saas_dogz`. **Gałąź `dev` jest gałęzią integracyjną: tam trafiają wszystkie zmiany. `main` zawiera tylko to, co właściciel zatwierdził; do `main` wchodzimy dopiero po jego wyraźnym zatwierdzeniu (merge `dev` do `main` i push).** Ostatnie wypchnięcie `dev`: 2026-10-16 (commit `ee20159`). `main` jest nadal na etapach do 3.
@@ -32,6 +33,7 @@ Zdalne repozytorium: `https://github.com/g2rd/saas_dogz`. **Gałąź `dev` jest 
 - Prośby klienta („Odnów”, „Zapłacę”, „Kończę”, „Nie mogę przyjść”) są informacją dla trenera, bez akceptacji; ogłoszony wolny termin przydziela trener (nie automat).
 - Potwierdzenia na wrażliwych operacjach, okno 30 s i cofanie do końca dnia (zakończenie zajęć).
 - **Commity bez dopisku `Co-Authored-By` o Claude.**
+- **Wielojęzyczność (2026-10-21):** `next-intl`; język automatycznie z telefonu/przeglądarki, zmiana w `Więcej`; najpierw angielski, kolejne języki później; płatności tylko gotówkowe; waluta dobierana z języka i regionu urządzenia. Angielski nie jest widoczny dla użytkowników do czasu etapu 5 (`ENABLED_LOCALES`).
 - Aplikacja tylko w jasnym motywie.
 - **Właściciel platformy** musi widzieć użycie (ile szkół, trenerów, klientów) i móc blokować dostęp (koniec testów, brak płatności): panel `/admin` (ADR 0012). Dostęp: to samo logowanie e-mail + hasło, osobne konto z wpisem w `platform_admins` i weryfikacja dwuetapowa TOTP (wymagana na produkcji).
 
@@ -59,6 +61,7 @@ Platforma multi-tenant dla trenerów psów w Polsce: klienci i psy, kalendarz tr
 | --- | --- | --- |
 | Framework | Next.js 16.4 (App Router, Turbopack), React 19.3 | Włączone `cacheComponents` i `partialPrefetching`. W Next 16 `middleware` to `proxy` (`src/proxy.ts`). |
 | Język | TypeScript strict | |
+| i18n | `next-intl` 4 (bez routingu językowego), katalogi `messages/<język>/<przestrzeń>.json` (ICU) | Język: ciasteczko `dt_locale` → `Accept-Language` → `pl`; `ENABLED_LOCALES`; ADR 0013 |
 | Style | Tailwind CSS 4 | Tylko jasny motyw (`@custom-variant dark` wyłączony), kolor główny zielony (`bg-primary`), własne proste komponenty w `src/shared/ui`. |
 | Baza i auth | Supabase (PostgreSQL, Auth), `@supabase/supabase-js` 2.118, `@supabase/ssr` 0.12 | Zapytania w kontekście użytkownika, więc RLS zawsze działa. |
 | Walidacja | Zod 4 | Te same schematy po stronie klienta i serwera. |
@@ -99,15 +102,18 @@ src/
                             formularze, UI (formularze, potwierdzenie, PWA), narzędzia testowe
   proxy.ts                  Odświeżanie sesji i ochrona tras /app oraz /portal
   instrumentation*.ts       Lokalna pętla powiadomień w `next dev` (co 10 s)
+messages/                   Katalogi tekstów <język>/<przestrzeń>.json (pl źródłowy, en)
 supabase/
-  migrations/               Migracje SQL z RLS (0001-0011), źródło prawdy o schemacie
+  migrations/               Migracje SQL z RLS (0001-0012), źródło prawdy o schemacie
   tests/database/           Testy pgTAP
 public/                     sw.js, offline.html, icons/
 scripts/                    seed-dev.mjs, run-outbox.mjs, generate-icons.mjs, grant-platform-admin.mjs
-docs/                       Ten plik, WDROZENIE-PRODUKCYJNE.md, WDROZENIE-DEMO-10-TESTEROW.md, WDROZENIE-PELNE-PRODUKCJA.md, adr/0001-0012
+docs/                       Ten plik, WDROZENIE-PRODUKCYJNE.md, WDROZENIE-DEMO-10-TESTEROW.md, WDROZENIE-PELNE-PRODUKCJA.md, adr/0001-0013, WDROZENIE-WIELOJEZYCZNOSCI.md
 ```
 
 **Moduły:** `core` (organizacje, członkostwa, role, uprawnienia, logowanie, ustawienia), `clients`, `dogs` (psy, notatki, zatwierdzanie), `packages` (szablony, sprzedaż, saldo, korekta, anulowanie), `payments` (należności, wpłaty, alokacje, storno), `scheduling` (rodzaje zajęć, planowanie, zakończenie, odwołanie, cofanie, wolne terminy), `invitations` (zaproszenia klientów i personelu, wysyłka e-mailem), `portal` (model do odczytu dla klienta, lista chętnych, „Biorę”), `notifications` (outbox, planowanie powiadomień, kanały, skrzynka, preferencje, prośby klienta), `platform` (panel właściciela: przegląd szkół, status i dostęp, notatki, kody beta, tryb rejestracji; działa na kliencie `service_role`).
+
+**Wielojęzyczność w kodzie:** czysta logika w `src/shared/i18n/` (`locale`, `currency`, `messages` = kodowane klucze `msg(...)`, `formats`), serwer `getFormats()`/`getMessageTranslator()`, klient `useFormats()`/`useMessageTranslator()`, komponenty `Msg`/`MsgList`, `LanguageSection` (menu `Więcej`), wiring `next-intl` w `src/i18n/` (`request.ts`, `messages.ts`, `shell.tsx`) i katalogi w `messages/`. Komunikaty błędów i walidacji w kodzie to klucze, tłumaczone na granicy UI (zwykły tekst przechodzi bez zmian). Dodawanie języków: [WDROZENIE-WIELOJEZYCZNOSCI.md](WDROZENIE-WIELOJEZYCZNOSCI.md).
 
 **Trasy panelu trenera (`/app`):** pulpit „Dziś”, `clients` (lista, karta, psy, pakiety), `packages` (szablony), `sessions` (lista, planowanie, rodzaje zajęć, wolne terminy i odwołane terminy), `requests` (prośby klientów), `notifications` (+ `settings`), `team` (zespół i zaproszenia), `more` (menu na telefonie). **Trasy klienta (`/portal`):** start, `sessions`, `payments`, `dogs`, `notifications` (+ `settings`), `more`.
 
@@ -150,7 +156,7 @@ Manifest (`start_url=/start`, który kieruje do `/login`, `/app` lub `/portal`),
 
 ## 4. Model danych
 
-Migracje `supabase/migrations/20261016000001` … `0011` (wszystkie zastosowane lokalnie).
+Migracje `supabase/migrations/20261016000001` … `0012` (wszystkie zastosowane lokalnie; 0012: język profilu z rejestracji i trigger waluty szkoły).
 
 | Tabela | Moduł | Cel |
 | --- | --- | --- |
@@ -208,11 +214,11 @@ Migracje `supabase/migrations/20261016000001` … `0011` (wszystkie zastosowane 
 | --- | --- | --- |
 | Typy | `npm run typecheck` | czysto |
 | Lint | `npm run lint` | czysto |
-| Testy jednostkowe (domena, symulacja service workera) | `npm test` | 170/170 |
-| Granice modułów | `npm run check:boundaries` | brak naruszeń (230 modułów) |
+| Testy jednostkowe (domena, symulacja service workera, i18n) | `npm test` | 204/204 |
+| Granice modułów | `npm run check:boundaries` | brak naruszeń (245 modułów) |
 | Build produkcyjny | `npm run build` | przechodzi (trasy panelu to częściowy prerender) |
-| Testy RLS i funkcji SQL (pgTAP) | `npm run db:test` | 222/222 (10 plików; `platform_admin.test.sql`: status, blokada zapisów i odczytów, ochrona kolumn, funkcje tylko `service_role`, wygaszanie, zamknięta rejestracja) |
-| Testy przypadków użycia na prawdziwej bazie (z Mailpit) | `npm run test:integration` | 133/133 (10 plików; `admin.integration.test.ts`: panel, blokada, kody beta, rejestracja przy zamkniętym naborze także bezpośrednio przez API) |
+| Testy RLS i funkcji SQL (pgTAP) | `npm run db:test` | 231/231 (11 plików; `i18n.test.sql`: język profilu, waluta szkoły; `platform_admin.test.sql`: status, blokada zapisów i odczytów, ochrona kolumn, funkcje tylko `service_role`, wygaszanie, zamknięta rejestracja) |
+| Testy przypadków użycia na prawdziwej bazie (z Mailpit) | `npm run test:integration` | 136/136 (11 plików; `i18n.integration.test.ts`: język w profilu, ustawienia szkoły z urządzenia, waluta rekordów; `admin.integration.test.ts`: panel, blokada, kody beta, rejestracja przy zamkniętym naborze także bezpośrednio przez API) |
 
 ### Przeklikane w przeglądarce (lokalny Supabase)
 Panel `/admin` (lista szkół, karta, zmiana statusu z potwierdzeniem, strona kodów), trener szkoły „tylko do odczytu” (pasek i czytelny błąd przy zapisie), ekran `/suspended`, konfiguracja MFA kodem TOTP i wejście do panelu po weryfikacji (przy włączonym MFA w lokalnym Supabase). Fundament i klienci; zaproszenie klienta i rejestracja z QR/kodu do `/portal`; powiadomienia (niskie saldo u obu stron, e-maile w Mailpit); prośba „Odnów pakiet” do trenera; zespół i `/join`; panel w 375 px (dolna nawigacja, „Dziś”, „Więcej”); odwołanie zajęć z potwierdzeniem, „Ogłoś wolny termin”, lista chętnych i „Biorę” po stronie klienta, przywrócenie zajęć; menu „Więcej” klienta; jasny motyw przy emulowanym ciemnym trybie systemu.
@@ -287,6 +293,12 @@ Szczegółowa ścieżka do sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJN
 ### A3. Code review przez AI (GitHub Actions)
 - [x] Workflow `.github/workflows/claude-review.yml` (2026-10-21): na pull requestach pełny przegląd z komentarzami w liniach kodu (skill `code-review`), na pushach do `dev` i `main` przegląd nowych commitów jako komentarz pod ostatnim commitem (po polsku, wg priorytetów z `CLAUDE.md`). Sekret `ANTHROPIC_API_KEY` dodał właściciel; wymagana też aplikacja Claude GitHub App na repozytorium. Review niczego nie blokuje. **Nie zweryfikowano jeszcze na GitHubie** (workflow zadziała dopiero po wypchnięciu). Wymaga od nas pilnowania kosztu tokenów (`--max-turns`, `concurrency`, `timeout-minutes` są ustawione).
 - [ ] CI z testami (typecheck, lint, testy, `supabase test db`, build) jako osobny workflow i wymagany status przed scaleniem.
+
+### A4. Wielojęzyczność (plan: [WDROZENIE-WIELOJEZYCZNOSCI.md](WDROZENIE-WIELOJEZYCZNOSCI.md))
+- [x] Etapy 0-2: fundament, wybór języka, formatery, waluta i strefa szkoły z urządzenia, błędy i walidacja jako klucze (PR `feat/i18n-foundation`).
+- [ ] Etap 3: wyciągnięcie tekstów modułami (ok. 750 linii w 181 plikach) do katalogów `pl`, potem `en`; ekran ustawień szkoły (waluta, strefa, język domyślny); wywołania `formatMoney`/`formatIsoDate`/`formatDateHeading` na formatery.
+- [ ] Etap 4: powiadomienia, e-mail i push w języku odbiorcy (`message_key` + `params`), strona offline i manifest.
+- [ ] Etap 5: angielski (tłumaczenie z przeglądem, pseudo-lokalizacja), włączenie `ENABLED_LOCALES=pl,en`; etap 6: trzeci język jako test skalowalności.
 
 ### B. Pomysły zgłoszone przez właściciela, jeszcze nie zrobione
 - **QR szkoły z akceptacją:** stały QR/link trenera; klient zakłada konto i wysyła prośbę o dołączenie, trener akceptuje (powstaje kartoteka i dostęp). Zaproponowane, czeka na decyzję.

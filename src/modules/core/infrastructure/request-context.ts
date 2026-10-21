@@ -6,6 +6,7 @@ import type { RequestContext } from "@/shared/context";
 import { err, ok, type Result } from "@/shared/result";
 import { createUserClient } from "@/shared/supabase/server";
 import { loadOrgAccess } from "./org-access";
+import { msg } from "@/shared/i18n/messages";
 
 export const ORG_COOKIE = "dt_org";
 
@@ -16,7 +17,7 @@ export async function getSessionUser(): Promise<Result<SessionUser>> {
   const db = await createUserClient();
   const { data } = await db.auth.getClaims();
   const claims = data?.claims;
-  if (!claims?.sub) return err(appError("unauthenticated", "Zaloguj się, aby kontynuować."));
+  if (!claims?.sub) return err(appError("unauthenticated", msg("errors.auth.sign_in_required")));
   return ok({ id: claims.sub, email: typeof claims.email === "string" ? claims.email : null });
 }
 
@@ -28,7 +29,7 @@ export async function getRequestContext(): Promise<Result<RequestContext>> {
   const db = await createUserClient();
   const { data: claimsData } = await db.auth.getClaims();
   const userId = claimsData?.claims?.sub;
-  if (!userId) return err(appError("unauthenticated", "Zaloguj się, aby kontynuować."));
+  if (!userId) return err(appError("unauthenticated", msg("errors.auth.sign_in_required")));
 
   const { data: memberships, error } = await db
     .from("organization_members")
@@ -36,9 +37,9 @@ export async function getRequestContext(): Promise<Result<RequestContext>> {
     .eq("user_id", userId)
     .eq("status", "active")
     .order("created_at");
-  if (error) return err(appError("internal", "Nie udało się wczytać organizacji.", error.message));
+  if (error) return err(appError("internal", msg("errors.context.load_organization"), error.message));
   if (!memberships || memberships.length === 0) {
-    return err(appError("no_organization", "Najpierw utwórz organizację."));
+    return err(appError("no_organization", msg("errors.context.no_organization")));
   }
 
   // Zawieszone szkoły pomijamy; gdy wszystkie są zawieszone, aplikacja pokazuje ekran zawieszenia (zamiast kreatora szkoły)
@@ -48,7 +49,7 @@ export async function getRequestContext(): Promise<Result<RequestContext>> {
   );
   const usable = memberships.filter((m) => states.get(m.organization_id)?.access);
   if (usable.length === 0) {
-    return err(appError("org_suspended", "Konto Twojej szkoły jest zawieszone.", { organization: states.get(memberships[0].organization_id)?.name }));
+    return err(appError("org_suspended", msg("errors.context.school_suspended"), { organization: states.get(memberships[0].organization_id)?.name }));
   }
 
   const preferred = (await cookies()).get(ORG_COOKIE)?.value;

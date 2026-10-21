@@ -24,8 +24,8 @@ export function dayRange(date: string, timeZone: string): { from: Date; to: Date
 }
 
 /** „wtorek, 16 października” dla daty YYYY-MM-DD (bez przesunięć stref, bo to data kalendarzowa). */
-export function formatDateHeading(date: string): string {
-  return new Intl.DateTimeFormat("pl-PL", {
+export function formatDateHeading(date: string, locale = "pl-PL"): string {
+  return new Intl.DateTimeFormat(locale, {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -34,8 +34,8 @@ export function formatDateHeading(date: string): string {
 }
 
 /** Jak `formatDateHeading`, z wielką pierwszą literą („Piątek, 16 października”). */
-export function formatDateHeadingTitle(date: string): string {
-  const heading = formatDateHeading(date);
+export function formatDateHeadingTitle(date: string, locale = "pl-PL"): string {
+  const heading = formatDateHeading(date, locale);
   return heading.charAt(0).toUpperCase() + heading.slice(1);
 }
 

@@ -1,0 +1,9 @@
+{
+  "language": {
+    "title": "Język",
+    "description": "Domyślnie używamy języka ustawionego w telefonie lub przeglądarce. Możesz wybrać inny.",
+    "label": "Język aplikacji",
+    "auto": "Automatycznie (z urządzenia)",
+    "saving": "Zapisywanie..."
+  }
+}

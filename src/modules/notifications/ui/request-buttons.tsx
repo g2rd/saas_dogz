@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { SubmitButton } from "@/shared/ui/form-fields";
 import { REQUEST_ACTION_LABELS, type RequestKind } from "../domain/notification";
+import { Msg } from "@/shared/ui/msg";
 
 export type RespondState = { message?: string; error?: string };
 type RespondAction = (prev: RespondState, formData: FormData) => Promise<RespondState>;
@@ -43,7 +44,7 @@ export function RequestButtons({
       ) : null}
       {state.error ? (
         <p role="alert" className="text-sm text-red-600">
-          {state.error}
+          <Msg text={state.error} />
         </p>
       ) : null}
       {pending.length > 0 ? (

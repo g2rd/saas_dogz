@@ -7,6 +7,7 @@ import { createUserClient } from "@/shared/supabase/server";
 import { AuthShell } from "../../_components/auth-shell";
 import { acceptInviteAction, inviteSignupAction } from "../actions";
 import { AcceptInviteForm, InviteSignupForm } from "./invite-forms";
+import { Msg } from "@/shared/ui/msg";
 
 type Props = PageProps<"/invite/[secret]">;
 
@@ -44,7 +45,7 @@ async function InviteContent({ params }: Pick<Props, "params">) {
   if (!preview.ok) {
     return (
       <p role="alert" className="text-sm text-red-600">
-        {preview.error.message}
+        <Msg text={preview.error.message} />
       </p>
     );
   }

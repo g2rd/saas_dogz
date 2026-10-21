@@ -3,6 +3,8 @@
 import { useActionState, useState } from "react";
 import type { FormState } from "@/shared/form";
 import { FormMessage, SelectField, SubmitButton, TextField } from "@/shared/ui/form-fields";
+import { Msg } from "@/shared/ui/msg";
+import { useFormats } from "@/shared/i18n/client";
 
 /** Wynik utworzenia zaproszenia: sekrety są widoczne tylko w tej odpowiedzi. */
 export type InviteActionState = FormState & {
@@ -42,7 +44,7 @@ function DeliverButtons({
       ) : null}
       {state.error ? (
         <p role="alert" className="text-sm text-red-600">
-          {state.error}
+          <Msg text={state.error} />
         </p>
       ) : null}
     </div>
@@ -82,6 +84,7 @@ export function InviteForm({
   defaultEmail: string | null;
 }) {
   const [state, formAction] = useActionState(action, {});
+  const formats = useFormats();
   const errors = state.fieldErrors ?? {};
   const v = (name: string, fallback = "") => state.values?.[name] ?? fallback;
 
@@ -155,7 +158,7 @@ export function InviteForm({
           />
 
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            Ważne do {new Date(state.created.expiresAt).toLocaleDateString("pl-PL")}. Nowe zaproszenie unieważnia to.
+            Ważne do {formats.date(new Date(state.created.expiresAt))}. Nowe zaproszenie unieważnia to.
           </p>
         </div>
       ) : null}

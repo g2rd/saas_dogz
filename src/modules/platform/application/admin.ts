@@ -14,6 +14,7 @@ import {
 } from "../domain/inputs";
 import type { BetaCodeRow, OrganizationOverview, StatusHistoryEntry } from "../domain/overview";
 import { adminRepository } from "../infrastructure/admin-repository";
+import { msg } from "@/shared/i18n/messages";
 
 const DAY_MS = 86_400_000;
 
@@ -33,7 +34,7 @@ export async function getOrganizationOverview(ctx: AdminContext, orgId: string):
   const all = await repo(ctx).overview();
   if (!all.ok) return all;
   const found = all.value.find((org) => org.id === orgId);
-  return found ? ok(found) : err(appError("not_found", "Nie znaleziono szkoły."));
+  return found ? ok(found) : err(appError("not_found", msg("errors.not_found.school")));
 }
 
 export async function getStatusHistory(ctx: AdminContext, orgId: string): Promise<Result<StatusHistoryEntry[]>> {
@@ -50,10 +51,10 @@ export async function setOrganizationStatus(ctx: AdminContext, orgId: string, ra
   if (!input.ok) return err(input.error);
   const { status, reason, accessUntil } = input.value;
   if ((status === "suspended" || status === "read_only") && !reason) {
-    return err(appError("validation", "Podaj powód (zobaczy go trener).", { reason: ["Powód jest wymagany przy blokadzie"] }));
+    return err(appError("validation", msg("errors.platform.reason_needed"), { reason: [msg("validation.reason_required")] }));
   }
   const until = accessUntil ? endOfDay(accessUntil) : null;
-  if (accessUntil && !until) return err(appError("validation", "Podaj poprawną datę.", { accessUntil: ["Niepoprawna data"] }));
+  if (accessUntil && !until) return err(appError("validation", msg("errors.platform.valid_date"), { accessUntil: [msg("validation.invalid_date")] }));
   return repo(ctx).setStatus(orgId, status, reason, until);
 }
 

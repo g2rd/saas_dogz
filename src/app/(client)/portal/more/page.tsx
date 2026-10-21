@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { PreferencesForm, PushToggle, getNotificationPreferences } from "@/modules/notifications";
 import { notificationEnv } from "@/shared/env";
 import { SubmitButton } from "@/shared/ui/form-fields";
+import { LanguageSection } from "@/shared/ui/language-section";
 import { InstallPrompt } from "@/shared/ui/pwa";
 import { requirePortalContext } from "../../_lib/context";
 import { portalLogoutAction } from "../actions";
@@ -25,6 +26,9 @@ export default function PortalMorePage() {
             Zobacz wszystkie powiadomienia
           </Link>
         </section>
+        <Suspense fallback={null}>
+          <LanguageSection />
+        </Suspense>
         <form action={portalLogoutAction}>
           <SubmitButton variant="secondary" pendingLabel="Wylogowywanie...">
             Wyloguj

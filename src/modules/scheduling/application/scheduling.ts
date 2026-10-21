@@ -19,6 +19,7 @@ import {
   type CompleteResult,
 } from "../infrastructure/sessions-repository";
 import { sessionTypesRepository } from "../infrastructure/session-types-repository";
+import { msg } from "@/shared/i18n/messages";
 
 // --- rodzaje zajęć ---------------------------------------------------------------------------------
 
@@ -84,7 +85,7 @@ export async function scheduleSession(ctx: RequestContext, raw: unknown): Promis
 
   const startsAt = zonedDateTimeToUtc(input.value.date, input.value.time, settings.value.timezone);
   if (!startsAt) {
-    return err(appError("validation", "Popraw zaznaczone pola.", { time: ["Niepoprawna data lub godzina"] }));
+    return err(appError("validation", msg("validation.fix_fields"), { time: [msg("validation.time_invalid")] }));
   }
 
   const result = await sessionsRepository(ctx.db).schedule(ctx.organizationId, {
@@ -97,8 +98,8 @@ export async function scheduleSession(ctx: RequestContext, raw: unknown): Promis
   });
   if (!result.ok && result.error.code === "conflict") {
     return err(
-      appError("validation", "Popraw zaznaczone pola.", {
-        time: ["Trener ma już zajęcia w tym czasie. Wybierz inną godzinę albo innego trenera."],
+      appError("validation", msg("validation.fix_fields"), {
+        time: [msg("validation.trainer_busy")],
       }),
     );
   }

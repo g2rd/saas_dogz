@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { formText } from "@/shared/form";
+import { msg } from "@/shared/i18n/messages";
 
 export type Audience = "staff" | "client";
 
@@ -25,7 +26,7 @@ export const REQUEST_CONFIRMATIONS: Record<RequestKind, string> = {
 export const REQUEST_STATUS_LABELS = { new: "Nowa", seen: "Obejrzana" } as const;
 
 export const createRequestInputSchema = z.object({
-  kind: z.enum(REQUEST_KINDS, { error: "Wybierz odpowiedź." }),
+  kind: z.enum(REQUEST_KINDS, { error: msg("validation.choose_answer") }),
   packageId: z.preprocess((v) => (v === "" || v == null ? null : v), z.uuid().nullable()),
   chargeId: z.preprocess((v) => (v === "" || v == null ? null : v), z.uuid().nullable()),
   sessionId: z.preprocess((v) => (v === "" || v == null ? null : v), z.uuid().nullable()),

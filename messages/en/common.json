@@ -1,0 +1,9 @@
+{
+  "language": {
+    "title": "Language",
+    "description": "By default we use the language set on your phone or browser. You can choose a different one.",
+    "label": "App language",
+    "auto": "Automatic (from your device)",
+    "saving": "Saving..."
+  }
+}

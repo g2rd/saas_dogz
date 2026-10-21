@@ -10,6 +10,8 @@ import { Badge } from "@/shared/ui/badge";
 import { SubmitButton } from "@/shared/ui/form-fields";
 import { requireContext } from "../../_lib/context";
 import { markRequestSeenAction } from "../notifications/actions";
+import { getFormats } from "@/shared/i18n/server";
+import type { Formats } from "@/shared/i18n/formats";
 
 export default function RequestsPage() {
   return (
@@ -25,7 +27,7 @@ export default function RequestsPage() {
   );
 }
 
-function RequestRow({ request }: { request: ClientRequest }) {
+function RequestRow({ request, formats }: { request: ClientRequest; formats: Formats }) {
   const details = [request.packageName ? `Pakiet „${request.packageName}”` : null, request.chargeDescription, request.note]
     .filter(Boolean)
     .join(" · ");
@@ -43,7 +45,7 @@ function RequestRow({ request }: { request: ClientRequest }) {
         </p>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           {details ? `${details} · ` : ""}
-          {request.createdAt.toLocaleString("pl-PL")}
+          {formats.dateTime(request.createdAt)}
         </p>
       </div>
       {request.status === "new" ? (
@@ -59,6 +61,7 @@ function RequestRow({ request }: { request: ClientRequest }) {
 
 async function Requests() {
   const ctx = await requireContext();
+  const formats = await getFormats();
   const result = await listClientRequests(ctx);
   if (!result.ok) throw new Error(result.error.message);
   const open = result.value.filter((r) => r.status === "new");
@@ -73,7 +76,7 @@ async function Requests() {
         ) : (
           <ul className="divide-y divide-zinc-200 rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
             {open.map((r) => (
-              <RequestRow key={r.id} request={r} />
+              <RequestRow key={r.id} request={r} formats={formats} />
             ))}
           </ul>
         )}
@@ -83,7 +86,7 @@ async function Requests() {
           <h2 className="mb-2 text-lg font-semibold">Obejrzane</h2>
           <ul className="divide-y divide-zinc-200 rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
             {done.map((r) => (
-              <RequestRow key={r.id} request={r} />
+              <RequestRow key={r.id} request={r} formats={formats} />
             ))}
           </ul>
         </div>

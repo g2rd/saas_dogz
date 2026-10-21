@@ -12,12 +12,13 @@ import {
   type DogNote,
 } from "../domain/dog";
 import { dogsRepository } from "../infrastructure/dogs-repository";
+import { msg } from "@/shared/i18n/messages";
 
 function birthDateInFuture(ctx: RequestContext, input: DogInput) {
   if (input.birthDate && input.birthDate > isoDate(ctx.clock.now())) {
     return err(
-      appError("validation", "Popraw zaznaczone pola.", {
-        birthDate: ["Data urodzenia nie może być z przyszłości"],
+      appError("validation", msg("validation.fix_fields"), {
+        birthDate: [msg("validation.birth_date_future")],
       }),
     );
   }
@@ -59,7 +60,7 @@ export async function proposeDog(ctx: ClientRequestContext, raw: unknown): Promi
   if (!input.ok) return err(input.error);
   if (input.value.birthDate && input.value.birthDate > isoDate(ctx.clock.now())) {
     return err(
-      appError("validation", "Popraw zaznaczone pola.", { birthDate: ["Data urodzenia nie może być z przyszłości"] }),
+      appError("validation", msg("validation.fix_fields"), { birthDate: [msg("validation.birth_date_future")] }),
     );
   }
   return dogsRepository(ctx.db).insertProposed(ctx.organizationId, ctx.userId, ctx.clientId, input.value);

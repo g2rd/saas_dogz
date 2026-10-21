@@ -3,6 +3,7 @@ import type { RequestContext } from "@/shared/context";
 import { appError } from "@/shared/errors";
 import { err, ok, type Result } from "@/shared/result";
 import { authorize } from "./authorize";
+import { msg } from "@/shared/i18n/messages";
 
 export type Organization = { id: string; name: string; slug: string };
 
@@ -82,6 +83,6 @@ export async function getOrganization(ctx: RequestContext): Promise<Result<Organ
     .eq("id", ctx.organizationId)
     .maybeSingle();
   if (error) return err(fromDbError(error));
-  if (!data) return err(appError("not_found", "Nie znaleziono organizacji."));
+  if (!data) return err(appError("not_found", msg("errors.not_found.organization")));
   return ok(data as Organization);
 }

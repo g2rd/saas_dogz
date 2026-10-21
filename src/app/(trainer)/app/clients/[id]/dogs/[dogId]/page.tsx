@@ -21,6 +21,7 @@ import {
   restoreDogAction,
   updateDogAction,
 } from "../../../actions";
+import { getFormats } from "@/shared/i18n/server";
 
 type Props = PageProps<"/app/clients/[id]/dogs/[dogId]">;
 
@@ -35,6 +36,7 @@ export default function DogPage({ params }: Props) {
 async function DogDetails({ params }: Pick<Props, "params">) {
   const { id: clientId, dogId } = await params;
   const ctx = await requireContext();
+  const formats = await getFormats();
 
   const [dogResult, clientResult] = await Promise.all([getDog(ctx, dogId), getClient(ctx, clientId)]);
   if (!dogResult.ok || !clientResult.ok || dogResult.value.clientId !== clientId) notFound();
@@ -102,7 +104,7 @@ async function DogDetails({ params }: Pick<Props, "params">) {
                 >
                   <div className="mb-1 flex flex-wrap items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
                     <span className="font-medium">{NOTE_KIND_LABELS[note.kind]}</span>
-                    <span>{note.createdAt.toLocaleDateString("pl-PL")}</span>
+                    <span>{formats.date(note.createdAt)}</span>
                     <span>{note.visibleToClient ? "widoczna dla klienta" : "prywatna"}</span>
                     {note.validUntil ? <span>ważna do {note.validUntil}</span> : null}
                   </div>

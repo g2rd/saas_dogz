@@ -3,6 +3,7 @@ import { fromDbError } from "@/shared/db/errors";
 import { appError } from "@/shared/errors";
 import { err, ok, type Result } from "@/shared/result";
 import type { ApprovalStatus, Dog, DogInput, DogNote, DogNoteInput, DogSex, NoteKind } from "../domain/dog";
+import { msg } from "@/shared/i18n/messages";
 
 const DOG_COLUMNS =
   "id, organization_id, client_id, name, breed, birth_date, sex, approval_status, created_by_client, archived_at, created_at";
@@ -60,8 +61,8 @@ function toNote(row: NoteRow): DogNote {
   };
 }
 
-const dogNotFound = () => appError("not_found", "Nie znaleziono psa.");
-const noteNotFound = () => appError("not_found", "Nie znaleziono notatki.");
+const dogNotFound = () => appError("not_found", msg("errors.not_found.dog"));
+const noteNotFound = () => appError("not_found", msg("errors.not_found.note"));
 
 export function dogsRepository(db: SupabaseClient) {
   return {

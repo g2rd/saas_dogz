@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { SubmitButton } from "@/shared/ui/form-fields";
+import { Msg } from "@/shared/ui/msg";
 
 export type ClaimSlotState = { message?: string; error?: string };
 type Action = (prev: ClaimSlotState, formData: FormData) => Promise<ClaimSlotState>;
@@ -44,7 +45,7 @@ export function ClaimSlotForm({
       ) : null}
       {state.error ? (
         <p role="alert" className="text-sm text-red-600">
-          {state.error}
+          <Msg text={state.error} />
         </p>
       ) : null}
     </form>
