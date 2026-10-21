@@ -284,6 +284,10 @@ Szczegółowa ścieżka do sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJN
 - [ ] E-mail do trenera 7 i 1 dzień przed końcem dostępu; wpisy wejść do panelu w audycie; stronicowanie przeglądu przy kilkuset szkołach; role wewnętrzne (wsparcie tylko do odczytu); skrypt `seed:demo` z przykładowymi szkołami.
 - [ ] Przed wdrożeniem: nadać konto właściciela (`admin:grant` z prawdziwym adresem), zamknąć rejestrację w `/admin/codes`, ustawić `NEXT_PUBLIC_SUPPORT_EMAIL`, sprawdzić MFA na hostowanym Supabase.
 
+### A3. Code review przez AI (GitHub Actions)
+- [x] Workflow `.github/workflows/claude-review.yml` (2026-10-21): na pull requestach pełny przegląd z komentarzami w liniach kodu (skill `code-review`), na pushach do `dev` i `main` przegląd nowych commitów jako komentarz pod ostatnim commitem (po polsku, wg priorytetów z `CLAUDE.md`). Sekret `ANTHROPIC_API_KEY` dodał właściciel; wymagana też aplikacja Claude GitHub App na repozytorium. Review niczego nie blokuje. **Nie zweryfikowano jeszcze na GitHubie** (workflow zadziała dopiero po wypchnięciu). Wymaga od nas pilnowania kosztu tokenów (`--max-turns`, `concurrency`, `timeout-minutes` są ustawione).
+- [ ] CI z testami (typecheck, lint, testy, `supabase test db`, build) jako osobny workflow i wymagany status przed scaleniem.
+
 ### B. Pomysły zgłoszone przez właściciela, jeszcze nie zrobione
 - **QR szkoły z akceptacją:** stały QR/link trenera; klient zakłada konto i wysyła prośbę o dołączenie, trener akceptuje (powstaje kartoteka i dostęp). Zaproponowane, czeka na decyzję.
 - Widok **historii zmian** (audyt jest zapisywany, brak ekranu) z „Cofnij” przy odwracalnych wpisach; kafelek „chętni na wolny termin” na pulpicie; preferencje dni i godzin na liście chętnych.
