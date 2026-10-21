@@ -49,29 +49,29 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: anthropics/claude-code-action@v1
+      # Akcja claude-code-action nie obsługuje zdarzenia push, więc uruchamiamy Claude Code bezpośrednio (tryb nieinteraktywny)
+      - name: Zainstaluj Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Review commitów z pusha
         env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GH_TOKEN: ${{ github.token }}
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          claude_args: |
-            --max-turns 20
-            --model claude-sonnet-5-5
-            --allowedTools "Read,Grep,Glob,Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(gh api:*)"
-          prompt: |
-            Zrób code review zmian z tego pusha do repozytorium ${{ github.repository }}.
-            Zakres: commity od ${{ github.event.before }} do ${{ github.sha }} (git log --oneline ${{ github.event.before }}..${{ github.sha }}, git diff ${{ github.event.before }}..${{ github.sha }}).
-            Jeśli `before` to same zera (nowa gałąź), obejrzyj tylko commit ${{ github.sha }} (git show).
-            Pomiń zmiany wyłącznie w dokumentacji (docs/, README.md), plikach lockfile i wygenerowanych plikach.
+          REVIEW_PROMPT: |
+              Zrób code review zmian z tego pusha do repozytorium ${{ github.repository }}.
+              Zakres: commity od ${{ github.event.before }} do ${{ github.sha }} (git log --oneline ${{ github.event.before }}..${{ github.sha }}, git diff ${{ github.event.before }}..${{ github.sha }}).
+              Jeśli `before` to same zera (nowa gałąź), obejrzyj tylko commit ${{ github.sha }} (git show).
+              Pomiń zmiany wyłącznie w dokumentacji (docs/, README.md), plikach lockfile i wygenerowanych plikach.
 
-            Zasady projektu są w CLAUDE.md i docs/ARCHITEKTURA-I-STAN-PRAC.md; sprawdzaj w szczególności:
-            1. Bezpieczeństwo i RLS: nowa tabela bez RLS i testu pgTAP, funkcja `security definer` bez `set search_path = ''` albo bez sprawdzenia roli i organizacji, dostęp do danych poza kontekstem użytkownika, wyciek danych między organizacjami (tenantami), klucz service_role poza dozwolonymi miejscami, sekrety w kodzie.
-            2. Poprawność: błędy logiczne, wyścigi i brak idempotencji (outbox, powiadomienia, płatności, pakiety), niezmienność rejestrów (package_ledger, audit_log), obsługa błędów (wyjątek zamiast Result/komunikatu), przypadki brzegowe (strefy czasowe, kwoty w groszach).
-            3. Architektura: granice modułów (import tylko przez index.ts), domena bez zależności od frameworka, brak logiki w trasach.
-            4. Testy: brak testów dla nowej logiki albo migracji.
-            Nie zgłaszaj preferencji stylistycznych ani rzeczy, które wyłapuje lint i typecheck.
+              Zasady projektu są w CLAUDE.md i docs/ARCHITEKTURA-I-STAN-PRAC.md; sprawdzaj w szczególności:
+              1. Bezpieczeństwo i RLS: nowa tabela bez RLS i testu pgTAP, funkcja `security definer` bez `set search_path = ''` albo bez sprawdzenia roli i organizacji, dostęp do danych poza kontekstem użytkownika, wyciek danych między organizacjami (tenantami), klucz service_role poza dozwolonymi miejscami, sekrety w kodzie.
+              2. Poprawność: błędy logiczne, wyścigi i brak idempotencji (outbox, powiadomienia, płatności, pakiety), niezmienność rejestrów (package_ledger, audit_log), obsługa błędów (wyjątek zamiast Result/komunikatu), przypadki brzegowe (strefy czasowe, kwoty w groszach).
+              3. Architektura: granice modułów (import tylko przez index.ts), domena bez zależności od frameworka, brak logiki w trasach.
+              4. Testy: brak testów dla nowej logiki albo migracji.
+              Nie zgłaszaj preferencji stylistycznych ani rzeczy, które wyłapuje lint i typecheck.
 
-            Wynik opublikuj JEDNYM komentarzem pod ostatnim commitem poleceniem:
-            gh api repos/${{ github.repository }}/commits/${{ github.sha }}/comments -f body="<treść>"
-            Treść po polsku, w Markdown: krótkie podsumowanie, potem lista uwag posortowana od najpoważniejszej (plik:linia, problem, konkretna poprawka). Przy każdej uwadze oznacz wagę: KRYTYCZNE / WAŻNE / DROBNE. Jeśli nic nie znalazłeś, napisz jedno zdanie, że nie znaleziono problemów.
-            Nie modyfikuj plików i nie pushuj niczego.
+              Wynik opublikuj JEDNYM komentarzem pod ostatnim commitem poleceniem:
+              gh api repos/${{ github.repository }}/commits/${{ github.sha }}/comments -f body="<treść>"
+              Treść po polsku, w Markdown: krótkie podsumowanie, potem lista uwag posortowana od najpoważniejszej (plik:linia, problem, konkretna poprawka). Przy każdej uwadze oznacz wagę: KRYTYCZNE / WAŻNE / DROBNE. Jeśli nic nie znalazłeś, napisz jedno zdanie, że nie znaleziono problemów.
+              Nie modyfikuj plików i nie pushuj niczego.
+        run: |
+          claude -p "$REVIEW_PROMPT"             --max-turns 20             --model claude-sonnet-5-5             --allowedTools "Read,Grep,Glob,Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(gh api:*)"
