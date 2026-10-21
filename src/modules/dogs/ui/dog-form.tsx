@@ -3,7 +3,8 @@
 import { useActionState } from "react";
 import type { FormState } from "@/shared/form";
 import { FormMessage, SelectField, SubmitButton, TextField } from "@/shared/ui/form-fields";
-import { DOG_SEXES, DOG_SEX_LABELS, type DogSex } from "../domain/dog";
+import { DOG_SEXES, type DogSex } from "../domain/dog";
+import { useTranslations } from "next-intl";
 
 export type DogFormValues = {
   name: string;
@@ -21,6 +22,7 @@ export function DogForm({
   values?: DogFormValues;
   submitLabel: string;
 }) {
+  const t = useTranslations();
   const [state, formAction] = useActionState(action, {});
   const errors = state.fieldErrors ?? {};
   // React 19 czyści formularz po akcji; po błędzie wracamy do tego, co wpisał użytkownik.
@@ -28,20 +30,20 @@ export function DogForm({
 
   return (
     <form action={formAction} className="flex max-w-md flex-col gap-4">
-      <TextField label="Imię psa" name="name" defaultValue={v("name", values?.name)} errors={errors.name} required />
-      <TextField label="Rasa" name="breed" defaultValue={v("breed", values?.breed)} errors={errors.breed} />
+      <TextField label={t("dogs.dogForm.imie_psa")} name="name" defaultValue={v("name", values?.name)} errors={errors.name} required />
+      <TextField label={t("dogs.dogForm.rasa")} name="breed" defaultValue={v("breed", values?.breed)} errors={errors.breed} />
       <TextField
-        label="Data urodzenia"
+        label={t("dogs.dogForm.data_urodzenia")}
         name="birthDate"
         type="date"
         defaultValue={v("birthDate", values?.birthDate)}
         errors={errors.birthDate}
       />
       <SelectField
-        label="Płeć"
+        label={t("dogs.dogForm.plec")}
         name="sex"
         defaultValue={v("sex", values?.sex ?? "unknown")}
-        options={DOG_SEXES.map((s) => ({ value: s, label: DOG_SEX_LABELS[s] }))}
+        options={DOG_SEXES.map((s) => ({ value: s, label: t(`labels.dogSex.${s}`) }))}
       />
       <FormMessage state={state} />
       <div>

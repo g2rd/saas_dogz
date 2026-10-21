@@ -5,7 +5,8 @@ import { ConfirmSubmit } from "@/shared/ui/confirm";
 import { useActionState } from "react";
 import type { FormState } from "@/shared/form";
 import { FormMessage, SelectField, TextField } from "@/shared/ui/form-fields";
-import { PAYMENT_METHODS, PAYMENT_METHOD_LABELS } from "../domain/payment";
+import { PAYMENT_METHODS } from "../domain/payment";
+import { useTranslations } from "next-intl";
 
 export type OpenChargeOption = { id: string; label: string };
 
@@ -16,6 +17,7 @@ export function RecordPaymentForm({
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   openCharges: OpenChargeOption[];
 }) {
+  const t = useTranslations();
   const [state, formAction] = useActionState(action, {});
   const errors = state.fieldErrors ?? {};
   const v = (name: string) => state.values?.[name] ?? "";
@@ -23,23 +25,23 @@ export function RecordPaymentForm({
   return (
     <form action={formAction} className="flex max-w-md flex-col gap-4">
       <TextField
-        label="Kwota (zł)"
+        label={t("payments.recordPaymentForm.kwota_zl")}
         name="amount"
         inputMode="decimal"
         defaultValue={v("amount")}
         errors={errors.amount}
-        hint="Np. 300 lub 300,50"
+        hint={t("payments.recordPaymentForm.np_300_lub_300_50")}
         required
       />
       <SelectField
-        label="Sposób płatności"
+        label={t("payments.recordPaymentForm.sposob_platnosci")}
         name="method"
         defaultValue={v("method") || "cash"}
         errors={errors.method}
-        options={PAYMENT_METHODS.map((m) => ({ value: m, label: PAYMENT_METHOD_LABELS[m] }))}
+        options={PAYMENT_METHODS.map((m) => ({ value: m, label: t(`labels.paymentMethod.${m}`) }))}
       />
       <SelectField
-        label="Na którą należność"
+        label={t("payments.recordPaymentForm.na_ktora_naleznosc")}
         name="chargeId"
         defaultValue={v("chargeId")}
         errors={errors.chargeId}
@@ -49,24 +51,24 @@ export function RecordPaymentForm({
         ]}
       />
       <TextField
-        label="Data wpłaty"
+        label={t("payments.recordPaymentForm.data_wplaty")}
         name="paidAt"
         type="date"
         defaultValue={v("paidAt")}
         errors={errors.paidAt}
-        hint="Puste = dziś"
+        hint={t("common.puste_dzis")}
       />
-      <TextField label="Opis (opcjonalnie)" name="reference" defaultValue={v("reference")} errors={errors.reference} />
+      <TextField label={t("payments.recordPaymentForm.opis_opcjonalnie")} name="reference" defaultValue={v("reference")} errors={errors.reference} />
       <FormMessage state={state} />
       <div>
         <ConfirmSubmit
           tone="primary"
-          title="Zaksięgować wpłatę?"
-          description="Wpłata zostanie zapisana i rozliczona z należnościami klienta. Klient dostanie powiadomienie po 30 sekundach. Pomyłkę poprawisz stornem wpłaty w historii wpłat."
-          confirmLabel="Zaksięguj"
-          pendingLabel="Zapisywanie..."
+          title={t("payments.recordPaymentForm.zaksiegowac_wplate")}
+          description={t("payments.recordPaymentForm.wplata_zostanie_zapisana_i_rozliczona_z")}
+          confirmLabel={t("payments.recordPaymentForm.zaksieguj")}
+          pendingLabel={t("common.zapisywanie")}
         >
-          Zaksięguj wpłatę
+          {t("common.zaksieguj_wplate")}
         </ConfirmSubmit>
       </div>
     </form>

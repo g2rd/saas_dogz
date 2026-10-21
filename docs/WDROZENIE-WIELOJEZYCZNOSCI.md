@@ -122,8 +122,16 @@ Każdy etap to osobny PR (ocena: `claude-review.yml`, zatwierdza właściciel). 
 - [x] Katalogi `errors`, `validation` i `common` po polsku (źródło) i angielsku (kompletne).
 - [ ] Komunikaty tworzone w warstwie aplikacji (`src/app`, np. teksty w akcjach zaproszeń: `MESSAGES`), etykiety (`*_LABELS`), powiadomienia i e-maile: zostają po polsku do etapów 3-4 (to zwykły tekst, więc przechodzi przez granicę UI bez zmian).
 
-### Etap 3. Wyciągnięcie tekstów ⬜ (5-8 dni)
-Moduł po module (kolejność: auth → core → clients → dogs → packages → payments → scheduling → portal → notifications → admin). Najpierw tylko katalog `pl` (aplikacja wygląda tak samo, testy to potwierdzają), potem `en`. Pełne zdania w kluczach; odmiana ICU zamiast `sessionsWord`. Reguła lint blokująca polskie literały w zmigrowanych katalogach. Do tego: ekran ustawień szkoły, `PAYMENT_METHOD_LABELS`, etykiety statusów.
+### Etap 3. Wyciągnięcie tekstów ✅ część UI (zrobione 2026-10-21, PR `feat/i18n-ui-texts`)
+Zrobione półautomatem (codemod na drzewie składni TypeScript, potem ręczne dopracowanie zdań z formatowaniem): **680 kluczy w 17 przestrzeniach** (`common`, `errors`, `validation`, `feedback`, `labels`, `shared`, `auth`, `marketing`, `trainer`, `portal`, `clients`, `dogs`, `packages`, `payments`, `scheduling`, `notifications`, `invitations`), tylko katalog `pl` (aplikacja wygląda tak samo; sprawdzone w przeglądarce w panelu trenera i klienta).
+- [x] Teksty komponentów (JSX, atrybuty `label`/`title`/`description`/`hint`/`confirmLabel`/`pendingLabel`, gałęzie warunków) na klucze `t("przestrzeń.plik.klucz")`; wspólne napisy (powtarzające się w co najmniej dwóch plikach) w `common`.
+- [x] Zdania z formatowaniem (pogrubienie, link) jako `t.rich`; odmiana (zajęcia) i warianty (`select`) w ICU; poprawiono przy okazji „zaprasza Cię do panelu klienta,.” (brak imienia).
+- [x] Etykiety z domeny (`*_LABELS`: statusy, role, metody płatności, powody wpisów) w przestrzeni `labels`; użycia w UI zamienione na `t(`labels.<mapa>.${wartość}`)` (mapy w `domain/` zostają dla powiadomień i panelu właściciela).
+- [x] Komunikaty sukcesu akcji serwerowych (`feedback.*`) i błędy zaproszeń (`errors.invite.*`) jako klucze tłumaczone przez `Msg`; wiek psa (`dogs.age.*`), nazwy osób w zespole (UI decyduje o „Ty” i „Użytkownik bez imienia”).
+- [x] Wywołania `formatMoney`/`formatIsoDate`/`formatDateHeading(Title)` w komponentach na `formats.*` (27 miejsc; komponenty serwerowe, które były synchroniczne, stały się asynchroniczne).
+- [x] Test: każdy klucz użyty w kodzie (`msg`, `t`, `tr`, `t.rich`) istnieje w katalogu; każdy plik katalogu jest w `NAMESPACES`; język niekompletny nie ma kluczy spoza źródła.
+- [ ] Zostaje na kolejne etapy: powiadomienia, e-maile i push (`plan.ts`, `invitations/domain/message.ts`: etap 4); metadane i manifest (`layout.tsx`, `suspended`, `manifest.ts`) oraz strona offline (etap 4); panel `/admin` zostaje po polsku (narzędzie właściciela); teksty zależne od kraju: wzmianka o BLIK i przelewie na stronie płatności klienta, podpowiedź o numerze polskim (`+48`) przy telefonie (etap 5, razem z decyzją „tylko gotówka”); ekran ustawień szkoły (waluta, strefa, język domyślny) i blokada zmiany waluty przy istniejących rekordach z kwotami.
+- Uwagi: nazwy kluczy powstały automatycznie ze skrótu polskiego tekstu (np. `trainer.clientsBillingSection.historia_i_korekta`), więc przy zmianie sformułowania klucz zostaje; przy tłumaczeniu liczy się wartość, nie nazwa. Do klienta trafia cały katalog (ok. 46 KB, kilkanaście KB po kompresji); podział na paczki per grupa tras to optymalizacja na później. Pozostają krótkie polskie wstawki w kodzie, które nie są tekstem interfejsu (np. komunikaty logów).
 
 ### Etap 4. Powiadomienia i e-mail ⬜ (3-4 dni)
 Migracja `message_key`/`params`, `plan.ts` na klucze, render w języku odbiorcy (dzwonek, e-mail, push), szablony e-mail w katalogach, strona offline w wielu językach, kody powodu w rejestrach SQL. Testy integracyjne: odbiorca `en` dostaje angielski push i e-mail, odbiorca `pl` polski.
@@ -189,4 +197,5 @@ Przy tłumaczeniu trzymaj spójność. Jedno pojęcie, jedno tłumaczenie.
 Po etapie 6 zapisz tu, ile to faktycznie zajęło i co trzeba było poprawić w kodzie.
 
 ## 11. Dziennik
+- 2026-10-21 (etap 3, część UI): 680 kluczy `pl`, codemod + ręczne dopracowanie, testy 207 jednostkowych, 136 integracyjnych, build, przeklikanie panelu trenera i klienta (bez przecieku kluczy). Szczegóły w sekcji etapu 3.
 - 2026-10-21: plan, [ADR 0013](adr/0013-i18n.md), etapy 0-2 (PR `feat/i18n-foundation`). Migracja 0012 (język profilu z rejestracji, waluta szkoły na nowych rekordach). Testy: 29 jednostkowych formatów/języka/komunikatów + 5 katalogów, 9 pgTAP, 3 integracyjne (język w profilu, ustawienia szkoły z urządzenia, waluta rekordów). Etapy 3-6 zaplanowane. Angielski niewidoczny dla użytkowników do czasu etapu 5 (`ENABLED_LOCALES=pl`); lokalnie `ENABLED_LOCALES=pl,en` w `.env.local` pokazuje przełącznik.

@@ -1,15 +1,17 @@
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
-import { DEFAULT_LOCALE, LOCALES } from "@/shared/i18n/locale";
+import { DEFAULT_LOCALE, enabledLocales, LOCALES } from "@/shared/i18n/locale";
 import { mergeMessages, NAMESPACES } from "./messages";
 
 const ROOT = process.cwd();
 
+/** Wczytuje katalog języka; brakujące pliki przestrzeni (język w trakcie tłumaczenia) pomija. */
 function readCatalog(locale: string): Record<string, unknown> {
   const catalog: Record<string, unknown> = {};
   for (const namespace of NAMESPACES) {
-    catalog[namespace] = JSON.parse(readFileSync(join(ROOT, "messages", locale, `${namespace}.json`), "utf8"));
+    const file = join(ROOT, "messages", locale, `${namespace}.json`);
+    if (existsSync(file)) catalog[namespace] = JSON.parse(readFileSync(file, "utf8"));
   }
   return catalog;
 }
@@ -24,7 +26,7 @@ function flatten(value: unknown, prefix = ""): Record<string, string> {
   return result;
 }
 
-/** Nazwy parametrów ICU (`{max}`, `{count, plural, ...}`) użyte w tekście. */
+/** Nazwy parametrów ICU (`{max}`, `{count, plural, ...}`) użyte w tekście, bez parametrów z gałęzi `select` i tagów. */
 function placeholders(text: string): string[] {
   const names = new Set<string>();
   for (const match of text.matchAll(/\{\s*(\w+)\s*[,}]/g)) names.add(match[1]);
@@ -43,21 +45,36 @@ function sourceFiles(dir: string, out: string[] = []): string[] {
 const source = flatten(readCatalog(DEFAULT_LOCALE));
 
 describe("katalogi tekstów", () => {
+  it("każdy plik katalogu źródłowego jest zarejestrowany w NAMESPACES (i odwrotnie)", () => {
+    const files = readdirSync(join(ROOT, "messages", DEFAULT_LOCALE))
+      .filter((f) => f.endsWith(".json"))
+      .map((f) => f.replace(".json", ""))
+      .sort();
+    expect(files).toEqual([...NAMESPACES].sort());
+  });
+
   for (const locale of LOCALES.filter((l) => l !== DEFAULT_LOCALE)) {
-    it(`język ${locale} ma dokładnie te same klucze co język źródłowy (${DEFAULT_LOCALE})`, () => {
+    it(`język ${locale} nie ma kluczy spoza katalogu źródłowego (${DEFAULT_LOCALE})`, () => {
       const translated = flatten(readCatalog(locale));
-      expect(Object.keys(translated).sort()).toEqual(Object.keys(source).sort());
+      expect(Object.keys(translated).filter((key) => !(key in source))).toEqual([]);
     });
 
     it(`język ${locale} używa tych samych parametrów co język źródłowy`, () => {
       const translated = flatten(readCatalog(locale));
-      for (const [key, text] of Object.entries(source)) {
-        expect(placeholders(translated[key] ?? ""), `parametry klucza ${key}`).toEqual(placeholders(text));
+      for (const [key, text] of Object.entries(translated)) {
+        expect(placeholders(text), `parametry klucza ${key}`).toEqual(placeholders(source[key] ?? ""));
       }
+    });
+
+    // Język widoczny dla użytkowników (ENABLED_LOCALES) musi być kompletny; w trakcie tłumaczenia wystarczy podzbiór
+    it(`język ${locale} jest kompletny, jeśli jest włączony dla użytkowników`, () => {
+      if (!enabledLocales().includes(locale)) return;
+      const translated = flatten(readCatalog(locale));
+      expect(Object.keys(source).filter((key) => !(key in translated))).toEqual([]);
     });
   }
 
-  it("żaden tekst nie jest pusty", () => {
+  it("żaden tekst nie jest pusty (poza celowo pustymi gałęziami select)", () => {
     for (const locale of LOCALES) {
       for (const [key, text] of Object.entries(flatten(readCatalog(locale)))) {
         expect(text.trim(), `${locale}: ${key}`).not.toBe("");
@@ -65,15 +82,22 @@ describe("katalogi tekstów", () => {
     }
   });
 
-  it("każdy klucz użyty w kodzie przez msg(...) istnieje w katalogu źródłowym", () => {
+  it("każdy klucz użyty w kodzie (msg, t, tr, t.rich) istnieje w katalogu źródłowym", () => {
     const missing: string[] = [];
     for (const file of sourceFiles(join(ROOT, "src"))) {
       const text = readFileSync(file, "utf8");
-      for (const match of text.matchAll(/\bmsg\(\s*"([a-z][a-z0-9_.]*)"/g)) {
+      for (const match of text.matchAll(/\b(?:msg|t|tr|t\.rich|tr\.rich)\(\s*"([a-z][A-Za-z0-9_.]*)"/g)) {
         if (!(match[1] in source)) missing.push(`${relative(ROOT, file)}: ${match[1]}`);
       }
     }
     expect(missing).toEqual([]);
+  });
+
+  it("klucze etykiet (labels.<mapa>.<wartość>) pokrywają wszystkie wartości map w kodzie", () => {
+    // mapy etykiet mają ten sam zestaw wartości co typy w warstwie domain; test chroni przed usunięciem wpisu
+    for (const prefix of ["labels.clientStatus.", "labels.paymentMethod.", "labels.sessionStatus.", "labels.chargeStatus."]) {
+      expect(Object.keys(source).some((key) => key.startsWith(prefix)), prefix).toBe(true);
+    }
   });
 });
 

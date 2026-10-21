@@ -1,0 +1,187 @@
+{
+  "accessBanner": {
+    "read_only": "Konto jest w trybie tylko do odczytu: możesz przeglądać dane, ale nie zapisywać zmian.{contact, select, none {} other { Napisz: {contact}.}}",
+    "ending": "{kind, select, trial {Okres testów} other {Dostęp}} kończy się {date}{lastDay, select, yes { (to ostatni dzień)} other { (za {days} dni)}}. Potem konto przejdzie w tryb tylko do odczytu.{contact, select, none {} other { Napisz: {contact}.}}"
+  },
+  "clientsNewPage": {
+    "nowy_klient": "Nowy klient"
+  },
+  "clientsPage": {
+    "szukaj_po_imieniu_nazwisku_e_mailu_lub": "Szukaj po imieniu, nazwisku, e-mailu lub telefonie",
+    "pokaz_archiwalnych": "Pokaż archiwalnych",
+    "szukaj": "Szukaj",
+    "brak_aktywnych_klientow_dodaj_nowego_albo": "Brak aktywnych klientów. Dodaj nowego albo zaznacz „Pokaż archiwalnych”.",
+    "brak_klientow_dodaj_pierwszego": "Brak klientów. Dodaj pierwszego.",
+    "brak_klientow_pasujacych_do_wyszukiwania": "Brak klientów pasujących do wyszukiwania.",
+    "zarchiwizowac_klienta": "Zarchiwizować klienta?",
+    "klient_zniknie_z_list_i_nie_da_sie_mu": "Klient zniknie z list i nie da się mu planować zajęć ani sprzedawać pakietów. Dane i historia zostają, a z archiwum możesz go przywrócić w każdej chwili.",
+    "psy": "Psy",
+    "ten_klient_nie_ma_jeszcze_dodanych_psow": "Ten klient nie ma jeszcze dodanych psów.",
+    "pies_dodany_przez_klienta_zatwierdz_zeby": "Pies dodany przez klienta. Zatwierdź, żeby użyć go w zajęciach i pakietach.",
+    "zatwierdz": "Zatwierdź",
+    "zatwierdzanie": "Zatwierdzanie...",
+    "odrzuc": "Odrzuć",
+    "odrzucic_psa": "Odrzucić psa?",
+    "pies_dodany_przez_klienta_zostanie": "Pies dodany przez klienta zostanie odrzucony i nie będzie można go użyć w zajęciach ani pakietach. Klient może dodać go ponownie.",
+    "odrzuc_psa": "Odrzuć psa",
+    "odrzucanie": "Odrzucanie...",
+    "ladowanie_zajec": "Ładowanie zajęć...",
+    "ladowanie_pakietow_i_platnosci": "Ładowanie pakietów i płatności...",
+    "ladowanie_panelu_klienta": "Ładowanie panelu klienta...",
+    "edytuj_dane_klienta": "Edytuj dane klienta"
+  },
+  "clientsAccessSection": {
+    "name_sessionstotal_zajec_formatmoney": "{name}: {sessionsTotal} zajęć, {formatMoney}",
+    "konto_z_dostepem_do_panelu": "Konto z dostępem do panelu",
+    "glowne": "główne",
+    "odbierz_dostep": "Odbierz dostęp",
+    "odebrac_dostep_do_panelu": "Odebrać dostęp do panelu?",
+    "ta_osoba_przestanie_widziec_saldo_zajec": "Ta osoba przestanie widzieć saldo zajęć, płatności i terminy klienta. Aby wrócić, potrzebuje nowego zaproszenia.",
+    "odbieranie": "Odbieranie...",
+    "klient_nie_ma_jeszcze_dostepu_do_panelu_w": "Klient nie ma jeszcze dostępu do panelu, w którym zobaczy saldo zajęć, płatności i terminy.",
+    "zaproszenie_czeka": "Zaproszenie czeka",
+    "zaproszenie_wygaslo": "Zaproszenie wygasło",
+    "wyslane_date_wazne_do_date2_value_value2": "wysłane {date}, ważne do {date2}{value}{value2}. Kod i link są widoczne tylko tuż po utworzeniu.",
+    "zapros_klienta_do_panelu": "Zaproś klienta do panelu",
+    "nowe_zaproszenie_uniewaznia_poprzednie": "Nowe zaproszenie (unieważnia poprzednie)",
+    "rodzina": "rodzina"
+  },
+  "clientsBillingSection": {
+    "historia_i_korekta": "Historia i korekta",
+    "anulowac_naleznosc": "Anulować należność?",
+    "naleznosc_zniknie_z_salda_klienta_mozna": "Należność zniknie z salda klienta. Można ją anulować tylko wtedy, gdy nic na nią nie wpłacono.",
+    "anuluj_naleznosc": "Anuluj należność",
+    "ten_klient_nie_ma_jeszcze_pakietu_zajec": "Ten klient nie ma jeszcze pakietu zajęć.",
+    "do_zaplaty": "Do zapłaty:",
+    "anulowana": "Anulowana",
+    "anuluj_wplate": "Anuluj wpłatę",
+    "anulowac_wplate": "Anulować wpłatę?",
+    "wplata_fmt_zostanie_anulowana_storno": "Wpłata {fmt} zostanie anulowana (storno): zniknie z salda, a należności, które pokrywała, znowu będą do zapłaty. Wpłata zostaje w historii jako anulowana. Jeśli klient jeszcze nie dostał powiadomienia o wpłacie, nie dostanie go; w przeciwnym razie dostanie informację o anulowaniu.",
+    "package_balance": "Zostało <strong>{balance}</strong> z {total, plural, one {# zajęcia} few {# zajęć} many {# zajęć} other {# zajęć}} (wykorzystano {used})",
+    "open_charge_label": "{description}: zostało {remaining} (termin {date})",
+    "credit": "Nadpłata: <strong>{amount}</strong>"
+  },
+  "clientsDogsPage": {
+    "zarchiwizowac_psa": "Zarchiwizować psa?",
+    "pies_zniknie_z_list_i_nie_da_sie_go": "Pies zniknie z list i nie da się go wybrać w zajęciach ani pakietach. Dane zostają, a z archiwum możesz go przywrócić.",
+    "notatki": "Notatki",
+    "brak_notatek": "Brak notatek.",
+    "wazna_do_validuntil": "ważna do {validUntil}",
+    "usun": "Usuń",
+    "usunac_notatke": "Usunąć notatkę?",
+    "notatka_zostanie_usunieta_na_stale_tej": "Notatka zostanie usunięta na stałe. Tej operacji nie można cofnąć.",
+    "usun_notatke": "Usuń notatkę",
+    "usuwanie": "Usuwanie...",
+    "edytuj_dane_psa": "Edytuj dane psa"
+  },
+  "clientsPackagesPage": {
+    "bez_terminu_waznosci": "bez terminu ważności",
+    "wazny_do_formatisodate": "ważny do {formatIsoDate}",
+    "historia_zajec_w_pakiecie": "Historia zajęć w pakiecie",
+    "anuluj_pakiet": "Anuluj pakiet",
+    "anulowac_pakiet": "Anulować pakiet?",
+    "pakiet_zostanie_anulowany_razem_z_jego": "Pakiet zostanie anulowany razem z jego nieopłaconą należnością. Można anulować tylko pakiet, z którego nie użyto jeszcze żadnych zajęć i za który klient nie zapłacił (jeśli zapłacił, najpierw anuluj wpłatę).",
+    "dostepne_dopoki_pakiet_nie_zostal_uzyty": "Dostępne, dopóki pakiet nie został użyty.",
+    "korekta_salda": "Korekta salda",
+    "summary": "Zostało {balance} z {total, plural, one {# zajęcia} few {# zajęć} many {# zajęć} other {# zajęć}} · {price} · {validity}"
+  },
+  "clientsSessionsSection": {
+    "ten_klient_nie_ma_jeszcze_zajec": "Ten klient nie ma jeszcze zajęć."
+  },
+  "morePage": {
+    "ustawienia_powiadomien_i_push": "Ustawienia powiadomień i push",
+    "panel_wlasciciela_platformy": "Panel właściciela platformy"
+  },
+  "notificationsSettingsPage": {
+    "urzadzenia_z_wlaczonym_push_pushdevices": "Urządzenia z włączonym push: {pushDevices}."
+  },
+  "onboardingForm": {
+    "nazwa_twojej_szkoly_lub_dzialalnosci": "Nazwa Twojej szkoły lub działalności",
+    "utworz_organizacje": "Utwórz organizację"
+  },
+  "packagesNewPage": {
+    "nowy_szablon_pakietu": "Nowy szablon pakietu",
+    "dodaj_szablon": "Dodaj szablon"
+  },
+  "packagesPage": {
+    "nowy_szablon": "Nowy szablon",
+    "szablony_pakietow_z_ktorych_sprzedajesz": "Szablony pakietów, z których sprzedajesz zajęcia klientom. Cenę i ważność możesz zmienić przy sprzedaży.",
+    "sessionscount_zajec_formatmoney_value": "{sessionsCount} zajęć · {formatMoney} · {value}",
+    "pokaz_archiwalne": "Pokaż archiwalne",
+    "ukryj_archiwalne": "Ukryj archiwalne",
+    "zarchiwizowac_szablon_pakietu": "Zarchiwizować szablon pakietu?",
+    "szablon_zniknie_z_listy_przy_sprzedazy": "Szablon zniknie z listy przy sprzedaży. Pakiety już sprzedane zostają bez zmian, a szablon możesz przywrócić.",
+    "zmiany_dotycza_tylko_nowych_sprzedazy": "Zmiany dotyczą tylko nowych sprzedaży. Pakiety już sprzedane zachowują nazwę, liczbę zajęć i cenę z chwili zakupu.",
+    "empty": "Nie masz jeszcze szablonów pakietów.{canWrite, select, yes { Dodaj pierwszy, np. „Pakiet 10 zajęć”.} other {}}"
+  },
+  "page": {
+    "zacznij_od_utworzenia_organizacji_potem": "Zacznij od utworzenia organizacji. Potem dodasz klientów i ich psy.",
+    "klienci_i_psy": "Klienci i psy",
+    "nowe_prosby_klientow_requestcount": "Nowe prośby klientów: {requestCount}",
+    "1_nowa_prosba_klienta": "1 nowa prośba klienta",
+    "psy_do_zatwierdzenia": "Psy do zatwierdzenia",
+    "czeka_na_zatwierdzenie": "Czeka na zatwierdzenie",
+    "dzis": "Dziś",
+    "konczace_sie_pakiety": "Kończące się pakiety",
+    "zaden_pakiet_sie_nie_konczy": "Żaden pakiet się nie kończy.",
+    "zostalo_balance": "zostało {balance}",
+    "platnosci_po_terminie": "Płatności po terminie",
+    "brak_zaleglosci": "Brak zaległości."
+  },
+  "requestsPage": {
+    "prosby_klientow": "Prośby klientów",
+    "odpowiedzi_klientow_na_powiadomienia": "Odpowiedzi klientów na powiadomienia: odnowienie pakietu, deklaracja płatności, koniec współpracy.",
+    "oznacz_jako_obejrzana": "Oznacz jako obejrzaną",
+    "nowe": "Nowe",
+    "brak_nowych_prosb": "Brak nowych próśb.",
+    "obejrzane": "Obejrzane"
+  },
+  "sessionsNewPage": {
+    "najpierw_dodaj_rodzaj_zajec_w_sekcji": "Najpierw dodaj rodzaj zajęć w sekcji"
+  },
+  "sessionsPage": {
+    "zanim_zaplanujesz_zajecia_dodaj_rodzaj": "Zanim zaplanujesz zajęcia, dodaj rodzaj zajęć (np. „Trening indywidualny”) w sekcji",
+    "odwolane_terminy": "Odwołane terminy",
+    "zwolnione_miejsce_mozesz_oglosic_klientom": "Zwolnione miejsce możesz ogłosić klientom z listy chętnych.",
+    "najblizsze": "Najbliższe",
+    "brak_zaplanowanych_zajec_w_najblizszych": "Brak zaplanowanych zajęć w najbliższych dniach.",
+    "today_heading": "Dziś <muted>· {date}</muted>"
+  },
+  "sessionsSessionCard": {
+    "podsumowanie_clientsummary": "Podsumowanie: {clientSummary}",
+    "wolny_termin_ogloszony_zgloszenia": "Wolny termin ogłoszony. Zgłoszenia zobaczysz w sekcji „Wolne terminy”."
+  },
+  "sessionsTypesPage": {
+    "rodzaj_zajec_okresla_czas_trwania_i_cene": "Rodzaj zajęć określa czas trwania i cenę pojedynczych zajęć (naliczaną, gdy rozliczasz je bez pakietu).",
+    "nie_masz_jeszcze_rodzajow_zajec": "Nie masz jeszcze rodzajów zajęć.",
+    "durationminutes_min_formatmoney": "{durationMinutes} min · {formatMoney}",
+    "dodaj_rodzaj_zajec": "Dodaj rodzaj zajęć",
+    "dodaj_rodzaj": "Dodaj rodzaj",
+    "rodzaje_zajec": "← Rodzaje zajęć",
+    "zarchiwizowac_rodzaj_zajec": "Zarchiwizować rodzaj zajęć?",
+    "rodzaj_zniknie_z_listy_przy_planowaniu": "Rodzaj zniknie z listy przy planowaniu zajęć. Istniejące zajęcia zostają bez zmian, a rodzaj możesz przywrócić.",
+    "zmiana_czasu_trwania_dotyczy_nowo": "Zmiana czasu trwania dotyczy nowo planowanych zajęć; istniejące zachowują swoją godzinę zakończenia."
+  },
+  "teamPage": {
+    "nie_masz_uprawnien_do_przegladania_zespolu": "Nie masz uprawnień do przeglądania zespołu.",
+    "osoby_w_organizacji": "Osoby w organizacji",
+    "ty": "(Ty)",
+    "zawieszony": "Zawieszony",
+    "oczekujace_zaproszenia": "Oczekujące zaproszenia",
+    "label_wazne_do_date": "· {label} · ważne do {date}",
+    "wygaslo": "Wygasło",
+    "odwolaj": "Odwołaj",
+    "odwolac_zaproszenie": "Odwołać zaproszenie?",
+    "link_wyslany_do_email_przestanie_dzialac": "Link wysłany do {email} przestanie działać. Możesz zaprosić tę osobę ponownie.",
+    "odwolaj_zaproszenie": "Odwołaj zaproszenie",
+    "you_self": "Ty",
+    "unnamed": "Użytkownik bez imienia"
+  },
+  "nav": {
+    "today": "Dziś",
+    "clients": "Klienci",
+    "sessions": "Zajęcia",
+    "requests": "Prośby",
+    "more": "Więcej"
+  }
+}

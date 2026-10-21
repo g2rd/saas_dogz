@@ -1,0 +1,15 @@
+{
+  "session_completed_with_package": "Zajęcia odbyte. Zużyto 1 zajęcie z pakietu „{packageName}”. Zostało {balanceAfter}.",
+  "session_completed_charged": "Zajęcia odbyte. Naliczono należność za pojedyncze zajęcia.",
+  "session_completed_free": "Zajęcia odbyte (bez opłaty).",
+  "session_canceled_consumed": "Zajęcia odwołane. Zajęcie z pakietu przepadło (późne odwołanie). Zostało {balanceAfter}.",
+  "session_canceled_free": "Zajęcia odwołane bez naliczenia.",
+  "session_completion_undone": "Cofnięto zakończenie zajęć. Zajęcie wróciło do pakietu.",
+  "session_restored": "Zajęcia przywrócone.",
+  "slot_announced": "Ogłoszono. Powiadomienie dostanie do {count, plural, one {# osoby} few {# osób} many {# osób} other {# osób}} z listy chętnych.",
+  "slot_announced_empty": "Ogłoszono, ale lista chętnych jest pusta: nikt nie dostanie powiadomienia, dopóki klienci się nie zapiszą.",
+  "slot_claim_accepted": "Zajęcia zarezerwowane.",
+  "slot_offer_closed": "Ogłoszenie zamknięte.",
+  "slot_claimed": "Zgłoszono! Czekasz na decyzję trenera. Dostaniesz powiadomienie.",
+  "invitation_email_sent": "Wysłano e-mail na adres {recipient}."
+}

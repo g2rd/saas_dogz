@@ -1,15 +1,38 @@
 import { DEFAULT_LOCALE, type Locale } from "@/shared/i18n/locale";
 
 /** Przestrzenie nazw katalogów: `messages/<język>/<przestrzeń>.json`. Rosną wraz z migracją modułów (etap 3). */
-export const NAMESPACES = ["common", "errors", "validation"] as const;
+export const NAMESPACES = [
+  "common",
+  "errors",
+  "validation",
+  "shared",
+  "auth",
+  "marketing",
+  "trainer",
+  "portal",
+  "clients",
+  "dogs",
+  "packages",
+  "payments",
+  "scheduling",
+  "notifications",
+  "invitations",
+  "labels",
+  "feedback",
+] as const;
 
 export type Messages = Record<string, unknown>;
 
 async function loadCatalog(locale: Locale): Promise<Messages> {
   const entries = await Promise.all(
     NAMESPACES.map(async (namespace) => {
-      const loaded = (await import(`../../messages/${locale}/${namespace}.json`)) as { default: unknown };
-      return [namespace, loaded.default] as const;
+      try {
+        const loaded = (await import(`../../messages/${locale}/${namespace}.json`)) as { default: unknown };
+        return [namespace, loaded.default] as const;
+      } catch {
+        // Język w trakcie tłumaczenia może nie mieć jeszcze pliku tej przestrzeni: wtedy działa polski (łańcuch zapasowy)
+        return [namespace, {}] as const;
+      }
     }),
   );
   return Object.fromEntries(entries);

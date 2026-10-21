@@ -14,8 +14,8 @@ const newPassword = z.preprocess(
   (v) => (v == null ? "" : v),
   z
     .string()
-    .min(PASSWORD_MIN_LENGTH, `Hasło musi mieć co najmniej ${PASSWORD_MIN_LENGTH} znaków`)
-    .max(PASSWORD_MAX_LENGTH, `Hasło może mieć najwyżej ${PASSWORD_MAX_LENGTH} znaków`),
+    .min(PASSWORD_MIN_LENGTH, msg("validation.password_min", { min: PASSWORD_MIN_LENGTH }))
+    .max(PASSWORD_MAX_LENGTH, msg("validation.password_max", { max: PASSWORD_MAX_LENGTH })),
 );
 
 export const loginSchema = z.object({

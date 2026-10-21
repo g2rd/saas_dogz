@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import type { FormState } from "@/shared/form";
 import { FormMessage, SubmitButton, TextField } from "@/shared/ui/form-fields";
+import { useTranslations } from "next-intl";
 
 export function LoginForm({
   action,
@@ -11,6 +12,7 @@ export function LoginForm({
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   next: string;
 }) {
+  const t = useTranslations();
   const [state, formAction] = useActionState(action, {});
   const errors = state.fieldErrors ?? {};
 
@@ -18,7 +20,7 @@ export function LoginForm({
     <form action={formAction} className="flex flex-col gap-4">
       <input type="hidden" name="next" value={next} />
       <TextField
-        label="E-mail"
+        label={t("common.e_mail")}
         name="email"
         type="email"
         autoComplete="email"
@@ -27,7 +29,7 @@ export function LoginForm({
         required
       />
       <TextField
-        label="Hasło"
+        label={t("common.haslo")}
         name="password"
         type="password"
         autoComplete="current-password"
@@ -36,7 +38,7 @@ export function LoginForm({
       />
       <FormMessage state={state} />
       <div>
-        <SubmitButton pendingLabel="Logowanie...">Zaloguj się</SubmitButton>
+        <SubmitButton pendingLabel={t("auth.loginLoginForm.logowanie")}>{t("common.zaloguj_sie")}</SubmitButton>
       </div>
     </form>
   );

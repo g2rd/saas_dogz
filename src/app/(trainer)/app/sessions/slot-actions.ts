@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { acceptSlotClaim, closeSlotOffer, createSlotOffer, type AnnounceSlotState, type SlotActionState } from "@/modules/scheduling";
 import { requireContext } from "../../_lib/context";
+import { msg } from "@/shared/i18n/messages";
 
 const refresh = () => revalidatePath("/app", "layout");
 
@@ -19,8 +20,8 @@ export async function announceSlotAction(
   return {
     message:
       result.value.waitlisted > 0
-        ? `Ogłoszono. Powiadomienie dostanie do ${result.value.waitlisted} osób z listy chętnych.`
-        : "Ogłoszono, ale lista chętnych jest pusta: nikt nie dostanie powiadomienia, dopóki klienci się nie zapiszą.",
+        ? msg("feedback.slot_announced", { count: result.value.waitlisted })
+        : msg("feedback.slot_announced_empty"),
   };
 }
 
@@ -30,7 +31,7 @@ export async function acceptSlotClaimAction(claimId: string): Promise<SlotAction
   const result = await acceptSlotClaim(ctx, claimId);
   if (!result.ok) return { error: result.error.message };
   refresh();
-  return { message: "Zajęcia zarezerwowane." };
+  return { message: msg("feedback.slot_claim_accepted") };
 }
 
 export async function closeSlotOfferAction(offerId: string): Promise<SlotActionState> {
@@ -38,5 +39,5 @@ export async function closeSlotOfferAction(offerId: string): Promise<SlotActionS
   const result = await closeSlotOffer(ctx, offerId);
   if (!result.ok) return { error: result.error.message };
   refresh();
-  return { message: "Ogłoszenie zamknięte." };
+  return { message: msg("feedback.slot_offer_closed") };
 }

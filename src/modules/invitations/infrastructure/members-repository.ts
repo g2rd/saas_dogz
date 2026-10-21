@@ -97,7 +97,7 @@ export function membersRepository(db: SupabaseClient) {
       return ok({
         members: rows.map((m) => ({
           userId: m.user_id,
-          name: names.get(m.user_id) || (m.user_id === currentUserId ? "Ty" : "Użytkownik bez imienia"),
+          name: names.get(m.user_id) || null,
           role: m.role,
           status: m.status,
           isYou: m.user_id === currentUserId,

@@ -6,22 +6,25 @@ import { LanguageSection } from "@/shared/ui/language-section";
 import { InstallPrompt } from "@/shared/ui/pwa";
 import { requireContext } from "../../_lib/context";
 import { logoutAction } from "../actions";
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
 export default function MorePage() {
+  const t = useTranslations();
   return (
     <>
-      <h1 className="text-2xl font-semibold">Więcej</h1>
+      <h1 className="text-2xl font-semibold">{t("common.wiecej")}</h1>
       <div className="mt-6 flex flex-col gap-6">
         <InstallPrompt />
-        <Suspense fallback={<p className="text-zinc-500">Ładowanie...</p>}>
+        <Suspense fallback={<p className="text-zinc-500">{t("common.ladowanie")}</p>}>
           <Links />
         </Suspense>
         <Suspense fallback={null}>
           <LanguageSection />
         </Suspense>
         <form action={logoutAction}>
-          <SubmitButton variant="secondary" pendingLabel="Wylogowywanie...">
-            Wyloguj
+          <SubmitButton variant="secondary" pendingLabel={t("common.wylogowywanie")}>
+            {t("common.wyloguj")}
           </SubmitButton>
         </form>
       </div>
@@ -30,16 +33,17 @@ export default function MorePage() {
 }
 
 async function Links() {
+  const t = await getTranslations();
   const ctx = await requireContext();
   // Właściciel platformy widzi skrót do panelu /admin (zwykły trener nie ma tej pozycji)
   const { data: platformAdmin } = await ctx.db.from("platform_admins").select("user_id").eq("user_id", ctx.userId).maybeSingle();
   const items = [
-    { href: "/app/packages", label: "Szablony pakietów", show: hasPermission(ctx, "packages.read") },
-    { href: "/app/sessions/types", label: "Rodzaje zajęć", show: hasPermission(ctx, "sessions.read") },
-    { href: "/app/team", label: "Zespół", show: hasPermission(ctx, "members.read") },
-    { href: "/app/notifications", label: "Powiadomienia", show: true },
-    { href: "/app/notifications/settings", label: "Ustawienia powiadomień i push", show: true },
-    { href: "/admin", label: "Panel właściciela platformy", show: Boolean(platformAdmin) },
+    { href: "/app/packages", label: t("common.szablony_pakietow"), show: hasPermission(ctx, "packages.read") },
+    { href: "/app/sessions/types", label: t("common.rodzaje_zajec"), show: hasPermission(ctx, "sessions.read") },
+    { href: "/app/team", label: t("common.zespol"), show: hasPermission(ctx, "members.read") },
+    { href: "/app/notifications", label: t("common.powiadomienia"), show: true },
+    { href: "/app/notifications/settings", label: t("trainer.morePage.ustawienia_powiadomien_i_push"), show: true },
+    { href: "/admin", label: t("trainer.morePage.panel_wlasciciela_platformy"), show: Boolean(platformAdmin) },
   ].filter((item) => item.show);
 
   return (

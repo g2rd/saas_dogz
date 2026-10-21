@@ -8,30 +8,32 @@ import { InstallPrompt } from "@/shared/ui/pwa";
 import { requirePortalContext } from "../../_lib/context";
 import { portalLogoutAction } from "../actions";
 import { savePortalPreferencesAction, subscribePortalPushAction, unsubscribePortalPushAction } from "../notifications/actions";
+import { useTranslations } from "next-intl";
 
 export default function PortalMorePage() {
+  const t = useTranslations();
   return (
     <>
-      <h1 className="mb-6 text-2xl font-semibold">Więcej</h1>
+      <h1 className="mb-6 text-2xl font-semibold">{t("common.wiecej")}</h1>
       <div className="flex flex-col gap-8">
         <InstallPrompt />
         <section aria-labelledby="notif-heading" className="flex flex-col gap-4">
           <h2 id="notif-heading" className="text-lg font-semibold">
-            Powiadomienia
+            {t("common.powiadomienia")}
           </h2>
-          <Suspense fallback={<p className="text-zinc-500">Ładowanie...</p>}>
+          <Suspense fallback={<p className="text-zinc-500">{t("common.ladowanie")}</p>}>
             <NotificationSettings />
           </Suspense>
           <Link href="/portal/notifications" className="text-sm underline">
-            Zobacz wszystkie powiadomienia
+            {t("portal.morePage.zobacz_wszystkie_powiadomienia")}
           </Link>
         </section>
         <Suspense fallback={null}>
           <LanguageSection />
         </Suspense>
         <form action={portalLogoutAction}>
-          <SubmitButton variant="secondary" pendingLabel="Wylogowywanie...">
-            Wyloguj
+          <SubmitButton variant="secondary" pendingLabel={t("common.wylogowywanie")}>
+            {t("common.wyloguj")}
           </SubmitButton>
         </form>
       </div>

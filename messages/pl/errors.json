@@ -84,5 +84,15 @@
     "generic": "Operacja nie powiodła się.",
     "read_only": "Konto szkoły jest w trybie tylko do odczytu, więc nie można zapisywać zmian. Skontaktuj się z obsługą.",
     "signup_closed": "Rejestracja jest zamknięta. Potrzebny jest kod zaproszenia."
+  },
+  "invite": {
+    "invalid_code": "Niepoprawny kod.",
+    "code_hint": "Kod ma 10 znaków (litery i cyfry), np. ABCDE-FGHJK",
+    "email_mismatch": "To zaproszenie jest przypisane do innego adresu e-mail. Wyloguj się i użyj konta z właściwym adresem.",
+    "unusable_client": "To zaproszenie wygasło lub zostało już użyte. Poproś trenera o nowe.",
+    "unusable_member": "To zaproszenie wygasło lub zostało już użyte. Poproś o nowe.",
+    "throttled": "Zbyt wiele nieudanych prób. Spróbuj ponownie za kilka minut.",
+    "already_member": "Masz już dostęp do tej organizacji.",
+    "use_invited_email": "Podaj adres e-mail, na który wysłano zaproszenie"
   }
 }

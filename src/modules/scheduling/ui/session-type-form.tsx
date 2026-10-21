@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import type { FormState } from "@/shared/form";
 import { FormMessage, SubmitButton, TextField } from "@/shared/ui/form-fields";
+import { useTranslations } from "next-intl";
 
 export type SessionTypeFormValues = {
   name: string;
@@ -20,6 +21,7 @@ export function SessionTypeForm({
   values?: SessionTypeFormValues;
   submitLabel: string;
 }) {
+  const t = useTranslations();
   const [state, formAction] = useActionState(action, {});
   const errors = state.fieldErrors ?? {};
   const v = (name: string, fallback?: string | number | null) =>
@@ -28,15 +30,15 @@ export function SessionTypeForm({
   return (
     <form action={formAction} className="flex max-w-md flex-col gap-4">
       <TextField
-        label="Nazwa zajęć"
+        label={t("scheduling.sessionTypeForm.nazwa_zajec")}
         name="name"
         defaultValue={v("name", values?.name)}
         errors={errors.name}
-        hint="Np. Trening indywidualny, Konsultacja"
+        hint={t("scheduling.sessionTypeForm.np_trening_indywidualny_konsultacja")}
         required
       />
       <TextField
-        label="Czas trwania (minuty)"
+        label={t("scheduling.sessionTypeForm.czas_trwania_minuty")}
         name="durationMinutes"
         type="number"
         inputMode="numeric"
@@ -46,12 +48,12 @@ export function SessionTypeForm({
         required
       />
       <TextField
-        label="Cena pojedynczych zajęć (zł)"
+        label={t("scheduling.sessionTypeForm.cena_pojedynczych_zajec_zl")}
         name="defaultPrice"
         inputMode="decimal"
         defaultValue={v("defaultPrice", values?.defaultPrice ?? "0")}
         errors={errors.defaultPrice}
-        hint="Naliczana, gdy zajęcia rozliczasz bez pakietu"
+        hint={t("scheduling.sessionTypeForm.naliczana_gdy_zajecia_rozliczasz_bez")}
         required
       />
       <FormMessage state={state} />

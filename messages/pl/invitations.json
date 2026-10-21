@@ -1,0 +1,27 @@
+{
+  "inviteForm": {
+    "wyslij_klientowi_link_i_kod": "Wyślij klientowi link i kod",
+    "wyslij_e_mailem": "Wyślij e-mailem",
+    "brak_e_maila_klienta_w_kartotece": "Brak e-maila klienta w kartotece.",
+    "skopiowano": "Skopiowano",
+    "pakiet_do_potwierdzenia_przez_klienta": "Pakiet do potwierdzenia przez klienta",
+    "e_mail_klienta_opcjonalnie": "E-mail klienta (opcjonalnie)",
+    "gdy_podasz_e_mail_tylko_konto_z_tym": "Gdy podasz e-mail, tylko konto z tym adresem przyjmie zaproszenie. Puste: zaproszenie dla każdego, kto ma kod.",
+    "utworz_zaproszenie": "Utwórz zaproszenie",
+    "zaproszenie_gotowe_pokaz_klientowi_kod_qr": "Zaproszenie gotowe. Pokaż klientowi kod QR lub wyślij link. Po odświeżeniu strony nie będzie już widoczne.",
+    "kod_qr_zaproszenia": "Kod QR zaproszenia",
+    "kod_do_wpisania_na_stronie_invite": "Kod do wpisania na stronie /invite",
+    "kopiuj_kod": "Kopiuj kod",
+    "link": "Link",
+    "kopiuj_link": "Kopiuj link",
+    "wazne_do_date_nowe_zaproszenie_uniewaznia": "Ważne do {date}. Nowe zaproszenie unieważnia to."
+  },
+  "memberInviteForm": {
+    "e_mail_zapraszanej_osoby": "E-mail zapraszanej osoby",
+    "zaproszenie_przyjmie_tylko_konto_z_tym": "Zaproszenie przyjmie tylko konto z tym adresem.",
+    "rola": "Rola",
+    "zaproszenie_gotowe_ale_e_mail_nie_zostal": "Zaproszenie gotowe, ale e-mail nie został wysłany. Przekaż link osobiście.",
+    "wyslano_zaproszenie_na_adres_email": "Wysłano zaproszenie na adres {email}.",
+    "link_jest_widoczny_tylko_teraz_wazny_do": "Link jest widoczny tylko teraz. Ważny do {date}."
+  }
+}
