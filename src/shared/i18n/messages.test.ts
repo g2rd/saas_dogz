@@ -22,6 +22,10 @@ describe("msg i parseMessage", () => {
 
   it("nie bierze zwykłego tekstu za klucz", () => {
     expect(parseMessage("Podaj imię")).toBeNull();
+    // Klucze z wielkimi literami w członach (camelCase) są kluczami, a nie zwykłym tekstem
+    expect(parseMessage("labels.requestConfirmation.cancel")).toEqual({ key: "labels.requestConfirmation.cancel", params: {} });
+    expect(parseMessage("Koniec.Zdania")).toBeNull();
+    expect(parseMessage("Wersja 1.2.3")).toBeNull();
     expect(parseMessage("Nie znaleziono klienta.")).toBeNull();
     expect(parseMessage("validation")).toBeNull(); // jeden człon to nie klucz
     expect(parseMessage("a.b|nie-json")).toBeNull();

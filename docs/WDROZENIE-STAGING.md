@@ -132,7 +132,9 @@ Oczekiwany wynik: wszystkie pozycje `OK` (strony publiczne, manifest, `sw.js`, 4
 3. Wejdź na `/admin` → skonfiguruj weryfikację dwuetapową (`/admin/mfa`, aplikacja uwierzytelniająca).
 4. W `/admin/codes` **zamknij rejestrację** i utwórz kod beta dla siebie. Sprawdź: rejestracja bez kodu jest odrzucona (także bezpośrednio przez API: test integracyjny to pilnuje, ale zobacz na własne oczy).
 
-## Krok 8. Test ręczny na telefonie (🧑, 45 min)
+## Krok 8. Test ręczny na telefonie (🧑, opcjonalny)
+
+**Zakres po decyzji z 2026-10-21:** PWA i push na prawdziwych telefonach zostały już sprawdzone i działają, a krytyczne ścieżki pokrywają testy automatyczne (`npm run e2e` lokalnie i w CI). Na stagingu zrób ten krok tylko, żeby potwierdzić, że push i e-mail działają przez Twój hosting i domenę (powiadomienie po zaplanowaniu zajęć, instalacja z HTTPS). Poniższa lista to pełna wersja.
 
 Wykonaj listę z sekcji 6 dokumentu [WDROZENIE-DEMO-10-TESTEROW.md](WDROZENIE-DEMO-10-TESTEROW.md) (szkoła, klient z psem, pakiet, wpłata, zajęcia, zaproszenie QR na drugim telefonie, PWA na Androidzie i iPhonie, push, e-maile, zawieszenie szkoły w `/admin`, offline). Dodatkowo na stagingu sprawdź:
 - przełączenie języka w `Więcej` (polski ↔ angielski) w obu panelach;

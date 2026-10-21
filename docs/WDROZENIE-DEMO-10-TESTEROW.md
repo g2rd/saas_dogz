@@ -63,6 +63,7 @@ a zablokowanie osoby: w Supabase → Authentication → Users → zablokuj (ban)
 - **Umowa powierzenia przetwarzania danych** z każdym trenerem (może być zgodą w regulaminie, ale konsultuj z prawnikiem; trener wprowadza dane osobowe klientów i **wizerunek/dane o psach**).
 
 ### 1.4. Zbieranie opinii ✅ (zrobione 2026-10-21)
+**Decyzja właściciela 2026-10-21: opinie zbierasz sam, na bieżąco, przez komunikatory, SMS i telefon; bez ankiet.** Zapisy o ankiecie tygodniowej i końcowej poniżej są nieaktualne; zostaje formularz w aplikacji i rozmowy.
 **Zrobione:** przycisk „Zgłoś problem lub pomysł” w `Więcej` obu paneli (`/app/feedback`, `/portal/feedback`), tabela `feedback` (migracja 0014; autor, szkoła, rodzaj, treść, ekran, język), przegląd w `/admin/feedback` z oznaczaniem jako obejrzane. Zostaje ankieta tygodniowa (ręcznie) i ewentualny link do zewnętrznego formularza w stopce e-maili. Pierwotny plan:
 Link do formularza opinii (Tally/Google Forms) w menu „Więcej” obu paneli i w stopce e-maili; opcjonalnie tabela `feedback` z przyciskiem „Zgłoś problem lub pomysł” (strona, wersja, wiadomość). Plus ankieta tygodniowa (5 pytań) wysyłana ręcznie.
 

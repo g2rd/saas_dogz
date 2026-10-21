@@ -33,6 +33,7 @@ Test push i instalacji PWA na telefonie (tunel HTTPS): sekcja 7 dokumentu o stan
 | `npm test` | Vitest (logika domenowa, symulacja service workera) |
 | `npm run db:test` | Testy pgTAP (RLS, funkcje SQL), wymaga lokalnego Supabase |
 | `npm run test:integration` | Przypadki użycia na prawdziwej bazie (z Mailpit) |
+| `npm run e2e` | Testy end-to-end w przeglądarce (Playwright): buduje i uruchamia aplikację na porcie 3100, wymaga lokalnego Supabase; `npm run e2e:ui` otwiera podgląd interaktywny |
 | `npm run check:boundaries` | Granice modułów (dependency-cruiser) |
 | `npm run outbox:run` | Ręczne wywołanie przetwarzania powiadomień przez trasę cron (`CRON_SECRET`) |
 | `npm run seed:dev` | Dane deweloperskie (konto trenera, klienci, psy, pakiet, zajęcia) |
