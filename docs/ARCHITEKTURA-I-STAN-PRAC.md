@@ -1,6 +1,6 @@
 # DogTrainer SaaS: architektura, stan prac i lista zadań
 
-Stan na 2026-10-21 (`origin/dev` = `ee20159`, `origin/main` = `19b334a`). Dokument opisuje, jak zbudowana jest aplikacja, co jest zrobione i sprawdzone, co zostało do zrobienia i jakie decyzje podjął właściciel. Pokrewne pliki: [WDROZENIE-PRODUKCYJNE.md](WDROZENIE-PRODUKCYJNE.md) (ścieżka do pierwszej sprzedaży, limitacje i ryzyka), `docs/adr/` (zapisy decyzji), `CLAUDE.md` i `AGENTS.md` (zasady pracy dla agenta), `README.md` (skrót dla nowej osoby).
+Stan na 2026-10-21 (`origin/dev` = `ee20159`, `origin/main` = `19b334a`). Dokument opisuje, jak zbudowana jest aplikacja, co jest zrobione i sprawdzone, co zostało do zrobienia i jakie decyzje podjął właściciel. Pokrewne pliki: [WDROZENIE-PRODUKCYJNE.md](WDROZENIE-PRODUKCYJNE.md) (ścieżka do pierwszej sprzedaży, limitacje i ryzyka), [WDROZENIE-DEMO-10-TESTEROW.md](WDROZENIE-DEMO-10-TESTEROW.md) (instrukcja: demo dla 10 trenerów z panelem właściciela i blokowaniem dostępu), [WDROZENIE-PELNE-PRODUKCJA.md](WDROZENIE-PELNE-PRODUKCJA.md) (instrukcja: pełne wdrożenie i sprzedaż), `docs/adr/` (zapisy decyzji), `CLAUDE.md` i `AGENTS.md` (zasady pracy dla agenta), `README.md` (skrót dla nowej osoby).
 
 ## 0. Start nowej sesji: czytaj to najpierw
 
@@ -100,7 +100,7 @@ supabase/
   tests/database/           Testy pgTAP
 public/                     sw.js, offline.html, icons/
 scripts/                    seed-dev.mjs, run-outbox.mjs, generate-icons.mjs
-docs/                       Ten plik, WDROZENIE-PRODUKCYJNE.md, adr/0001-0011
+docs/                       Ten plik, WDROZENIE-PRODUKCYJNE.md, WDROZENIE-DEMO-10-TESTEROW.md, WDROZENIE-PELNE-PRODUKCJA.md, adr/0001-0011
 ```
 
 **Moduły:** `core` (organizacje, członkostwa, role, uprawnienia, logowanie, ustawienia), `clients`, `dogs` (psy, notatki, zatwierdzanie), `packages` (szablony, sprzedaż, saldo, korekta, anulowanie), `payments` (należności, wpłaty, alokacje, storno), `scheduling` (rodzaje zajęć, planowanie, zakończenie, odwołanie, cofanie, wolne terminy), `invitations` (zaproszenia klientów i personelu, wysyłka e-mailem), `portal` (model do odczytu dla klienta, lista chętnych, „Biorę”), `notifications` (outbox, planowanie powiadomień, kanały, skrzynka, preferencje, prośby klienta).
@@ -249,7 +249,9 @@ Trener tworzy kartotekę klienta, potem na jej karcie w sekcji „Panel klienta�
 
 ## 8. Do zrobienia
 
-Szczegółowa ścieżka do sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJNE.md](WDROZENIE-PRODUKCYJNE.md).
+Szczegółowa ścieżka do sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJNE.md](WDROZENIE-PRODUKCYJNE.md). Instrukcje krok po kroku: [WDROZENIE-DEMO-10-TESTEROW.md](WDROZENIE-DEMO-10-TESTEROW.md) (demo) i [WDROZENIE-PELNE-PRODUKCJA.md](WDROZENIE-PELNE-PRODUKCJA.md) (sprzedaż).
+
+**Blokujące dla demo, jeszcze niezbudowane (opisane w sekcji 1 instrukcji demo):** panel właściciela `/admin` (wgląd w szkoły, trenerów i aktywność; status `trial/active/read_only/suspended` z `access_until`, egzekwowany w bazie i UI), zamknięta rejestracja kodem beta (wyzwalacz na `auth.users`), zgody i regulamin testów, formularz opinii. Do czasu ich powstania: zapytanie SQL z instrukcji i blokada użytkownika w Supabase Auth.
 
 ### A. Żeby oddać aplikację testerom na 2 tygodnie (bez płatności)
 - [ ] **Staging z HTTPS** (Vercel + osobny projekt Supabase w UE, własna domena, migracje z CI): bez niego nie da się porządnie przetestować PWA i push na telefonach.
