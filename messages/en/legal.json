@@ -1,0 +1,147 @@
+{
+  "common": {
+    "draft": "Draft for legal review. This document describes the rules of the application test and is not legal advice.",
+    "version": "Version of {version}",
+    "operator_heading": "Application operator",
+    "operator_name": "Name: {value}",
+    "operator_address": "Address: {value}",
+    "operator_email": "Contact: {value}",
+    "to_define": "to be completed",
+    "other_document": "See also:",
+    "back": "Back to the home page"
+  },
+  "terms": {
+    "title": "DogTrainer test terms",
+    "link": "Test terms",
+    "sections": [
+      {
+        "heading": "1. What the test is",
+        "paragraphs": [
+          "DogTrainer is an application for dog trainers: a register of clients and dogs, session packages, a schedule, cash payments, notifications and a client area. The application is in a test phase used by invited trainers and their clients.",
+          "The application is operated by the entity shown at the top of this page (the Operator). By using the application you accept these terms and the Privacy Policy."
+        ]
+      },
+      {
+        "heading": "2. Account and access",
+        "paragraphs": [
+          "A trainer account can be created with a code received from the Operator or from an invitation. Clients and team members join from the trainer's invitation. You provide true details, look after your password and do not share your account with others.",
+          "The Operator may refuse to create an account or withdraw a code without giving a reason."
+        ]
+      },
+      {
+        "heading": "3. The test is free and comes without guarantees",
+        "paragraphs": [
+          "During the test the application is provided free of charge and as it is. There may be outages, errors and changes to features, also without notice. The Operator does not guarantee availability or the recovery of data from backups.",
+          "Do not treat the application as the only record of important data: during the test we recommend keeping your own notes on payments and sessions."
+        ]
+      },
+      {
+        "heading": "4. Rules of use",
+        "paragraphs": [
+          "You must not abuse the application: bypass security, overload the services, enter unlawful content or data of people whose data you have no basis to process.",
+          "The trainer is responsible for the client data they enter, including informing clients about the processing of their data and obtaining their consent where required."
+        ]
+      },
+      {
+        "heading": "5. Trainer's client data: entrusting the processing",
+        "paragraphs": [
+          "The trainer is the controller of the personal data of their clients and dogs that they enter into the application. The Operator processes it as a processor, only to provide the application and on the trainer's documented instructions, which are the use of the application's features.",
+          "The Operator applies appropriate security measures (encrypted connections, access control, separation of each school's data), ensures the confidentiality of people authorised to access the data, uses the processors listed in the Privacy Policy and assists the trainer in handling data subjects' rights.",
+          "When the trainer stops using the application, the Operator deletes the trainer's data or returns it on request, and reports a personal data breach without undue delay. This section is a data processing agreement within the meaning of Article 28 GDPR."
+        ]
+      },
+      {
+        "heading": "6. Suspension and restricted access",
+        "paragraphs": [
+          "The Operator may switch a school to read-only mode or suspend access, in particular after the test ends, in case of a breach of the terms or a security threat. People using the account will see a notice with the reason. Suspension does not delete data."
+        ]
+      },
+      {
+        "heading": "7. Ending use and deleting data",
+        "paragraphs": [
+          "You can stop at any time by writing to the contact address. On request we will delete the account and school data within a reasonable time, no longer than 30 days, except for data that the law requires us to keep."
+        ]
+      },
+      {
+        "heading": "8. Liability",
+        "paragraphs": [
+          "To the extent permitted by law the Operator is not liable for damage resulting from using the free test version, including loss of data or income, unless the damage was caused intentionally or by gross negligence. Provisions that cannot be excluded by contract, including consumer protection law, remain in force."
+        ]
+      },
+      {
+        "heading": "9. Changes and governing law",
+        "paragraphs": [
+          "The terms may change; we will announce a change in the application or by email, and the new version carries a new date. Continuing to use the application after a change means accepting the new version. Polish law applies to these terms.",
+          "Contact on matters concerning the terms: the Operator's address shown at the top of this page."
+        ]
+      }
+    ]
+  },
+  "privacy": {
+    "title": "DogTrainer Privacy Policy",
+    "link": "Privacy Policy",
+    "sections": [
+      {
+        "heading": "1. Who controls the data",
+        "paragraphs": [
+          "The controller of user account data (trainers, team members and clients as people who log in) is the Operator shown at the top of this page.",
+          "The data of clients and dogs that a trainer enters into the application is controlled by the trainer (the school); the Operator processes it as a processor on the trainer's instructions. For questions about that data, contact your trainer."
+        ]
+      },
+      {
+        "heading": "2. What data we process",
+        "paragraphs": [
+          "Account data: email address, full name (optional), password (stored only as a hash by the authentication service), chosen language, consents to documents.",
+          "Data entered by the trainer: clients' first names, last names, phone numbers and emails, dog details, notes, session dates, packages and the register of cash payments (amounts and dates, no card or account numbers).",
+          "Technical data: server logs (for example IP address, time and type of request), a device identifier for push notifications, error information."
+        ]
+      },
+      {
+        "heading": "3. Purposes and legal bases",
+        "paragraphs": [
+          "Providing the application and handling the account (Article 6(1)(b) GDPR). Security, preventing abuse and assessing platform use during the test (Article 6(1)(f) GDPR, legitimate interest). Push notifications (consent, Article 6(1)(a) GDPR, which you can withdraw at any time in the settings). Meeting legal obligations (Article 6(1)(c) GDPR)."
+        ]
+      },
+      {
+        "heading": "4. Recipients and processors",
+        "paragraphs": [
+          "Data is processed with the help of infrastructure providers: database and authentication (Supabase, region in the European Union), application hosting (Vercel) and email delivery (Resend). The providers act under data processing agreements. The current processing regions and any transfers outside the European Economic Area based on standard contractual clauses: to be completed by the Operator before the public launch.",
+          "Data is not sold or used for advertising."
+        ]
+      },
+      {
+        "heading": "5. How long we keep data",
+        "paragraphs": [
+          "We keep account and school data until the account is deleted or the test ends, and then delete it on request or within 30 days of the end of use. Technical logs are kept for a shorter period necessary for security. Backups expire according to the database provider's cycle."
+        ]
+      },
+      {
+        "heading": "6. Your rights",
+        "paragraphs": [
+          "You have the right to access your data, rectify it, erase it, restrict processing, data portability, object to processing based on legitimate interest and withdraw consent at any time. You can also lodge a complaint with the President of the Personal Data Protection Office (UODO). Rights concerning a school's client data are handled by the trainer, and the Operator assists them."
+        ]
+      },
+      {
+        "heading": "7. Cookies and similar technologies",
+        "paragraphs": [
+          "We use only technologies necessary for the application to work: the login session cookie, a cookie with the chosen language, and browser storage (a service worker) for the home-screen app and push notifications. We do not use advertising cookies or third-party analytics."
+        ]
+      },
+      {
+        "heading": "8. Security",
+        "paragraphs": [
+          "Connections are encrypted, each school's data is logically separated, and access requires authentication and the appropriate role. The Operator has technical access to the data in the database and uses it only for support, security and at the user's request."
+        ]
+      },
+      {
+        "heading": "9. Contact and changes",
+        "paragraphs": [
+          "For personal data matters write to the Operator's contact address shown at the top of this page. We may change this policy; a new version carries a new date and will be available in the application."
+        ]
+      }
+    ]
+  },
+  "consent": {
+    "label": "I accept the <terms>Test terms</terms> and the <privacy>Privacy Policy</privacy>."
+  }
+}

@@ -23,10 +23,17 @@ export const loginSchema = z.object({
   password: z.preprocess((v) => (v == null ? "" : v), z.string().min(1, msg("validation.password_required"))),
 });
 
+/** Pole wyboru z formularza (`on` po zaznaczeniu): zgoda na regulamin testów i politykę prywatności jest wymagana do rejestracji. */
+const acceptTerms = z.preprocess(
+  (v) => v === "on" || v === "true" || v === true,
+  z.literal(true, { error: msg("validation.accept_terms") }),
+);
+
 export const signupSchema = z.object({
   fullName: formText(100).transform((v) => (v === "" ? null : v)),
   email,
   password: newPassword,
+  acceptTerms,
 });
 
 export const forgotPasswordSchema = z.object({ email });

@@ -22,6 +22,7 @@ export const NAMESPACES = [
   "notifications",
   "notify",
   "report",
+  "legal",
   "invitations",
   "labels",
   "feedback",

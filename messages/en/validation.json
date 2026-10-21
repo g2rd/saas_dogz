@@ -47,5 +47,6 @@
   "password_min": "The password must be at least {min} characters",
   "password_max": "The password can be at most {max} characters",
   "adjustment_zero": "The adjustment can't be zero",
-  "message_required": "Enter a message"
+  "message_required": "Enter a message",
+  "accept_terms": "Tick the box to create an account"
 }

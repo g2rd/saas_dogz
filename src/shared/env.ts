@@ -75,6 +75,18 @@ export function notificationEnv() {
   };
 }
 
+/**
+ * Dane operatora aplikacji pokazywane w regulaminie i polityce prywatności (`NEXT_PUBLIC_OPERATOR_NAME`, `NEXT_PUBLIC_OPERATOR_ADDRESS`,
+ * `NEXT_PUBLIC_SUPPORT_EMAIL`). Brak wartości zostawia puste pole: strona pokaże wtedy „do uzupełnienia”.
+ */
+export function operatorInfo(): { name: string | null; address: string | null; email: string | null } {
+  return {
+    name: process.env.NEXT_PUBLIC_OPERATOR_NAME || null,
+    address: process.env.NEXT_PUBLIC_OPERATOR_ADDRESS || null,
+    email: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || null,
+  };
+}
+
 /** Adres obsługi pokazywany na ekranie zawieszenia konta (opcjonalny). */
 export function supportEmail(): string | null {
   return process.env.NEXT_PUBLIC_SUPPORT_EMAIL || null;

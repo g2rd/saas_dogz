@@ -47,5 +47,6 @@
   "password_min": "Hasło musi mieć co najmniej {min} znaków",
   "password_max": "Hasło może mieć najwyżej {max} znaków",
   "adjustment_zero": "Korekta nie może być zerowa",
-  "message_required": "Wpisz wiadomość"
+  "message_required": "Wpisz wiadomość",
+  "accept_terms": "Zaznacz zgodę, aby założyć konto"
 }

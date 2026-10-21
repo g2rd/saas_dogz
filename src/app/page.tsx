@@ -23,6 +23,14 @@ export default function Home() {
           {t("common.zaloguj_sie")}
         </Link>
       </div>
+      <p className="flex flex-wrap gap-4 text-sm text-zinc-500">
+        <Link href="/terms" className="underline">
+          {t("legal.terms.link")}
+        </Link>
+        <Link href="/privacy" className="underline">
+          {t("legal.privacy.link")}
+        </Link>
+      </p>
     </main>
   );
 }

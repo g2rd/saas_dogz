@@ -56,7 +56,8 @@ a zablokowanie osoby: w Supabase → Authentication → Users → zablokuj (ban)
 - W panelu `/admin` zakładka „Kody”: generowanie kodu (np. 1 użycie, ważny 14 dni, etykieta „Anna K., Szkoła Łapa”), unieważnianie.
 ✅ Test: rejestracja bez kodu bezpośrednio przez API zwraca błąd; z poprawnym kodem działa; zużyty kod nie działa drugi raz; rejestracja klienta z zaproszenia nadal działa.
 
-### 1.3. Zgoda na regulamin testów i politykę prywatności
+### 1.3. Zgoda na regulamin testów i politykę prywatności ✅ część techniczna (2026-10-21)
+**Zrobione (PR `feat/terms-consents`):** strony `/terms` (regulamin testów z umową powierzenia przetwarzania danych) i `/privacy` (pl i en), linki na stronie głównej i w polu zgody, wymagane pole przy rejestracji trenera, klienta i członka zespołu, zapis zgody z wersją (`consents`, migracja 0018). Treść jest **szkicem do przeglądu prawnika** (baner na stronach); dane operatora ustawiasz zmiennymi `NEXT_PUBLIC_OPERATOR_NAME`, `NEXT_PUBLIC_OPERATOR_ADDRESS`, `NEXT_PUBLIC_SUPPORT_EMAIL`. **Zostaje:** przegląd i uzupełnienie treści przez prawnika (regiony i podprocesorzy, okresy przechowywania, odpowiedzialność), ponowna zgoda po zmianie wersji. Pierwotny plan:
 - Strony statyczne `/regulamin-testow` i `/prywatnosc` (treść od prawnika; minimum: kto jest administratorem danych, że trener jest administratorem danych swoich klientów, a platforma procesorem, jakie dane, gdzie przechowywane (UE), kontakt, usuwanie danych na żądanie, brak gwarancji dostępności w teście, zasady zawieszenia).
 - Pole wyboru przy rejestracji trenera i zapis zgody (`consents`: użytkownik, dokument, wersja, czas). Klient przy przyjęciu zaproszenia akceptuje politykę prywatności szkoły/platformy.
 - **Umowa powierzenia przetwarzania danych** z każdym trenerem (może być zgodą w regulaminie, ale konsultuj z prawnikiem; trener wprowadza dane osobowe klientów i **wizerunek/dane o psach**).
@@ -197,7 +198,7 @@ Po 4-6 tygodniach zbierz: metryki z `/admin` względem kryteriów z sekcji 0, an
 ## 11. Lista kontrolna „gotowe do zaproszenia testerów”
 - [ ] Panel `/admin` z wglądem, zawieszaniem i `access_until` (1.1) i testami
 - [ ] Zamknięta rejestracja kodem, sprawdzona przez bezpośrednie API (1.2)
-- [ ] Regulamin testów, polityka prywatności, zgoda przy rejestracji (1.3)
+- [ ] Regulamin testów, polityka prywatności, zgoda przy rejestracji (1.3): jest szkic i zapis zgody, czeka na prawnika
 - [x] Formularz opinii (1.4) i import CSV (1.5) zrobione; do tego dać testerom wzór arkusza
 - [ ] CI zielone i wymagane w rulesecie (jest, 1.6); Sentry i monitor dostępności włączone (zostaje)
 - [ ] Supabase Pro w UE, migracje wdrożone, Auth (URL-e, potwierdzenie e-mail, własny SMTP), kopia przetestowana
