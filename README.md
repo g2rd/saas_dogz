@@ -50,7 +50,7 @@ Test push i instalacji PWA na telefonie (tunel HTTPS): sekcja 7 dokumentu o stan
 - `src/shared`: Money, Result, błędy, kontekst, klienci Supabase, env, wspólne UI (formularze, potwierdzenie, PWA)
 - `supabase/migrations`: migracje SQL z RLS; `supabase/tests`: testy pgTAP
 - `public`: service worker, strona offline, ikony PWA; `scripts`: seed, outbox, generator ikon
-- `docs`: stan prac i architektura, plan wdrożenia, `adr/` (decyzje 0001-0013)
+- `docs`: stan prac i architektura, plan wdrożenia, `adr/` (decyzje 0001-0014)
 
 ## Stan (2026-10-21)
 
