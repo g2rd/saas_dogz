@@ -21,7 +21,7 @@ Stan na 2026-10-21 (`origin/dev` = `ee20159`, `origin/main` = `19b334a`). Dokume
 | 7. Wolne terminy: lista chętnych, „Biorę”, wybór trenera, „Nie mogę przyjść” | ✅ (ADR 0010, migracja 0009) | `dev` |
 | 8. Potwierdzenia, cofanie pomyłek, okno 30 s (ADR 0011, migracja 0010) | ✅ | `dev` |
 | 9. Panel właściciela `/admin`, status szkoły (próba/aktywna/tylko do odczytu/zawieszona) z blokadą w bazie, zamknięta rejestracja kodami beta, MFA admina, poprawka błędu 500 przy wyborze zgłoszenia na wolny termin (ADR 0012, migracja 0011) | ✅ kod i testy, ⏳ zostały przeklikać rejestrację z kodem w przeglądarce i test na środowisku zdalnym | `dev` (lokalnie, niewypchnięte) |
-| 9b. Wielojęzyczność, etapy 0-4: `next-intl`, wybór języka z urządzenia i w `Więcej`, formatery, waluta i strefa szkoły z urządzenia, błędy i walidacja jako klucze, teksty UI w katalogu `pl` (680 kluczy), powiadomienia, e-maile zaproszeń, metadane, manifest i strona offline w języku odbiorcy (`message_key` + `params`) (ADR 0013, migracje 0012-0013, [WDROZENIE-WIELOJEZYCZNOSCI.md](WDROZENIE-WIELOJEZYCZNOSCI.md)) | ✅ kod i testy; angielski nie jest jeszcze przetłumaczony (etap 5) | PR `feat/i18n-notifications` (czeka na zatwierdzenie właściciela); etapy 0-3 scalone do `dev` |
+| 9b. Wielojęzyczność, etapy 0-5: `next-intl`, wybór języka z urządzenia i w `Więcej`, formatery, waluta i strefa szkoły z urządzenia, błędy i walidacja jako klucze, teksty UI w katalogu `pl` (680 kluczy), powiadomienia, e-maile zaproszeń, metadane, manifest i strona offline w języku odbiorcy (`message_key` + `params`) (ADR 0013, migracje 0012-0013, [WDROZENIE-WIELOJEZYCZNOSCI.md](WDROZENIE-WIELOJEZYCZNOSCI.md)) | ✅ kod i testy; angielski kompletny i włączony (`ENABLED_LOCALES=pl,en`), przegląd człowieka i pseudo-lokalizacja zostają | PR-y `feat/i18n-notifications` (etap 4) i `feat/i18n-english` (etap 5, oparty na etapie 4) czekają na zatwierdzenie właściciela; etapy 0-3 scalone do `dev` |
 | **10. Oddanie testerom na 2 tygodnie** (staging z HTTPS, regulamin i zgody, formularz opinii, import CSV, seed demo) | ⏳ **następny krok** (sekcja 8, instrukcja: `WDROZENIE-DEMO-10-TESTEROW.md`) | |
 
 Zdalne repozytorium: `https://github.com/g2rd/saas_dogz`. **Gałąź `dev` jest gałęzią integracyjną: tam trafiają wszystkie zmiany. `main` zawiera tylko to, co właściciel zatwierdził; do `main` wchodzimy dopiero po jego wyraźnym zatwierdzeniu (merge `dev` do `main` i push).** Ostatnie wypchnięcie `dev`: 2026-10-16 (commit `ee20159`). `main` jest nadal na etapach do 3.
@@ -201,6 +201,7 @@ Migracje `supabase/migrations/20261016000001` … `0012` (wszystkie zastosowane 
 10. **Potwierdzenia i cofanie** (ADR 0011, migracja 0010): `ConfirmSubmit`, okno 30 s, cofnięcie zakończenia, przywrócenie zajęć, storno wpłaty, anulowanie pakietu.
 11. **Dokumentacja i narzędzia:** `WDROZENIE-PRODUKCYJNE.md`, `WDROZENIE-DEMO-10-TESTEROW.md`, `WDROZENIE-PELNE-PRODUKCJA.md`, tryb tunelu HTTPS do testu na telefonie (`DEV_TUNNEL=1`), skrypty `seed-dev`, `outbox:run`, `generate-icons`, `admin:grant`.
 12. **Panel właściciela i kontrola dostępu** (ADR 0012, migracja 0011, moduł `platform`): `/admin` (kafelki użycia, lista szkół z filtrem, karta szkoły: status, przedłużenie, notatki, historia), status szkoły egzekwowany w bazie i UI (`/suspended`, pasek „tylko do odczytu”), automat końca dostępu w cronie, e-mail do właścicieli przy zmianie statusu, zamknięta rejestracja kodami beta (wyzwalacz na `auth.users`, kody w `/admin/codes`, pole „Kod zaproszenia” w `/signup`, dowód zaproszenia dla klientów i zespołu), MFA TOTP dla admina (`/admin/mfa`), skrypt `npm run admin:grant`.
+15. **Wielojęzyczność, etap 5 (angielski)**: `messages/en/` dla wszystkich przestrzeni (742 klucze), wybór języka w `Więcej` (`ENABLED_LOCALES=pl,en`), parytet kluczy i parametrów w teście, poprawione pominięte teksty (pulpit, konto klienta, zaległości, potwierdzenia próśb), usunięta wzmianka o BLIK.
 14. **Wielojęzyczność, etap 4** (migracja 0013, ADR 0013): powiadomienia jako `message_key` + `params` (przestrzeń `notify`), render w języku odbiorcy (`profiles.locale`, tylko języki włączone) dla skrzynki, e-maila i push; dzwonek składa treść w języku widza; e-maile zaproszeń w języku szkoły; metadane, manifest i `offline.html` zależne od języka; tłumacz poza żądaniem `src/shared/i18n/translator.ts`.
 13. **Poprawka:** wybór zgłoszenia na wolny termin, gdy termin już minął, rzucał wyjątek (500 w konsoli). Teraz akcje „Wybierz” i „Zamknij ogłoszenie” zwracają komunikat przy przycisku (`slot-offer-forms.tsx`), a lista trenera pomija ogłoszenia z minionym terminem; test regresji w `slots.integration.test.ts`.
 
@@ -215,7 +216,7 @@ Migracje `supabase/migrations/20261016000001` … `0012` (wszystkie zastosowane 
 | --- | --- | --- |
 | Typy | `npm run typecheck` | czysto |
 | Lint | `npm run lint` | czysto |
-| Testy jednostkowe (domena, symulacja service workera, i18n) | `npm test` | 228/228 |
+| Testy jednostkowe (domena, symulacja service workera, i18n) | `npm test` | 229/229 |
 | Granice modułów | `npm run check:boundaries` | brak naruszeń (248 modułów) |
 | Build produkcyjny | `npm run build` | przechodzi (trasy panelu to częściowy prerender) |
 | Testy RLS i funkcji SQL (pgTAP) | `npm run db:test` | 239/239 (12 plików; `notification_messages.test.sql`: klucz i parametry powiadomień, ograniczenia, brak prawa zmiany przez odbiorcę; `i18n.test.sql`: język profilu, waluta szkoły; `platform_admin.test.sql`: status, blokada zapisów i odczytów, ochrona kolumn, funkcje tylko `service_role`, wygaszanie, zamknięta rejestracja) |
@@ -302,7 +303,8 @@ Szczegółowa ścieżka do sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJN
 - [ ] Etap 3, reszta: ekran ustawień szkoły (waluta, strefa, język domyślny) i blokada zmiany waluty przy istniejących rekordach z kwotami; metadane i manifest; teksty zależne od kraju (BLIK, `+48`).
 - [x] Etap 4: powiadomienia, e-mail i push w języku odbiorcy (`message_key` + `params`), e-maile zaproszeń, metadane, manifest, strona offline.
 - [ ] Etap 4, reszta: kody powodu (`reason_code`) w rejestrach SQL zamiast tekstu; polski tekst zapasowy w `public/sw.js`.
-- [ ] Etap 5: angielski (tłumaczenie z przeglądem, pseudo-lokalizacja), włączenie `ENABLED_LOCALES=pl,en`; etap 6: trzeci język jako test skalowalności.
+- [x] Etap 5 (wersja robocza): angielski kompletny i włączony.
+- [ ] Etap 5, reszta: przegląd tłumaczenia przez osobę znającą branżę, pseudo-lokalizacja (przepełnienia układu), przeklikanie na telefonie, strony publiczne i prawne po angielsku, region w profilu (format daty), podpowiedź `+48` razem z biblioteką numerów; etap 6: trzeci język jako test skalowalności.
 
 ### B. Pomysły zgłoszone przez właściciela, jeszcze nie zrobione
 - **QR szkoły z akceptacją:** stały QR/link trenera; klient zakłada konto i wysyła prośbę o dołączenie, trener akceptuje (powstaje kartoteka i dostęp). Zaproponowane, czeka na decyzję.
@@ -337,6 +339,6 @@ Walidacja (10-15 wywiadów z trenerami, ceny 49/79/119 zł, 5-10 pilotażystów,
 
 ## 11. Plan bieżącego etapu
 
-Wielojęzyczność: etapy 0-4 gotowe (etap 4 w PR `feat/i18n-notifications`, czeka na zatwierdzenie właściciela). Następne: etap 5 (angielski: tłumaczenie katalogów z przeglądem, pseudo-lokalizacja, `ENABLED_LOCALES=pl,en`, usunięcie BLIK/`+48`, ekran ustawień szkoły), potem etap 6 (trzeci język). Etap 10 (oddanie testerom) opisany niżej jest niezależny.
+Wielojęzyczność: etapy 0-5 gotowe (etap 4 w PR `feat/i18n-notifications`, etap 5 w PR `feat/i18n-english` oparty na etapie 4; oba czekają na zatwierdzenie właściciela; scalać po kolei). Następne: przegląd angielskiego przez człowieka, pseudo-lokalizacja, ekran ustawień szkoły (waluta, strefa, język), potem etap 6 (trzeci język). Etap 10 (oddanie testerom) opisany niżej jest niezależny.
 
 Etap 9 (panel właściciela) jest gotowy do scalenia; commit i scalenie do `dev` robi ten sam przebieg. Następny etap: **10. Oddanie testerom** wg [WDROZENIE-DEMO-10-TESTEROW.md](WDROZENIE-DEMO-10-TESTEROW.md): (1) regulamin testów, polityka prywatności i zgody przy rejestracji (treść od prawnika), (2) formularz opinii w obu panelach, (3) import klientów z CSV, (4) CI i jakość minimum (`error.tsx`, `not-found.tsx`, limity, przegląd `npm audit`, RLS z perspektywy atakującego), (5) konta i konfiguracja (Supabase Pro w UE, Resend, Vercel z `vercel.json` i cronem, domena), (6) test dymny na prawdziwych telefonach, (7) rekrutacja 10 testerów i kody beta. Potem decyzje o płatnościach wg `WDROZENIE-PELNE-PRODUKCJA.md`.

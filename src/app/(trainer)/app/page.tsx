@@ -72,12 +72,12 @@ async function DashboardContent() {
   const names = new Map((clients.ok ? clients.value : []).map((cl) => [cl.id, clientFullName(cl)]));
   const lowList = low?.ok ? low.value : [];
   const overdueList = overdue?.ok ? overdue.value : [];
-  const nameOf = (clientId: string) => names.get(clientId) ?? "Klient";
+  const nameOf = (clientId: string) => names.get(clientId) ?? t("trainer.page.client_fallback");
 
   return (
     <section className="mt-6 flex flex-col gap-6">
       <p className="text-zinc-600 dark:text-zinc-400">
-        Organizacja: <strong>{org.ok ? org.value.name : "—"}</strong>
+        {t.rich("trainer.page.organization", { name: org.ok ? org.value.name : "—", strong: (chunks) => <strong>{chunks}</strong> })}
       </p>
 
       <div className="hidden flex-wrap gap-3 md:flex">
@@ -213,7 +213,7 @@ async function DashboardContent() {
                       <span className="font-medium">{nameOf(charge.clientId)}</span>
                       <span className="text-sm text-zinc-600 dark:text-zinc-400">
                         {" "}
-                        · {charge.description || t("common.naleznosc")}, termin {formats.calendarDate(charge.dueDate)}
+                        · {t("trainer.page.overdue_line", { label: charge.description || t("common.naleznosc"), date: formats.calendarDate(charge.dueDate) })}
                       </span>
                     </span>
                     <Badge tone="danger">{formats.money(money(charge.remainingMinor, charge.currency))}</Badge>

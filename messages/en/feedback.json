@@ -1,0 +1,15 @@
+{
+  "session_completed_with_package": "Session completed. 1 session used from the package “{packageName}”. {balanceAfter} left.",
+  "session_completed_charged": "Session completed. A charge for a single session was added.",
+  "session_completed_free": "Session completed (no charge).",
+  "session_canceled_consumed": "Session canceled. The package session was forfeited (late cancellation). {balanceAfter} left.",
+  "session_canceled_free": "Session canceled with no charge.",
+  "session_completion_undone": "Session completion undone. The session went back to the package.",
+  "session_restored": "Session restored.",
+  "slot_announced": "Announced. Up to {count, plural, one {# person} other {# people}} on the waitlist will be notified.",
+  "slot_announced_empty": "Announced, but the waitlist is empty: nobody will be notified until clients sign up.",
+  "slot_claim_accepted": "Session booked.",
+  "slot_offer_closed": "Announcement closed.",
+  "slot_claimed": "Request sent! You're waiting for the trainer's decision. You'll get a notification.",
+  "invitation_email_sent": "Email sent to {recipient}."
+}

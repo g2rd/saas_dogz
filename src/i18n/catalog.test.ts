@@ -6,6 +6,9 @@ import { mergeMessages, NAMESPACES } from "./messages";
 
 const ROOT = process.cwd();
 
+/** Języki z kompletnym katalogiem (etap 5: angielski), niezależnie od ustawienia ENABLED_LOCALES. */
+const COMPLETE_LOCALES: string[] = ["en"];
+
 /** Wczytuje katalog języka; brakujące pliki przestrzeni (język w trakcie tłumaczenia) pomija. */
 function readCatalog(locale: string): Record<string, unknown> {
   const catalog: Record<string, unknown> = {};
@@ -66,9 +69,10 @@ describe("katalogi tekstów", () => {
       }
     });
 
-    // Język widoczny dla użytkowników (ENABLED_LOCALES) musi być kompletny; w trakcie tłumaczenia wystarczy podzbiór
-    it(`język ${locale} jest kompletny, jeśli jest włączony dla użytkowników`, () => {
-      if (!enabledLocales().includes(locale)) return;
+    // Język widoczny dla użytkowników (ENABLED_LOCALES) i język uznany za gotowy (COMPLETE_LOCALES) muszą być kompletne;
+    // język w trakcie tłumaczenia może mieć podzbiór
+    it(`język ${locale} jest kompletny, jeśli jest włączony dla użytkowników albo gotowy`, () => {
+      if (!enabledLocales().includes(locale) && !COMPLETE_LOCALES.includes(locale)) return;
       const translated = flatten(readCatalog(locale));
       expect(Object.keys(source).filter((key) => !(key in translated))).toEqual([]);
     });

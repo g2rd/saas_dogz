@@ -84,5 +84,15 @@
     "generic": "The operation failed.",
     "read_only": "The school’s account is read-only, so changes can’t be saved. Please contact support.",
     "signup_closed": "Sign-up is closed. An invitation code is required."
+  },
+  "invite": {
+    "invalid_code": "Invalid code.",
+    "code_hint": "The code has 10 characters (letters and digits), e.g. ABCDE-FGHJK",
+    "email_mismatch": "This invitation is assigned to a different email address. Log out and use the account with the right address.",
+    "unusable_client": "This invitation has expired or has already been used. Ask your trainer for a new one.",
+    "unusable_member": "This invitation has expired or has already been used. Ask for a new one.",
+    "throttled": "Too many failed attempts. Try again in a few minutes.",
+    "already_member": "You already have access to this organization.",
+    "use_invited_email": "Enter the email address the invitation was sent to"
   }
 }

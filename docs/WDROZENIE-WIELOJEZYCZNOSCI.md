@@ -145,8 +145,14 @@ Powiadomienia składane są z klucza i parametrów w języku odbiorcy; polski te
 - [x] Testy: `plan.test.ts` (klucze i parametry), `infrastructure/render.test.ts` (dawny polski tekst z katalogu, odmiana 0/1/2/5/12/22, opcjonalne części, dane użytkownika nie są szablonem, pokrycie kluczy, zapas polski), `message.test.ts` (zaproszenia), integracyjne: zapis klucza i parametrów, e-mail w języku odbiorcy, język niewłączony daje polski.
 - [ ] Zostaje: kody powodu (`reason_code`) w rejestrach SQL zamiast tekstu (opis korekty salda i podobne): osobna zmiana razem z tłumaczeniem angielskim (etap 5); w `en` trzeba pisać apostrof jako `''` (ICU). `sw.js` ma jeszcze jeden polski tekst zapasowy („Brak połączenia”, odpowiedź 503 bez sieci i bez strony offline).
 
-### Etap 5. Angielski ⬜ (3-4 dni plus przegląd)
-Tłumaczenie katalogu (AI + przegląd człowieka, bo to terminologia branżowa), pseudo-lokalizacja (`xx`, długie i z akcentami) do wykrycia przepełnień układu, przeklikanie w `en` i na telefonie, manifest PWA, strony publiczne i prawne po angielsku. Dopiero wtedy `ENABLED_LOCALES=pl,en`.
+### Etap 5. Angielski ✅ wersja robocza (2026-10-21, PR `feat/i18n-english`), ⏳ przegląd człowieka
+Angielski jest kompletny i włączony: w `Więcej` pojawia się wybór języka (`ENABLED_LOCALES=pl,en` w `.env.example`; bez zmiennej działa tylko polski).
+- [x] Katalog `messages/en/` dla wszystkich 18 przestrzeni (742 klucze, w tym `notify`, e-maile zaproszeń, `labels`, `feedback`); parytet kluczy i parametrów ICU pilnuje `catalog.test.ts` (`COMPLETE_LOCALES` wymusza kompletność `en` niezależnie od `ENABLED_LOCALES`).
+- [x] Tłumaczenie robocze (AI) z terminologią: package = pakiet, session = zajęcia, open slot = wolny termin, waitlist = lista chętnych, amount due = należność, reverse a payment = storno wpłaty, client area/trainer area = panel klienta/trenera.
+- [x] Teksty zależne od kraju: usunięto wzmiankę o BLIK i przelewie na stronie płatności klienta (pl i en), w polach kwot nie ma już „(zł)” w wersji angielskiej. Etykieta metody płatności „BLIK” zostaje w liście metod (dane, nie tekst interfejsu). Podpowiedź o numerze bez prefiksu zapisuje „Polish (+48)”: zostaje do zmiany razem z biblioteką numerów (sekcja 5).
+- [x] Przy przeklikaniu angielskiego znaleziono i poprawiono pominięte teksty: „Organizacja:” na pulpicie trenera, „od ...” przy koncie klienta, „..., termin ...” przy zaległościach, potwierdzenia próśb klienta (były polskie, teraz klucze `labels.requestConfirmation.*`), „Klient” w zapasowej nazwie. Skrypt AST szukający tekstu JSX poza katalogiem nie znajduje już nic (poza panelem `/admin`).
+- [ ] Zostaje: przegląd języka przez osobę znającą branżę (nazwy własne, ton), pseudo-lokalizacja do wykrycia przepełnień układu, przeklikanie na telefonie, strony publiczne i prawne po angielsku, format daty zależny od regionu (profil zna tylko język, więc `en` = zapis amerykański 10/21/2026; w przeglądarce region z `Accept-Language` jest brany pod uwagę).
+- Uwaga: Vite buforuje rozwinięcie dynamicznego `import()` katalogów, więc po dodaniu plików nowego języka zmień `src/i18n/messages.ts` (albo usuń `node_modules/.vite`), inaczej testy nie zobaczą nowych plików.
 
 ### Etap 6. Trzeci język ⬜ (1-2 dni)
 Test skalowalności (np. niemiecki lub hiszpański): ma wymagać wyłącznie pracy nad katalogiem i listą włączonych języków. Wnioski zapisać w sekcji 10.
@@ -206,6 +212,7 @@ Przy tłumaczeniu trzymaj spójność. Jedno pojęcie, jedno tłumaczenie.
 Po etapie 6 zapisz tu, ile to faktycznie zajęło i co trzeba było poprawić w kodzie.
 
 ## 11. Dziennik
+- 2026-10-21 (etap 5, angielski): katalog `en` kompletny i włączony, 229 testów jednostkowych, 139 integracyjnych, build, przeklikanie panelu trenera i klienta po angielsku. Szczegóły w sekcji etapu 5.
 - 2026-10-21 (etap 4): powiadomienia, e-maile zaproszeń, metadane, manifest i strona offline w języku odbiorcy; 228 testów jednostkowych, 239 pgTAP, 139 integracyjnych, build, przeklikanie dzwonka. Szczegóły w sekcji etapu 4.
 - 2026-10-21 (etap 3, część UI): 680 kluczy `pl`, codemod + ręczne dopracowanie, testy 207 jednostkowych, 136 integracyjnych, build, przeklikanie panelu trenera i klienta (bez przecieku kluczy). Szczegóły w sekcji etapu 3.
 - 2026-10-21: plan, [ADR 0013](adr/0013-i18n.md), etapy 0-2 (PR `feat/i18n-foundation`). Migracja 0012 (język profilu z rejestracji, waluta szkoły na nowych rekordach). Testy: 29 jednostkowych formatów/języka/komunikatów + 5 katalogów, 9 pgTAP, 3 integracyjne (język w profilu, ustawienia szkoły z urządzenia, waluta rekordów). Etapy 3-6 zaplanowane. Angielski niewidoczny dla użytkowników do czasu etapu 5 (`ENABLED_LOCALES=pl`); lokalnie `ENABLED_LOCALES=pl,en` w `.env.local` pokazuje przełącznik.

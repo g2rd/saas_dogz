@@ -35,7 +35,7 @@
   "paymentsPage": {
     "do_zaplaty": "Do zapłaty",
     "nadplata_na_koncie_fmt": "Nadpłata na koncie: {fmt}",
-    "wplate_ksieguje_trener_po_jej_otrzymaniu": "Wpłatę księguje trener po jej otrzymaniu (gotówka, przelew lub BLIK), więc saldo zmienia się chwilę po płatności.",
+    "wplate_ksieguje_trener_po_jej_otrzymaniu": "Wpłatę księguje trener po jej otrzymaniu, więc saldo zmienia się chwilę po płatności.",
     "naleznosci": "Należności",
     "nie_ma_jeszcze_zaksiegowanych_wplat": "Nie ma jeszcze zaksięgowanych wpłat."
   },

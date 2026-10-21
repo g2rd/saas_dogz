@@ -146,11 +146,36 @@ describe("pokrycie katalogu", () => {
     expect(NOTIFIABLE_EVENT_TYPES.every(isNotifiable)).toBe(true);
   });
 
-  it("język bez własnych przestrzeni (en) korzysta z polskiego zapasu, więc powiadomienie nigdy nie jest puste", async () => {
+  it("angielski: tytuły, odmiana, daty i kwoty w zapisie angielskim", async () => {
     const t = await translatorFor("en");
-    const [draft] = planNotifications(event("payment.recorded", { amount_minor: 5000 }), facts());
-    const text = renderNotification(t, createFormats("en"), draft.messageKey, draft.params);
-    expect(text?.title).toBeTruthy();
+    const formats = createFormats("en-GB");
+    const english = (type: string, payload: Record<string, unknown>, overrides: Partial<EventFacts> = {}, audience: "client" | "staff" = "client") => {
+      const draft = planNotifications(event(type, payload), facts(overrides)).find((d) => d.audience === audience)!;
+      return renderNotification(t, formats, draft.messageKey, draft.params)!;
+    };
+    expect(english("payment.recorded", { amount_minor: 5000 }).title).toBe("Payment recorded");
+    expect(english("client_package.low_balance", {}, { package: { id: "p", name: "Pack", balance: 1 } }).title).toBe("You have one session left");
+    expect(english("client_package.low_balance", {}).title).toBe("You have 2 sessions left");
+    expect(english("client_package.low_balance", {}, { package: { id: "p", name: "Pack", balance: 0 } }).title).toBe("Your package is used up");
+    const reminder = english("training_session.reminder", {});
+    expect(reminder.body).toBe("Session 20/10/2026 at 10:00.");
+    expect(plain(english("charge.due", {}).body)).toContain("PLN");
+    expect(english("client_request.created", {}, { request: { id: "r", kind: "cancel", note: null, packageName: null } }, "staff").title).toBe("Anna Kowalska can't make it to the session");
+  });
+
+  it("każdy klucz komunikatu ma angielskie tłumaczenie (en nie korzysta z polskiego zapasu)", async () => {
+    const en = await translatorFor("en");
+    const pl = await translatorFor("pl");
+    for (const type of NOTIFIABLE_EVENT_TYPES) {
+      for (const payload of [{ amount_minor: 100, to: "suspended" }, { to: "active" }]) {
+        for (const draft of planNotifications(event(type, payload), facts())) {
+          const params = draft.params;
+          const polish = renderNotification(pl, createFormats("pl"), draft.messageKey, params)!;
+          const english = renderNotification(en, createFormats("en"), draft.messageKey, params)!;
+          expect(english.title, draft.messageKey).not.toBe(polish.title);
+        }
+      }
+    }
   });
 
   it("nieznany klucz daje null (dzwonek pokaże zapisany tekst)", async () => {

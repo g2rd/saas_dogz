@@ -1,0 +1,21 @@
+{
+  "dogForm": {
+    "imie_psa": "Dog's name",
+    "rasa": "Breed",
+    "data_urodzenia": "Date of birth",
+    "plec": "Sex"
+  },
+  "dogNoteForm": {
+    "rodzaj": "Type",
+    "tresc": "Text",
+    "wazne_do": "Valid until",
+    "widoczna_dla_klienta": "Visible to the client",
+    "domyslnie_notatka_jest_prywatna_i_widzi": "A note is private by default and only staff can see it"
+  },
+  "age": {
+    "lt_month": "under a month",
+    "months": "{months} mo.",
+    "years": "{years} yr.",
+    "years_months": "{years} yr. {months} mo."
+  }
+}

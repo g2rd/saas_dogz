@@ -1,0 +1,13 @@
+{
+  "recordPaymentForm": {
+    "kwota_zl": "Amount",
+    "np_300_lub_300_50": "E.g. 300 or 300.50",
+    "sposob_platnosci": "Payment method",
+    "na_ktora_naleznosc": "Apply to which amount due",
+    "data_wplaty": "Payment date",
+    "opis_opcjonalnie": "Description (optional)",
+    "zaksiegowac_wplate": "Record this payment?",
+    "wplata_zostanie_zapisana_i_rozliczona_z": "The payment will be saved and applied to the client's amounts due. The client is notified after 30 seconds. You can correct a mistake by reversing the payment in the payment history.",
+    "zaksieguj": "Record"
+  }
+}
