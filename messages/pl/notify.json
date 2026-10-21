@@ -1,0 +1,83 @@
+{
+  "open_in_app": "Otwórz w aplikacji",
+  "low_balance_client": {
+    "title": "{balance, plural, =0 {Pakiet się skończył} =1 {Zostało Ci ostatnie zajęcie} few {Zostały Ci # zajęcia} many {Zostały Ci # zajęć} other {Zostały Ci # zajęcia}}",
+    "body": "W pakiecie „{package}” {balance, plural, =0 {nie ma już wolnych zajęć} =1 {zostało # zajęcie} few {zostało # zajęcia} many {zostało # zajęć} other {zostało # zajęcia}}. Co robisz dalej: odnawiasz, płacisz czy kończysz?"
+  },
+  "low_balance_staff": {
+    "title": "Kończy się pakiet: {client}",
+    "body": "W pakiecie „{package}” {balance, plural, =1 {zostało # zajęcie} few {zostało # zajęcia} many {zostało # zajęć} other {zostało # zajęcia}}."
+  },
+  "request_staff": {
+    "title": "{kind, select, renew {{client} chce odnowić pakiet} pay {{client} zapłaci za pakiet} end {{client} kończy współpracę} other {{client} nie może przyjść na zajęcia}}",
+    "body": "{hasPackage, select, yes {Pakiet „{package}”. } other {}}{hasSession, select, yes {Zajęcia {date} o {time}. } other {}}{note}"
+  },
+  "charge_due": {
+    "title": "Zbliża się termin płatności",
+    "body": "{hasLabel, select, yes {{label}} other {Należność}}: {amount}, termin {due}."
+  },
+  "charge_overdue_client": {
+    "title": "Płatność po terminie",
+    "body": "{hasLabel, select, yes {{label}} other {Należność}}: {amount}, termin minął {due}."
+  },
+  "charge_overdue_staff": {
+    "title": "Płatność po terminie: {client}",
+    "body": "{hasLabel, select, yes {{label}} other {Należność}}: {amount}, termin minął {due}."
+  },
+  "session_reminder": {
+    "title": "Przypomnienie o zajęciach",
+    "body": "Zajęcia {date} o {time}."
+  },
+  "session_scheduled": {
+    "title": "Zaplanowano zajęcia",
+    "body": "Zajęcia {date} o {time}."
+  },
+  "session_canceled": {
+    "title": "Zajęcia odwołane",
+    "body": "Zajęcia z {date} o {time} zostały odwołane."
+  },
+  "session_restored": {
+    "title": "Zajęcia przywrócone",
+    "body": "Zajęcia {date} o {time} jednak się odbędą. Przepraszamy za zamieszanie."
+  },
+  "payment_recorded": {
+    "title": "Zaksięgowano wpłatę",
+    "body": "Trener zaksięgował wpłatę {amount}. Dziękujemy!"
+  },
+  "payment_voided": {
+    "title": "Wpłata anulowana",
+    "body": "Trener anulował zaksięgowaną wpłatę {amount} (pomyłka w księgowaniu). Sprawdź płatności."
+  },
+  "slot_offer": {
+    "title": "Wolny termin: {date} o {time}",
+    "body": "{typeName}. {hasNote, select, yes {{note}. } other {}}Chcesz go wziąć? Zgłoś się w aplikacji, trener wybierze osobę."
+  },
+  "slot_claim_staff": {
+    "title": "{client} chce wolny termin",
+    "body": "Termin {date} o {time}. Wybierz osobę w Zajęcia."
+  },
+  "slot_claim_accepted": {
+    "title": "Miejsce jest dla Ciebie!",
+    "body": "Zajęcia {date} o {time} zostały dla Ciebie zarezerwowane."
+  },
+  "slot_claim_declined": {
+    "title": "Termin został zajęty",
+    "body": "Wolny termin {date} o {time} dostał inny kursant. Dziękujemy za zgłoszenie!"
+  },
+  "org_suspended": {
+    "title": "Konto zawieszone",
+    "body": "Dostęp do Twojej szkoły został wstrzymany, a dane są bezpieczne.{hasReason, select, yes { Powód: {reason}.} other {}} Skontaktuj się z obsługą, aby odzyskać dostęp."
+  },
+  "org_read_only": {
+    "title": "Konto tylko do odczytu",
+    "body": "Możesz przeglądać dane, ale nie możesz ich zmieniać.{hasReason, select, yes { Powód: {reason}.} other {}} Skontaktuj się z obsługą, aby odblokować zapis."
+  },
+  "org_restored": {
+    "title": "Dostęp do konta przywrócony",
+    "body": "Twoje konto znów działa w pełni.{hasUntil, select, yes { Dostęp jest przyznany do {until}.} other {}}"
+  },
+  "invitation_accepted": {
+    "title": "{client} dołączył(a) do panelu klienta",
+    "body": "Klient przyjął zaproszenie i ma już dostęp do panelu."
+  }
+}

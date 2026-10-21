@@ -25,9 +25,9 @@ export {
   type ChannelPreferences,
   type ClientRequest,
   type Notification,
+  type NotificationParams,
   type RequestKind,
 } from "./domain/notification";
-export { sessionsWord } from "./domain/plan";
 export { createEmailSender } from "./infrastructure/senders";
 export { BellBadge, NotificationList } from "./ui/notification-list";
 export { PreferencesForm, PushToggle } from "./ui/preferences-form";

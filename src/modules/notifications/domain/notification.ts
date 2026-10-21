@@ -58,13 +58,23 @@ export type OutboxEvent = {
   attempts: number;
 };
 
+/**
+ * Parametry komunikatu powiadomienia (zapisywane w bazie jako JSON). Nazwy są stałe: `amountMinor` + `currency` (kwota),
+ * `startsAt` + `timezone` (data i godzina zajęć), `dueDate` (termin), `accessUntil` (koniec dostępu); reszta to teksty i liczby.
+ */
+export type NotificationParams = Record<string, string | number | boolean | null>;
+
 /** Powiadomienie w skrzynce użytkownika (dzwonek). */
 export type Notification = {
   id: string;
   audience: Audience;
   type: string;
+  /** Tekst zapisany przy tworzeniu w języku odbiorcy; zapas dla wpisów bez klucza (starsze) i nieznanych kluczy. */
   title: string;
   body: string;
+  /** Klucz komunikatu (`notify.<klucz>.title|body`) i parametry: treść układana w języku odbiorcy przy wyświetlaniu. */
+  messageKey: string | null;
+  params: NotificationParams;
   link: string | null;
   data: Record<string, unknown>;
   read: boolean;
@@ -77,8 +87,9 @@ export type NotificationDraft = {
   audience: Audience;
   clientId: string | null;
   type: string;
-  title: string;
-  body: string;
+  /** Klucz komunikatu w katalogu `notify`; treść powstaje dopiero przy dostarczeniu, w języku odbiorcy. */
+  messageKey: string;
+  params: NotificationParams;
   link: string | null;
   data: Record<string, unknown>;
   dedupeKey: string;

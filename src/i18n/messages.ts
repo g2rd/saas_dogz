@@ -16,6 +16,7 @@ export const NAMESPACES = [
   "payments",
   "scheduling",
   "notifications",
+  "notify",
   "invitations",
   "labels",
   "feedback",

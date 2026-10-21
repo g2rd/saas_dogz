@@ -29,6 +29,15 @@ export function enabledLocales(raw: string | undefined = process.env.ENABLED_LOC
   return [...new Set<Locale>([DEFAULT_LOCALE, ...requested])];
 }
 
+/**
+ * Język odbiorcy powiadomienia (`profiles.locale`, np. `pl` albo `en-GB`): obsługiwany i włączony język albo domyślny.
+ * Powiadomienie w języku, którego aplikacja jeszcze nie pokazuje, byłoby niezrozumiałe obok reszty interfejsu.
+ */
+export function localeOrDefault(value: string | null | undefined, enabled: readonly Locale[] = enabledLocales()): Locale {
+  const language = (value ?? "").toLowerCase().split(/[-_]/)[0];
+  return isLocale(language) && enabled.includes(language) ? language : DEFAULT_LOCALE;
+}
+
 export type LanguageTag = { tag: string; language: string; region: string | null; quality: number };
 
 /** Rozbiera nagłówek `Accept-Language` ("pl-PL,pl;q=0.9,en-US;q=0.8") na tagi posortowane malejąco wg jakości. */

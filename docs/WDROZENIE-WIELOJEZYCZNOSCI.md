@@ -130,11 +130,20 @@ Zrobione półautomatem (codemod na drzewie składni TypeScript, potem ręczne d
 - [x] Komunikaty sukcesu akcji serwerowych (`feedback.*`) i błędy zaproszeń (`errors.invite.*`) jako klucze tłumaczone przez `Msg`; wiek psa (`dogs.age.*`), nazwy osób w zespole (UI decyduje o „Ty” i „Użytkownik bez imienia”).
 - [x] Wywołania `formatMoney`/`formatIsoDate`/`formatDateHeading(Title)` w komponentach na `formats.*` (27 miejsc; komponenty serwerowe, które były synchroniczne, stały się asynchroniczne).
 - [x] Test: każdy klucz użyty w kodzie (`msg`, `t`, `tr`, `t.rich`) istnieje w katalogu; każdy plik katalogu jest w `NAMESPACES`; język niekompletny nie ma kluczy spoza źródła.
-- [ ] Zostaje na kolejne etapy: powiadomienia, e-maile i push (`plan.ts`, `invitations/domain/message.ts`: etap 4); metadane i manifest (`layout.tsx`, `suspended`, `manifest.ts`) oraz strona offline (etap 4); panel `/admin` zostaje po polsku (narzędzie właściciela); teksty zależne od kraju: wzmianka o BLIK i przelewie na stronie płatności klienta, podpowiedź o numerze polskim (`+48`) przy telefonie (etap 5, razem z decyzją „tylko gotówka”); ekran ustawień szkoły (waluta, strefa, język domyślny) i blokada zmiany waluty przy istniejących rekordach z kwotami.
+- [x] Powiadomienia, e-maile, metadane, manifest i strona offline: zrobione w etapie 4. Zostaje na kolejne etapy: panel `/admin` zostaje po polsku (narzędzie właściciela); teksty zależne od kraju: wzmianka o BLIK i przelewie na stronie płatności klienta, podpowiedź o numerze polskim (`+48`) przy telefonie (etap 5, razem z decyzją „tylko gotówka”); ekran ustawień szkoły (waluta, strefa, język domyślny) i blokada zmiany waluty przy istniejących rekordach z kwotami.
 - Uwagi: nazwy kluczy powstały automatycznie ze skrótu polskiego tekstu (np. `trainer.clientsBillingSection.historia_i_korekta`), więc przy zmianie sformułowania klucz zostaje; przy tłumaczeniu liczy się wartość, nie nazwa. Do klienta trafia cały katalog (ok. 46 KB, kilkanaście KB po kompresji); podział na paczki per grupa tras to optymalizacja na później. Pozostają krótkie polskie wstawki w kodzie, które nie są tekstem interfejsu (np. komunikaty logów).
 
-### Etap 4. Powiadomienia i e-mail ⬜ (3-4 dni)
-Migracja `message_key`/`params`, `plan.ts` na klucze, render w języku odbiorcy (dzwonek, e-mail, push), szablony e-mail w katalogach, strona offline w wielu językach, kody powodu w rejestrach SQL. Testy integracyjne: odbiorca `en` dostaje angielski push i e-mail, odbiorca `pl` polski.
+### Etap 4. Powiadomienia i e-mail ✅ (zrobione 2026-10-21, PR `feat/i18n-notifications`)
+Powiadomienia składane są z klucza i parametrów w języku odbiorcy; polski tekst nie jest już zapisywany w kodzie planowania.
+- [x] Migracja 0013: `notifications.message_key` (prosty identyfikator) i `message_params` (obiekt JSON); `title`/`body` zostają jako tekst zapasowy (starsze wpisy, klucz nieznany nowszej wersji). Test pgTAP `notification_messages.test.sql` (ograniczenia, odczyt przez odbiorcę, brak prawa zmiany klucza i parametrów).
+- [x] `plan.ts` zwraca `messageKey` + `params` (surowe wartości: kwota w groszach, moment w UTC, strefa szkoły, nazwy); usunięto `sessionsWord` (odmiana to ICU `plural` w katalogu).
+- [x] Katalog `messages/pl/notify.json` (przestrzeń `notify`: `notify.<klucz>.title|body`, 19 komunikatów, odmiana zajęć, warianty `select` dla opcjonalnych części). `domain/render.ts`: `localizeParams` (kwota → `amount`, `startsAt` + `timezone` → `date`/`time`, `dueDate` → `due`, `accessUntil` → `until`, flagi → `yes`/`no`), `renderNotification`, `renderExternalMessage` z podpisem linku w języku odbiorcy.
+- [x] Procesor outbox: język odbiorcy z `profiles.locale` (tylko spośród języków włączonych w `ENABLED_LOCALES`, inaczej polski); tekst zapisany w skrzynce, e-mail i push w tym języku. Tłumacz poza żądaniem: `src/shared/i18n/translator.ts` (`createTranslator` + katalogi, cache na język).
+- [x] Dzwonek składa treść z klucza w języku, który widz ma teraz (zmiana języka w `Więcej` zmienia też stare powiadomienia); wpisy bez klucza pokazują zapisany tekst.
+- [x] E-maile zaproszeń (klient, zespół) z katalogu `invitations.emails.*`, w języku szkoły (`organization_settings.locale`, nowe pole w `OrganizationSettings`); osoba zapraszana nie ma jeszcze konta ani języka. Rola w zaproszeniu do zespołu z `labels.memberRole`.
+- [x] Opis strony (`generateMetadata` w `layout.tsx`), tytuł `/suspended` i manifest PWA (`lang`, opis, skróty; trasa dynamiczna) w języku żądania; strona offline (`public/offline.html`) wybiera język po ciasteczku `dt_locale` albo `navigator.language` (polski, angielski).
+- [x] Testy: `plan.test.ts` (klucze i parametry), `infrastructure/render.test.ts` (dawny polski tekst z katalogu, odmiana 0/1/2/5/12/22, opcjonalne części, dane użytkownika nie są szablonem, pokrycie kluczy, zapas polski), `message.test.ts` (zaproszenia), integracyjne: zapis klucza i parametrów, e-mail w języku odbiorcy, język niewłączony daje polski.
+- [ ] Zostaje: kody powodu (`reason_code`) w rejestrach SQL zamiast tekstu (opis korekty salda i podobne): osobna zmiana razem z tłumaczeniem angielskim (etap 5); w `en` trzeba pisać apostrof jako `''` (ICU). `sw.js` ma jeszcze jeden polski tekst zapasowy („Brak połączenia”, odpowiedź 503 bez sieci i bez strony offline).
 
 ### Etap 5. Angielski ⬜ (3-4 dni plus przegląd)
 Tłumaczenie katalogu (AI + przegląd człowieka, bo to terminologia branżowa), pseudo-lokalizacja (`xx`, długie i z akcentami) do wykrycia przepełnień układu, przeklikanie w `en` i na telefonie, manifest PWA, strony publiczne i prawne po angielsku. Dopiero wtedy `ENABLED_LOCALES=pl,en`.
@@ -147,7 +156,7 @@ Test skalowalności (np. niemiecki lub hiszpański): ma wymagać wyłącznie pra
 - Test składni ICU: katalog parsuje się, parametry zgadzają się między językami.
 - Reguła lint: brak polskich znaków w literałach JSX w katalogach oznaczonych jako zmigrowane.
 - Testy jednostkowe: wybór języka, region → waluta, formatery (daty, kwoty, odmiana), kodowane komunikaty.
-- Testy integracyjne (etap 4): język odbiorcy w powiadomieniach.
+- Testy integracyjne (etap 4, zrobione): język odbiorcy w powiadomieniach.
 - Przeklikanie: `pl`, `en` i pseudo-język; długie teksty (niemieckie złożenia, angielskie przyciski w wąskich komórkach).
 
 ## 8. Ryzyka
@@ -197,5 +206,6 @@ Przy tłumaczeniu trzymaj spójność. Jedno pojęcie, jedno tłumaczenie.
 Po etapie 6 zapisz tu, ile to faktycznie zajęło i co trzeba było poprawić w kodzie.
 
 ## 11. Dziennik
+- 2026-10-21 (etap 4): powiadomienia, e-maile zaproszeń, metadane, manifest i strona offline w języku odbiorcy; 228 testów jednostkowych, 239 pgTAP, 139 integracyjnych, build, przeklikanie dzwonka. Szczegóły w sekcji etapu 4.
 - 2026-10-21 (etap 3, część UI): 680 kluczy `pl`, codemod + ręczne dopracowanie, testy 207 jednostkowych, 136 integracyjnych, build, przeklikanie panelu trenera i klienta (bez przecieku kluczy). Szczegóły w sekcji etapu 3.
 - 2026-10-21: plan, [ADR 0013](adr/0013-i18n.md), etapy 0-2 (PR `feat/i18n-foundation`). Migracja 0012 (język profilu z rejestracji, waluta szkoły na nowych rekordach). Testy: 29 jednostkowych formatów/języka/komunikatów + 5 katalogów, 9 pgTAP, 3 integracyjne (język w profilu, ustawienia szkoły z urządzenia, waluta rekordów). Etapy 3-6 zaplanowane. Angielski niewidoczny dla użytkowników do czasu etapu 5 (`ENABLED_LOCALES=pl`); lokalnie `ENABLED_LOCALES=pl,en` w `.env.local` pokazuje przełącznik.

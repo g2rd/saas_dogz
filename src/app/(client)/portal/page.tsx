@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { RequestButtons, listMyOpenRequests, sessionsWord } from "@/modules/notifications";
+import { RequestButtons, listMyOpenRequests } from "@/modules/notifications";
 import { getPortalOverview, type PortalPackage, type PortalSession } from "@/modules/portal";
 
 import { InstallPrompt } from "@/shared/ui/pwa";
@@ -110,7 +110,7 @@ async function Overview() {
               ? t("portal.page.twoj_pakiet_sie_skonczyl")
               : pkg.balance === 1
                 ? t("portal.page.zostalo_ci_ostatnie_zajecie")
-                : t("portal.page.zostaly_ci_balance_sessionsword", { balance: pkg.balance, sessionsWord: sessionsWord(pkg.balance) })}
+                : t("portal.page.zostaly_ci_balance_sessionsword", { balance: pkg.balance })}
           </p>
           <p className="mt-1">{t("portal.page.pakiet_name_co_robisz_dalej_trener", { name: pkg.name })}</p>
           <RequestButtons

@@ -8,6 +8,7 @@ import {
   type ClientRequest,
   type CreateRequestInput,
   type Notification,
+  type NotificationParams,
   type PushSubscriptionInput,
   type RequestKind,
 } from "../domain/notification";
@@ -18,6 +19,8 @@ type NotificationRow = {
   type: string;
   title: string;
   body: string;
+  message_key: string | null;
+  message_params: NotificationParams | null;
   link: string | null;
   data: Record<string, unknown>;
   read_at: string | null;
@@ -42,7 +45,7 @@ export function notificationsRepository(db: SupabaseClient, userId: string, orga
     async list(limit: number): Promise<Result<Notification[]>> {
       const { data, error } = await db
         .from("notifications")
-        .select("id, audience, type, title, body, link, data, read_at, created_at")
+        .select("id, audience, type, title, body, message_key, message_params, link, data, read_at, created_at")
         .eq("recipient_user_id", userId)
         .eq("organization_id", organizationId)
         .order("created_at", { ascending: false })
@@ -55,6 +58,8 @@ export function notificationsRepository(db: SupabaseClient, userId: string, orga
           type: row.type,
           title: row.title,
           body: row.body,
+          messageKey: row.message_key,
+          params: row.message_params ?? {},
           link: row.link,
           data: row.data ?? {},
           read: row.read_at !== null,

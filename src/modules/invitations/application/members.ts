@@ -1,13 +1,15 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { authorize, getOrganization, hasPermission } from "@/modules/core";
+import { authorize, getOrganization, getOrganizationSettings, hasPermission } from "@/modules/core";
 import { createEmailSender, type EmailSender } from "@/modules/notifications";
 import type { RequestContext } from "@/shared/context";
 import { invitationHashSecret, siteUrl } from "@/shared/env";
+import { createFormats } from "@/shared/i18n/formats";
+import { localeOrDefault } from "@/shared/i18n/locale";
+import { translatorFor } from "@/shared/i18n/translator";
 import { appError } from "@/shared/errors";
 import { parseInput } from "@/shared/form";
 import { err, ok, type Result } from "@/shared/result";
 import {
-  MEMBER_ROLE_LABELS,
   createMemberInvitationSchema,
   type CreatedMemberInvitation,
   type MemberInvitationPreview,
@@ -50,13 +52,14 @@ export async function createMemberInvitation(
   const organization = await getOrganization(ctx);
   let emailSent = false;
   if (organization.ok) {
-    const message = composeMemberInvitationMessage({
-      organizationName: organization.value.name,
-      roleLabel: MEMBER_ROLE_LABELS[input.value.role],
-      link,
-      expiresAt,
-    });
     try {
+      const settings = await getOrganizationSettings(ctx);
+      const locale = localeOrDefault(settings.ok ? settings.value.locale : null);
+      const message = composeMemberInvitationMessage(
+        { organizationName: organization.value.name, role: input.value.role, link, expiresAt },
+        await translatorFor(locale),
+        createFormats(locale),
+      );
       const outcome = await email.send({ to: input.value.email, ...message });
       emailSent = outcome.status === "sent";
     } catch {

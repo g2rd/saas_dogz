@@ -23,5 +23,23 @@
     "zaproszenie_gotowe_ale_e_mail_nie_zostal": "Zaproszenie gotowe, ale e-mail nie został wysłany. Przekaż link osobiście.",
     "wyslano_zaproszenie_na_adres_email": "Wysłano zaproszenie na adres {email}.",
     "link_jest_widoczny_tylko_teraz_wazny_do": "Link jest widoczny tylko teraz. Ważny do {date}."
+  },
+  "emails": {
+    "greeting": "{hasName, select, yes {Cześć {name}!} other {Cześć!}}",
+    "valid_until": "Zaproszenie jest ważne do {date}.",
+    "accept_button": "Przyjmij zaproszenie",
+    "client": {
+      "subject": "Zaproszenie do panelu klienta: {organization}",
+      "lead": "{organization} zaprasza Cię do panelu klienta{hasPackage, select, yes { (pakiet „{package}”)} other {}}, gdzie zobaczysz saldo zajęć, płatności i terminy.",
+      "open_link": "Otwórz link: {link}",
+      "enter_code": "Albo wejdź na stronę /invite i wpisz kod: {code}",
+      "enter_code_html": "Albo wpisz kod na stronie zaproszenia:"
+    },
+    "member": {
+      "subject": "Zaproszenie do zespołu: {organization}",
+      "lead": "{organization} zaprasza Cię do zespołu w DogTrainer jako: {role}.",
+      "join": "Załóż konto lub zaloguj się na ten sam adres e-mail i przyjmij zaproszenie: {link}",
+      "join_html": "Załóż konto lub zaloguj się na ten sam adres e-mail."
+    }
   }
 }

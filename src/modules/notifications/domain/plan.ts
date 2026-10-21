@@ -1,8 +1,6 @@
-import { formatIsoDate } from "@/shared/dates";
-import { formatMoney, money } from "@/shared/money";
-import { dateInZone, timeInZone } from "@/shared/time";
 import {
   type NotificationDraft,
+  type NotificationParams,
   type OutboxEvent,
   type RequestKind,
 } from "./notification";
@@ -48,31 +46,21 @@ export function isNotifiable(type: string): boolean {
   return (NOTIFIABLE_EVENT_TYPES as readonly string[]).includes(type);
 }
 
-/** Polska odmiana: 1 zajęcie, 2-4 zajęcia, 5+ zajęć (z wyjątkiem 12-14). */
-export function sessionsWord(count: number): string {
-  if (count === 1) return "zajęcie";
-  const lastTwo = count % 100;
-  const last = count % 10;
-  if (last >= 2 && last <= 4 && !(lastTwo >= 12 && lastTwo <= 14)) return "zajęcia";
-  return "zajęć";
-}
-
-function fullDateTime(at: Date, timezone: string): string {
-  return `${formatIsoDate(dateInZone(at, timezone))} o ${timeInZone(at, timezone)}`;
-}
-
-const REQUEST_STAFF_TITLES: Record<RequestKind, (client: string) => string> = {
-  renew: (client) => `${client} chce odnowić pakiet`,
-  pay: (client) => `${client} zapłaci za pakiet`,
-  end: (client) => `${client} kończy współpracę`,
-  cancel: (client) => `${client} nie może przyjść na zajęcia`,
-};
-
 type Base = Omit<NotificationDraft, "recipientUserId" | "audience" | "clientId" | "dedupeKey">;
 
+/** Czas zajęć jako parametry komunikatu: renderer składa z nich datę i godzinę w strefie szkoły i języku odbiorcy. */
+const when = (at: Date, timezone: string): NotificationParams => ({ startsAt: at.toISOString(), timezone });
+
+function paymentAmount(event: OutboxEvent): { amountMinor: number; currency: string } | null {
+  const amountMinor = Number(event.payload.amount_minor);
+  if (!Number.isFinite(amountMinor) || amountMinor <= 0) return null;
+  return { amountMinor, currency: typeof event.payload.currency === "string" ? event.payload.currency : "PLN" };
+}
+
 /**
- * Zamienia zdarzenie z outbox na powiadomienia dla odbiorców. Czysta funkcja: treść, odbiorcy i klucze deduplikacji.
- * Klucz to identyfikator zdarzenia, więc ponowne przetworzenie tego samego zdarzenia niczego nie dubluje.
+ * Zamienia zdarzenie z outbox na powiadomienia dla odbiorców. Czysta funkcja: odbiorcy, klucze komunikatów z parametrami
+ * i klucze deduplikacji; gotowy tekst powstaje później, w języku odbiorcy (`render.ts`).
+ * Klucz deduplikacji to identyfikator zdarzenia, więc ponowne przetworzenie tego samego zdarzenia niczego nie dubluje.
  */
 export function planNotifications(event: OutboxEvent, facts: EventFacts): NotificationDraft[] {
   const toClient = (base: Base): NotificationDraft[] =>
@@ -98,24 +86,19 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
       const pkg = facts.package;
       if (!pkg) return [];
       const balance = pkg.balance;
-      const left =
-        balance <= 0
-          ? "Pakiet się skończył"
-          : balance === 1
-            ? "Zostało Ci ostatnie zajęcie"
-            : `Zostały Ci ${balance} ${sessionsWord(balance)}`;
+      const left = Math.max(balance, 0);
       return [
         ...toClient({
           type: event.type,
-          title: left,
-          body: `W pakiecie „${pkg.name}” ${balance <= 0 ? "nie ma już wolnych zajęć" : `zostało ${balance} ${sessionsWord(balance)}`}. Co robisz dalej: odnawiasz, płacisz czy kończysz?`,
+          messageKey: "low_balance_client",
+          params: { balance: left, package: pkg.name },
           link: "/portal",
           data: { packageId: pkg.id, balance, actions: ["renew", "pay", "end"] },
         }),
         ...toStaff({
           type: event.type,
-          title: `Kończy się pakiet: ${facts.clientName}`,
-          body: `W pakiecie „${pkg.name}” zostało ${Math.max(balance, 0)} ${sessionsWord(Math.max(balance, 0))}.`,
+          messageKey: "low_balance_staff",
+          params: { client: facts.clientName, balance: left, package: pkg.name },
           link: clientLink,
           data: { packageId: pkg.id, balance },
         }),
@@ -125,15 +108,19 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
     case "client_request.created": {
       const request = facts.request;
       if (!request) return [];
-      const parts = [
-        request.packageName ? `Pakiet „${request.packageName}”.` : null,
-        request.kind === "cancel" && facts.session ? `Zajęcia ${fullDateTime(facts.session.startsAt, facts.timezone)}.` : null,
-        request.note,
-      ].filter(Boolean);
+      const session = request.kind === "cancel" ? facts.session : null;
       return toStaff({
         type: event.type,
-        title: REQUEST_STAFF_TITLES[request.kind](facts.clientName),
-        body: parts.join(" "),
+        messageKey: "request_staff",
+        params: {
+          kind: request.kind,
+          client: facts.clientName,
+          hasPackage: request.packageName !== null,
+          package: request.packageName ?? "",
+          hasSession: session !== null,
+          ...(session ? when(session.startsAt, facts.timezone) : {}),
+          note: request.note ?? "",
+        },
         link: "/app/requests",
         data: { requestId: request.id, kind: request.kind },
       });
@@ -143,14 +130,18 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
     case "charge.overdue": {
       const charge = facts.charge;
       if (!charge || charge.remainingMinor <= 0) return [];
-      const amount = formatMoney(money(charge.remainingMinor, charge.currency));
-      const label = charge.description || "Należność";
-      const due = formatIsoDate(charge.dueDate);
+      const params: NotificationParams = {
+        hasLabel: Boolean(charge.description),
+        label: charge.description,
+        amountMinor: charge.remainingMinor,
+        currency: charge.currency,
+        dueDate: charge.dueDate,
+      };
       if (event.type === "charge.due") {
         return toClient({
           type: event.type,
-          title: "Zbliża się termin płatności",
-          body: `${label}: ${amount}, termin ${due}.`,
+          messageKey: "charge_due",
+          params,
           link: "/portal/payments",
           data: { chargeId: charge.id, actions: ["pay"] },
         });
@@ -158,86 +149,49 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
       return [
         ...toClient({
           type: event.type,
-          title: "Płatność po terminie",
-          body: `${label}: ${amount}, termin minął ${due}.`,
+          messageKey: "charge_overdue_client",
+          params,
           link: "/portal/payments",
           data: { chargeId: charge.id, actions: ["pay"] },
         }),
         ...toStaff({
           type: event.type,
-          title: `Płatność po terminie: ${facts.clientName}`,
-          body: `${label}: ${amount}, termin minął ${due}.`,
+          messageKey: "charge_overdue_staff",
+          params: { ...params, client: facts.clientName },
           link: clientLink,
           data: { chargeId: charge.id },
         }),
       ];
     }
 
-    case "training_session.reminder": {
-      if (!facts.session) return [];
-      return toClient({
-        type: event.type,
-        title: "Przypomnienie o zajęciach",
-        body: `Zajęcia ${fullDateTime(facts.session.startsAt, facts.timezone)}.`,
-        link: "/portal/sessions",
-        data: { sessionId: facts.session.id },
-      });
-    }
-
-    case "training_session.scheduled": {
-      if (!facts.session) return [];
-      return toClient({
-        type: event.type,
-        title: "Zaplanowano zajęcia",
-        body: `Zajęcia ${fullDateTime(facts.session.startsAt, facts.timezone)}.`,
-        link: "/portal/sessions",
-        data: { sessionId: facts.session.id },
-      });
-    }
-
-    case "training_session.canceled": {
-      if (!facts.session) return [];
-      return toClient({
-        type: event.type,
-        title: "Zajęcia odwołane",
-        body: `Zajęcia z ${fullDateTime(facts.session.startsAt, facts.timezone)} zostały odwołane.`,
-        link: "/portal/sessions",
-        data: { sessionId: facts.session.id },
-      });
-    }
-
+    case "training_session.reminder":
+    case "training_session.scheduled":
+    case "training_session.canceled":
     case "training_session.restored": {
       if (!facts.session) return [];
+      const key = {
+        "training_session.reminder": "session_reminder",
+        "training_session.scheduled": "session_scheduled",
+        "training_session.canceled": "session_canceled",
+        "training_session.restored": "session_restored",
+      }[event.type];
       return toClient({
         type: event.type,
-        title: "Zajęcia przywrócone",
-        body: `Zajęcia ${fullDateTime(facts.session.startsAt, facts.timezone)} jednak się odbędą. Przepraszamy za zamieszanie.`,
+        messageKey: key,
+        params: when(facts.session.startsAt, facts.timezone),
         link: "/portal/sessions",
         data: { sessionId: facts.session.id },
       });
     }
 
-    case "payment.voided": {
-      const amountMinor = Number(event.payload.amount_minor);
-      if (!Number.isFinite(amountMinor) || amountMinor <= 0) return [];
-      const currency = typeof event.payload.currency === "string" ? event.payload.currency : "PLN";
-      return toClient({
-        type: event.type,
-        title: "Wpłata anulowana",
-        body: `Trener anulował zaksięgowaną wpłatę ${formatMoney(money(amountMinor, currency))} (pomyłka w księgowaniu). Sprawdź płatności.`,
-        link: "/portal/payments",
-        data: {},
-      });
-    }
-
+    case "payment.voided":
     case "payment.recorded": {
-      const amountMinor = Number(event.payload.amount_minor);
-      if (!Number.isFinite(amountMinor) || amountMinor <= 0) return [];
-      const currency = typeof event.payload.currency === "string" ? event.payload.currency : "PLN";
+      const amount = paymentAmount(event);
+      if (!amount) return [];
       return toClient({
         type: event.type,
-        title: "Zaksięgowano wpłatę",
-        body: `Trener zaksięgował wpłatę ${formatMoney(money(amountMinor, currency))}. Dziękujemy!`,
+        messageKey: event.type === "payment.voided" ? "payment_voided" : "payment_recorded",
+        params: amount,
         link: "/portal/payments",
         data: {},
       });
@@ -245,13 +199,15 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
 
     case "slot_offer.created": {
       if (!facts.session || !facts.offer) return [];
-      const when = fullDateTime(facts.session.startsAt, facts.timezone);
       return toClient({
         type: event.type,
-        title: `Wolny termin: ${when}`,
-        body: [facts.offer.typeName, facts.offer.note, "Chcesz go wziąć? Zgłoś się w aplikacji, trener wybierze osobę."]
-          .filter(Boolean)
-          .join(". "),
+        messageKey: "slot_offer",
+        params: {
+          ...when(facts.session.startsAt, facts.timezone),
+          typeName: facts.offer.typeName,
+          hasNote: Boolean(facts.offer.note),
+          note: facts.offer.note ?? "",
+        },
         link: "/portal/sessions",
         data: { offerId: event.payload.offer_id },
       });
@@ -261,8 +217,8 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
       if (!facts.session) return [];
       return toStaff({
         type: event.type,
-        title: `${facts.clientName} chce wolny termin`,
-        body: `Termin ${fullDateTime(facts.session.startsAt, facts.timezone)}. Wybierz osobę w Zajęcia.`,
+        messageKey: "slot_claim_staff",
+        params: { client: facts.clientName, ...when(facts.session.startsAt, facts.timezone) },
         link: "/app/sessions",
         data: { claimId: event.payload.claim_id, offerId: event.payload.offer_id },
       });
@@ -272,8 +228,8 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
       if (!facts.session) return [];
       return toClient({
         type: event.type,
-        title: "Miejsce jest dla Ciebie!",
-        body: `Zajęcia ${fullDateTime(facts.session.startsAt, facts.timezone)} zostały dla Ciebie zarezerwowane.`,
+        messageKey: "slot_claim_accepted",
+        params: when(facts.session.startsAt, facts.timezone),
         link: "/portal/sessions",
         data: { sessionId: facts.session.id },
       });
@@ -283,8 +239,8 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
       if (!facts.session) return [];
       return toClient({
         type: event.type,
-        title: "Termin został zajęty",
-        body: `Wolny termin ${fullDateTime(facts.session.startsAt, facts.timezone)} dostał inny kursant. Dziękujemy za zgłoszenie!`,
+        messageKey: "slot_claim_declined",
+        params: when(facts.session.startsAt, facts.timezone),
         link: "/portal/sessions",
         data: { offerId: event.payload.offer_id },
       });
@@ -292,23 +248,14 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
 
     case "organization.status_changed": {
       const to = typeof event.payload.to === "string" ? event.payload.to : "";
-      const reason = typeof event.payload.reason === "string" && event.payload.reason ? ` Powód: ${event.payload.reason}.` : "";
+      const reason = typeof event.payload.reason === "string" ? event.payload.reason : "";
       const until = typeof event.payload.access_until === "string" ? new Date(event.payload.access_until) : null;
-      const untilText = until && !Number.isNaN(until.getTime()) ? ` Dostęp jest przyznany do ${formatIsoDate(dateInZone(until, facts.timezone))}.` : "";
-      if (to === "suspended") {
+      const validUntil = until !== null && !Number.isNaN(until.getTime());
+      if (to === "suspended" || to === "read_only") {
         return toStaff({
           type: event.type,
-          title: "Konto zawieszone",
-          body: `Dostęp do Twojej szkoły został wstrzymany, a dane są bezpieczne.${reason} Skontaktuj się z obsługą, aby odzyskać dostęp.`,
-          link: "/app",
-          data: { status: to },
-        });
-      }
-      if (to === "read_only") {
-        return toStaff({
-          type: event.type,
-          title: "Konto tylko do odczytu",
-          body: `Możesz przeglądać dane, ale nie możesz ich zmieniać.${reason} Skontaktuj się z obsługą, aby odblokować zapis.`,
+          messageKey: to === "suspended" ? "org_suspended" : "org_read_only",
+          params: { hasReason: reason !== "", reason },
           link: "/app",
           data: { status: to },
         });
@@ -316,8 +263,8 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
       if (to === "active" || to === "trial") {
         return toStaff({
           type: event.type,
-          title: "Dostęp do konta przywrócony",
-          body: `Twoje konto znów działa w pełni.${untilText}`,
+          messageKey: "org_restored",
+          params: { hasUntil: validUntil, accessUntil: validUntil ? until.toISOString() : "", timezone: facts.timezone },
           link: "/app",
           data: { status: to },
         });
@@ -328,8 +275,8 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
     case "invitation.accepted":
       return toStaff({
         type: event.type,
-        title: `${facts.clientName} dołączył(a) do panelu klienta`,
-        body: "Klient przyjął zaproszenie i ma już dostęp do panelu.",
+        messageKey: "invitation_accepted",
+        params: { client: facts.clientName },
         link: clientLink,
         data: {},
       });
@@ -337,20 +284,4 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
     default:
       return [];
   }
-}
-
-/** Treść wiadomości zewnętrznej (e-mail, push) na podstawie powiadomienia. */
-export function renderExternalMessage(
-  draft: Pick<NotificationDraft, "title" | "body" | "link">,
-  baseUrl: string,
-): { subject: string; text: string; html: string; url: string | null } {
-  const url = draft.link ? `${baseUrl}${draft.link}` : null;
-  const escape = (value: string) =>
-    value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-  const text = [draft.title, draft.body, url].filter(Boolean).join("\n\n");
-  const html =
-    `<h2>${escape(draft.title)}</h2>` +
-    (draft.body ? `<p>${escape(draft.body)}</p>` : "") +
-    (url ? `<p><a href="${escape(url)}">Otwórz w aplikacji</a></p>` : "");
-  return { subject: draft.title, text, html, url };
 }
