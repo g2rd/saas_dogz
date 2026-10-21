@@ -3,23 +3,38 @@
 Stan na 2026-10-21. Instrukcja dla właściciela (🧑 = robisz Ty w panelach usług, 🤖 = jest już w repozytorium). Staging to pierwsze środowisko w chmurze: tu przeklikasz całą aplikację na prawdziwym HTTPS i telefonie, a po teście dymnym zapraszasz do niego pierwszych testerów (plan testów, rytm i metryki: [WDROZENIE-DEMO-10-TESTEROW.md](WDROZENIE-DEMO-10-TESTEROW.md)). Przy pełnej produkcji ([WDROZENIE-PELNE-PRODUKCJA.md](WDROZENIE-PELNE-PRODUKCJA.md)) powtarzasz te same kroki na drugim zestawie kont.
 
 **Czas:** ok. 2-3 godziny przy gotowych kontach (DNS i weryfikacja domeny w Resend mogą potrwać do doby).
-**Koszt:** Supabase Pro ok. 25 USD/mies., Vercel Pro ok. 20 USD/mies. (patrz krok 0), domena, Resend i Sentry/monitor na darmowych planach.
+**Koszt:** zależy od planów, patrz „Plany: co jest potrzebne” poniżej. Można zacząć za 0 zł (Supabase Free + Vercel Hobby + cron w bazie); przed prawdziwymi danymi testerów zalecany jest co najmniej Supabase Pro (ok. 25 USD/mies.), a Vercel Pro (ok. 20 USD/mies. za użytkownika) przy zapraszaniu osób spoza Twojego otoczenia.
 
 ## Co jest w repozytorium (🤖)
 
 | Plik | Do czego |
 | --- | --- |
-| `vercel.json` | Region funkcji Frankfurt (`fra1`) i cron powiadomień co minutę (`/api/cron/outbox`) |
+| `vercel.json` | Region funkcji Frankfurt (`fra1`). Celowo **bez** crona: harmonogram idzie z bazy (`supabase/cron/outbox-cron.sql`), więc działa też na planie Vercel Hobby |
+| `supabase/cron/outbox-cron.sql` | Cron powiadomień w bazie (pg_cron + pg_net + Vault), co minutę wywołuje `/api/cron/outbox`; działa na każdym planie Supabase. Sprawdzony lokalnie |
 | `npm run env:check -- --file .env.staging` | Sprawdza zmienne środowiskowe przed wklejeniem do Vercel (format, długość sekretów, klucze demo, adresy https); **nie wypisuje wartości** |
 | `npm run smoke -- https://adres` | Test dymny wdrożenia: strony publiczne, PWA, nagłówki bezpieczeństwa, przekierowania, zabezpieczenie crona |
 | `supabase/migrations/` | Migracje 0001-0018 (schemat, RLS, funkcje) |
 | `supabase/templates/` | Dwujęzyczne wiadomości Supabase Auth (potwierdzenie konta, reset hasła) do wklejenia w panelu (krok 1.6) |
 | `.github/workflows/ci.yml` | CI (po scaleniu PR-ów z CI) |
 
+## Plany: co jest potrzebne, a co nie
+
+Stan cenników sprawdzony 2026-10-21 w dokumentacji Supabase i Vercel (ceny i limity zmieniają się, zweryfikuj przy zakładaniu kont).
+
+| Usługa i plan | Co daje i czego brakuje | Wniosek |
+| --- | --- | --- |
+| **Supabase Free** (0 USD) | Wszystko, czego używa aplikacja: baza 500 MB, 50 tys. aktywnych użytkowników, własny SMTP, podstawowe MFA (TOTP dla `/admin`). **Brak kopii zapasowych. Projekt jest wstrzymywany po tygodniu bez aktywności** (dane zostają, trzeba go wznowić ręcznie). Limit 2 aktywnych projektów | Wystarczy na staging dla Ciebie i garstki znajomych |
+| **Supabase Pro** (od 25 USD/mies.) | Codzienne kopie (7 dni), brak wstrzymywania, 8 GB, wsparcie e-mail | **Potrzebny, zanim wpuścisz testerów z prawdziwymi danymi klientów**: bez kopii utrata danych jest nieodwracalna, a wstrzymany projekt wyłącza aplikację |
+| **Vercel Hobby** (0 USD) | Hosting aplikacji i własna domena z HTTPS, wystarczające limity. Zgodnie z regulaminem Vercel **tylko do użytku osobistego i niekomercyjnego**. Cron Vercel tylko raz dziennie (wdrożenie z częstszym harmonogramem jest odrzucane) | Wystarczy na staging do własnych prób. Cron nie jest problemem: harmonogram jest w bazie (krok 5a) |
+| **Vercel Pro** (20 USD/mies. za użytkownika) | Użytek komercyjny, cron co minutę, dłuższe logi, wsparcie | Potrzebny, gdy staging obsługuje obcych testerów w ramach przedsięwzięcia, które ma się stać płatnym produktem (ocena „komercyjności” należy do Vercel, przy wątpliwości wybierz Pro) |
+| Resend, Sentry, UptimeRobot | Darmowe plany wystarczają na start | Bez opłat |
+
+**Rekomendowana ścieżka:** (1) staging dla siebie: Supabase Free + Vercel Hobby, 0 zł, cron z bazy; (2) przed pierwszym obcym testerem: Supabase Pro i Vercel Pro (ok. 45 USD/mies. razem). Przejście z Free na Pro nie wymaga zmian w kodzie ani migracji danych (ten sam projekt, zmiana planu w panelu). Na Free rób własne kopie przed ważnymi zmianami (`npx.cmd supabase db dump --linked -f kopia.sql`; wymaga Dockera, nie testowane przeze mnie na zdalnym projekcie) i otwieraj projekt co kilka dni, żeby nie został wstrzymany.
+
 ## Krok 0. Decyzje (5 min)
 
 1. **Adres:** subdomena aplikacji, np. `staging.twojadomena.pl` (na produkcji później `app.twojadomena.pl`).
-2. **Plan Vercel:** cron co minutę wymaga planu **Pro**. Na planie Hobby Vercel odrzuci wdrożenie z takim harmonogramem: wtedy usuń blok `crons` z `vercel.json` i ustaw zewnętrzny harmonogram (np. cron-job.org) wywołujący `GET https://adres/api/cron/outbox` co 1-5 minut z nagłówkiem `Authorization: Bearer <CRON_SECRET>`.
+2. **Plany:** zdecyduj według sekcji „Plany” powyżej (Free/Hobby na próby własne, Pro przed obcymi testerami). Kod i instrukcja są takie same dla obu wariantów; cron idzie z bazy (krok 5a), więc plan Vercel go nie ogranicza.
 3. **Gałąź wdrożeń:** na staging ustaw w Vercel gałąź produkcyjną **`dev`** (tak działa przepływ z `CLAUDE.md`: `main` zmienia się tylko po Twojej zgodzie). Przed zaproszeniem testerów możesz przełączyć ją na `main` po scaleniu `dev` do `main`.
 4. **Wymaganie wstępne:** wszystkie PR-y (etapy 4, 5, opinie i import, CI, regulamin i zgody, ten) scalone do `dev`; lokalnie `git checkout dev && git pull`.
 
@@ -84,7 +99,15 @@ npx.cmd web-push generate-vapid-keys                                            
 2. **Settings → Git → Production Branch:** `dev` (krok 0.3). Region funkcji ustawia `vercel.json` (`fra1`).
 3. **Settings → Environment Variables:** wklej zawartość `.env.staging` (formularz przyjmuje wiele linii naraz) dla środowiska **Production**; zmienne `NEXT_PUBLIC_*` są wbudowywane podczas builda, więc ustaw je **przed** pierwszym wdrożeniem.
 4. **Settings → Domains:** dodaj `staging.twojadomena.pl` i ustaw w DNS rekord CNAME wskazany przez Vercel (HTTPS włączy się sam).
-5. Wdróż (push do `dev` albo „Redeploy”). Cron pojawi się w Settings → Cron Jobs; działa tylko dla wdrożenia produkcyjnego.
+5. Wdróż (push do `dev` albo „Redeploy”).
+
+## Krok 5a. Cron powiadomień (🧑, 5 min)
+
+Bez crona aplikacja **nie wysyła żadnych powiadomień** (ani push, ani e-mail), a dzwonek się nie wypełnia. Zadanie co minutę uruchamia baza:
+
+1. Supabase → SQL Editor → wklej `supabase/cron/outbox-cron.sql`, podmień `<WARTOŚĆ CRON_SECRET>` (ta sama co w Vercel) i `<ADRES APLIKACJI>` i uruchom.
+2. Po minucie sprawdź (zapytania są w komentarzu na końcu pliku): w `net._http_response` ma być kod **200** z raportem procesora; 401 = zły sekret, 503 = brak `CRON_SECRET` we wdrożeniu.
+3. **Alternatywa na Vercel Pro:** zamiast SQL dodaj do `vercel.json` `"crons": [{ "path": "/api/cron/outbox", "schedule": "* * * * *" }]` (Vercel sam wysyła `Authorization: Bearer $CRON_SECRET`). Nie włączaj obu naraz. Na Hobby taki wpis zatrzyma wdrożenie.
 
 ## Krok 6. Test dymny (🧑, 2 min)
 
@@ -94,7 +117,7 @@ npm.cmd run smoke -- https://staging.twojadomena.pl
 Remove-Item Env:CRON_SECRET
 ```
 
-Oczekiwany wynik: wszystkie pozycje `OK` (strony publiczne, manifest, `sw.js`, 404, przekierowania z `/app`, `/portal`, `/admin`, nagłówki bezpieczeństwa w tym HSTS, cron odrzuca brak sekretu i przyjmuje poprawny). Błąd „503: CRON_SECRET nie jest ustawiony” znaczy, że zmienne nie dotarły do wdrożenia (po zmianie zmiennych zrób Redeploy).
+Oczekiwany wynik: wszystkie pozycje `OK` (strony publiczne, manifest, `sw.js`, 404, przekierowania z `/app`, `/portal`, `/admin`, nagłówki bezpieczeństwa w tym HSTS, trasa crona odrzuca brak sekretu i przyjmuje poprawny; samo uruchamianie crona sprawdzisz w kroku 5a). Błąd „503: CRON_SECRET nie jest ustawiony” znaczy, że zmienne nie dotarły do wdrożenia (po zmianie zmiennych zrób Redeploy).
 
 ## Krok 7. Konto właściciela i zamknięcie rejestracji (🧑, 15 min)
 
@@ -120,7 +143,7 @@ Wykonaj listę z sekcji 6 dokumentu [WDROZENIE-DEMO-10-TESTEROW.md](WDROZENIE-DE
 
 ## Krok 9. Monitoring i kopie (🧑, 20 min)
 
-1. **Monitor dostępności** (UptimeRobot lub podobny): adres `https://staging.twojadomena.pl/login`, alert na e-mail. Trasa crona wymaga nagłówka, więc zdrowie powiadomień sprawdzaj w Vercel → Logs (wywołania `/api/cron/outbox` co minutę; kod 500 oznacza zdarzenia, które wyczerpały 5 prób).
+1. **Monitor dostępności** (UptimeRobot lub podobny): adres `https://staging.twojadomena.pl/login`, alert na e-mail. Trasa crona wymaga nagłówka, więc zdrowie powiadomień sprawdzaj zapytaniem z końca `supabase/cron/outbox-cron.sql` (`net._http_response`: kod 200 = w porządku, 500 = są zdarzenia, które wyczerpały 5 prób) albo w Vercel → Logs.
 2. **Sentry** (opcjonalnie, darmowy plan): na razie nie jest podłączony w kodzie (to osobne zadanie).
 3. **Test odtworzenia kopii** na osobnym projekcie przed startem testów: kopia, której nie odtworzono, nie istnieje.
 
@@ -136,11 +159,13 @@ Wykonaj listę z sekcji 6 dokumentu [WDROZENIE-DEMO-10-TESTEROW.md](WDROZENIE-DE
 | Objawy | Przyczyna i rozwiązanie |
 | --- | --- |
 | Build w Vercel się nie udaje: „invalid input” przy zmiennych | Brak `NEXT_PUBLIC_SUPABASE_URL` lub klucza anon; uruchom `npm run env:check` i wklej ponownie |
-| Wdrożenie odrzucone z powodu crona | Plan Hobby: usuń blok `crons` z `vercel.json` i użyj zewnętrznego harmonogramu (krok 0.2) |
+| Wdrożenie odrzucone z powodu crona | Plan Hobby nie przyjmuje harmonogramu częstszego niż raz dziennie: usuń blok `crons` z `vercel.json` i użyj crona z bazy (krok 5a) |
+| Powiadomienia nie wychodzą, a `net._http_response` pokazuje błąd | 401: różni się sekret w Vault i `CRON_SECRET` (usuń sekret `delete from vault.secrets where name = 'dogtrainer_cron_secret'` i dodaj poprawny); 503: brak `CRON_SECRET` we wdrożeniu; timeout: spróbuj ponownie (procesor ponawia zdarzenia) |
+| Supabase Free: aplikacja przestała działać po tygodniu | Projekt został wstrzymany z powodu braku aktywności: wznów go w panelu (dane zostają); zadanie crona też działa tylko, gdy projekt jest aktywny |
 | Link w e-mailu (potwierdzenie, reset) prowadzi na `localhost` albo kończy błędem | Zły `Site URL` / `Redirect URLs` w Supabase (krok 1.4) |
 | E-maile Supabase (potwierdzenie, reset) nie dochodzą | Nie ustawiono własnego SMTP (krok 1.7) albo domena nie jest zweryfikowana w Resend |
 | E-maile aplikacji (powiadomienia, zaproszenia) nie dochodzą | `RESEND_API_KEY` / `EMAIL_FROM` niepoprawne; zobacz `notification_log` (kolumna `detail`) i logi crona |
-| Brak powiadomień push | Cron nie działa (krok 6), brak kluczy VAPID, na iPhonie aplikacja nie jest dodana do ekranu głównego |
+| Brak powiadomień push | Cron nie działa (krok 5a), brak kluczy VAPID, na iPhonie aplikacja nie jest dodana do ekranu głównego |
 | `/admin` pyta o weryfikację dwuetapową i nie wpuszcza | Skonfiguruj TOTP w `/admin/mfa` (krok 7.3); awaryjnie `ADMIN_REQUIRE_MFA=0` i Redeploy |
 | „Rejestracja jest na razie zamknięta” u nowego testera | Prawidłowe zachowanie: podaj mu kod beta z `/admin/codes` |
 | Smoke: brak HSTS | Sprawdź, że to wdrożenie produkcyjne (`NODE_ENV=production`) pod adresem https |
@@ -151,6 +176,6 @@ Wykonaj listę z sekcji 6 dokumentu [WDROZENIE-DEMO-10-TESTEROW.md](WDROZENIE-DE
 - [ ] `npm run smoke` bez błędów na adresie stagingu
 - [ ] Rejestracja z potwierdzeniem e-mail działa, wiadomość po polsku i angielsku
 - [ ] Konto właściciela z MFA, rejestracja zamknięta, kod beta działa
-- [ ] Push i e-mail z powiadomieniem dochodzą (telefon), PWA zainstalowana
+- [ ] Cron z bazy działa (`net._http_response` kod 200), push i e-mail z powiadomieniem dochodzą (telefon), PWA zainstalowana
 - [ ] Monitor dostępności i alert, test odtworzenia kopii
 - [ ] Regulamin i polityka prywatności przejrzane przez prawnika (do tego czasu banner „wersja robocza”)

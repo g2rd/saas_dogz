@@ -112,7 +112,7 @@ Trener z 30-100 klientami nie wpisze ich ręcznie, więc test bez importu da zaf
 4. Darmowy plan ma limity dzienne i miesięczne; przy 10 trenerach i ich klientach prawdopodobnie wystarczy na start, ale sprawdź zużycie po pierwszym tygodniu.
 
 ## 5. Vercel i zmienne środowiskowe (🧑 + 🤖)
-**Skrót wykonawczy z gotowymi poleceniami (`env:check`, `smoke`, szablony e-maili, cron w `vercel.json`): [WDROZENIE-STAGING.md](WDROZENIE-STAGING.md).** Poniżej opis pierwotny.
+**Skrót wykonawczy z gotowymi poleceniami (`env:check`, `smoke`, szablony e-maili, cron z bazy, wybór planów): [WDROZENIE-STAGING.md](WDROZENIE-STAGING.md).** Poniżej opis pierwotny (cron: wolisz wersję z bazy, bo działa na każdym planie Vercel; wpis `vercel.json` z punktu 3 dotyczy tylko planu Pro).
 
 1. Vercel → Add New → Project → zaimportuj repozytorium. Framework: Next.js (wykryty). Gałąź produkcyjna: **`main`** (zmieniamy ją tylko po Twojej zgodzie). Wersja Node: ustaw zgodną z lokalną (24.x, jeśli dostępna, w przeciwnym razie najnowsza LTS; sprawdź, czy `build` przechodzi). Region funkcji: **Frankfurt (`fra1`)** (Settings → Functions).
 2. **Zmienne środowiskowe (Production):**
