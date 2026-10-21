@@ -35,6 +35,7 @@ Test push i instalacji PWA na telefonie (tunel HTTPS): sekcja 7 dokumentu o stan
 | `npm run check:boundaries` | Granice modułów (dependency-cruiser) |
 | `npm run outbox:run` | Ręczne wywołanie przetwarzania powiadomień przez trasę cron (`CRON_SECRET`) |
 | `npm run seed:dev` | Dane deweloperskie (konto trenera, klienci, psy, pakiet, zajęcia) |
+| `npm run seed:demo` | Dane demo dla panelu `/admin`: 10 szkół o różnym statusie i aktywności (tylko lokalnie; hasło kont demo w dokumencie o stanie prac) |
 | `npm run admin:grant -- adres@example.pl` | Nadaje (albo z `--revoke` odbiera) uprawnienia właściciela platformy, czyli dostęp do `/admin` |
 | `npm run db:start` / `db:reset` / `db:types` | Lokalny Supabase / migracje / typy bazy |
 
