@@ -3,7 +3,8 @@
 import { useActionState } from "react";
 import type { FormState } from "@/shared/form";
 import { FormMessage, SelectField, SubmitButton, TextField } from "@/shared/ui/form-fields";
-import { CLIENT_STATUSES, CLIENT_STATUS_LABELS, type ClientStatus } from "../domain/client";
+import { CLIENT_STATUSES, type ClientStatus } from "../domain/client";
+import { useTranslations } from "next-intl";
 
 export type ClientFormValues = {
   firstName: string;
@@ -22,6 +23,7 @@ export function ClientForm({
   values?: ClientFormValues;
   submitLabel: string;
 }) {
+  const t = useTranslations();
   const [state, formAction] = useActionState(action, {});
   const errors = state.fieldErrors ?? {};
   // React 19 czyści formularz po akcji; po błędzie wracamy do tego, co wpisał użytkownik.
@@ -29,10 +31,10 @@ export function ClientForm({
 
   return (
     <form action={formAction} className="flex max-w-md flex-col gap-4">
-      <TextField label="Imię" name="firstName" defaultValue={v("firstName", values?.firstName)} errors={errors.firstName} required />
-      <TextField label="Nazwisko" name="lastName" defaultValue={v("lastName", values?.lastName)} errors={errors.lastName} />
+      <TextField label={t("clients.clientForm.imie")} name="firstName" defaultValue={v("firstName", values?.firstName)} errors={errors.firstName} required />
+      <TextField label={t("clients.clientForm.nazwisko")} name="lastName" defaultValue={v("lastName", values?.lastName)} errors={errors.lastName} />
       <TextField
-        label="E-mail"
+        label={t("common.e_mail")}
         name="email"
         type="email"
         defaultValue={v("email", values?.email)}
@@ -40,19 +42,19 @@ export function ClientForm({
         autoComplete="off"
       />
       <TextField
-        label="Telefon"
+        label={t("clients.clientForm.telefon")}
         name="phone"
         type="tel"
         defaultValue={v("phone", values?.phone)}
         errors={errors.phone}
-        hint="Numer polski bez prefiksu zapiszemy jako +48"
+        hint={t("clients.clientForm.numer_polski_bez_prefiksu_zapiszemy_jako")}
         autoComplete="off"
       />
       <SelectField
-        label="Status"
+        label={t("clients.clientForm.status")}
         name="status"
         defaultValue={v("status", values?.status ?? "active")}
-        options={CLIENT_STATUSES.map((s) => ({ value: s, label: CLIENT_STATUS_LABELS[s] }))}
+        options={CLIENT_STATUSES.map((s) => ({ value: s, label: t(`labels.clientStatus.${s}`) }))}
       />
       <FormMessage state={state} />
       <div>

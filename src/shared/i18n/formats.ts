@@ -1,6 +1,6 @@
 import { formatIsoDate } from "../dates";
 import type { Money } from "../money";
-import { formatDateHeading } from "../time";
+import { formatDateHeading, formatDateHeadingTitle } from "../time";
 
 /**
  * Formatowanie dat, godzin i kwot zależne od języka (`Intl`). Funkcje czyste: język podajemy jawnie (np. `pl`, `en-GB`).
@@ -56,6 +56,8 @@ export function createFormats(locale: string) {
     date: (at: Date, timeZone?: string) => formatDate(at, locale, timeZone),
     dateTime: (at: Date, timeZone?: string) => formatDateTime(at, locale, timeZone),
     dayHeading: (isoDate: string) => formatDayHeading(isoDate, locale),
+    /** Nagłówek dnia z wielką pierwszą literą („Piątek, 16 października”). */
+    dayHeadingTitle: (isoDate: string) => formatDateHeadingTitle(isoDate, locale),
     money: (value: Money) => formatCurrency(value, locale),
     number: (value: number, options?: Intl.NumberFormatOptions) => formatNumber(value, locale, options),
     list: (items: string[]) => formatList(items, locale),

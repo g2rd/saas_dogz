@@ -4,15 +4,18 @@ import { PreferencesForm, PushToggle, getNotificationPreferences } from "@/modul
 import { notificationEnv } from "@/shared/env";
 import { requireContext } from "../../../_lib/context";
 import { savePreferencesAction, subscribePushAction, unsubscribePushAction } from "../actions";
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
 export default function NotificationSettingsPage() {
+  const t = useTranslations();
   return (
     <>
       <Link href="/app/notifications" className="text-sm underline">
-        ← Powiadomienia
+        {t("common.powiadomienia_2")}
       </Link>
-      <h1 className="mt-2 text-2xl font-semibold">Ustawienia powiadomień</h1>
-      <Suspense fallback={<p className="mt-4 text-zinc-500">Ładowanie...</p>}>
+      <h1 className="mt-2 text-2xl font-semibold">{t("common.ustawienia_powiadomien")}</h1>
+      <Suspense fallback={<p className="mt-4 text-zinc-500">{t("common.ladowanie")}</p>}>
         <Settings />
       </Suspense>
     </>
@@ -20,6 +23,7 @@ export default function NotificationSettingsPage() {
 }
 
 async function Settings() {
+  const t = await getTranslations();
   const ctx = await requireContext();
   const result = await getNotificationPreferences(ctx);
   if (!result.ok) throw new Error(result.error.message);
@@ -32,7 +36,7 @@ async function Settings() {
         subscribeAction={subscribePushAction}
         unsubscribeAction={unsubscribePushAction}
       />
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">Urządzenia z włączonym push: {result.value.pushDevices}.</p>
+      <p className="text-sm text-zinc-600 dark:text-zinc-400">{t("trainer.notificationsSettingsPage.urzadzenia_z_wlaczonym_push_pushdevices", { pushDevices: result.value.pushDevices })}</p>
     </section>
   );
 }

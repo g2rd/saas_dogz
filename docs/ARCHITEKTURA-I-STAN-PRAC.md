@@ -21,7 +21,7 @@ Stan na 2026-10-21 (`origin/dev` = `ee20159`, `origin/main` = `19b334a`). Dokume
 | 7. Wolne terminy: lista chętnych, „Biorę”, wybór trenera, „Nie mogę przyjść” | ✅ (ADR 0010, migracja 0009) | `dev` |
 | 8. Potwierdzenia, cofanie pomyłek, okno 30 s (ADR 0011, migracja 0010) | ✅ | `dev` |
 | 9. Panel właściciela `/admin`, status szkoły (próba/aktywna/tylko do odczytu/zawieszona) z blokadą w bazie, zamknięta rejestracja kodami beta, MFA admina, poprawka błędu 500 przy wyborze zgłoszenia na wolny termin (ADR 0012, migracja 0011) | ✅ kod i testy, ⏳ zostały przeklikać rejestrację z kodem w przeglądarce i test na środowisku zdalnym | `dev` (lokalnie, niewypchnięte) |
-| 9b. Wielojęzyczność, etapy 0-2: `next-intl`, wybór języka z urządzenia i w `Więcej`, formatery, waluta i strefa szkoły z urządzenia, błędy i walidacja jako klucze (ADR 0013, migracja 0012, [WDROZENIE-WIELOJEZYCZNOSCI.md](WDROZENIE-WIELOJEZYCZNOSCI.md)) | ✅ kod i testy; teksty interfejsu dalej po polsku (etap 3) | PR `feat/i18n-foundation` (czeka na zatwierdzenie właściciela) |
+| 9b. Wielojęzyczność, etapy 0-3: `next-intl`, wybór języka z urządzenia i w `Więcej`, formatery, waluta i strefa szkoły z urządzenia, błędy i walidacja jako klucze, teksty UI w katalogu `pl` (680 kluczy) (ADR 0013, migracja 0012, [WDROZENIE-WIELOJEZYCZNOSCI.md](WDROZENIE-WIELOJEZYCZNOSCI.md)) | ✅ kod i testy; angielski nie jest jeszcze przetłumaczony (etap 5), powiadomienia i e-maile dalej po polsku (etap 4) | PR-y `feat/i18n-foundation` i `feat/i18n-ui-texts` (czekają na zatwierdzenie właściciela) |
 | **10. Oddanie testerom na 2 tygodnie** (staging z HTTPS, regulamin i zgody, formularz opinii, import CSV, seed demo) | ⏳ **następny krok** (sekcja 8, instrukcja: `WDROZENIE-DEMO-10-TESTEROW.md`) | |
 
 Zdalne repozytorium: `https://github.com/g2rd/saas_dogz`. **Gałąź `dev` jest gałęzią integracyjną: tam trafiają wszystkie zmiany. `main` zawiera tylko to, co właściciel zatwierdził; do `main` wchodzimy dopiero po jego wyraźnym zatwierdzeniu (merge `dev` do `main` i push).** Ostatnie wypchnięcie `dev`: 2026-10-16 (commit `ee20159`). `main` jest nadal na etapach do 3.
@@ -214,8 +214,8 @@ Migracje `supabase/migrations/20261016000001` … `0012` (wszystkie zastosowane 
 | --- | --- | --- |
 | Typy | `npm run typecheck` | czysto |
 | Lint | `npm run lint` | czysto |
-| Testy jednostkowe (domena, symulacja service workera, i18n) | `npm test` | 204/204 |
-| Granice modułów | `npm run check:boundaries` | brak naruszeń (245 modułów) |
+| Testy jednostkowe (domena, symulacja service workera, i18n) | `npm test` | 207/207 |
+| Granice modułów | `npm run check:boundaries` | brak naruszeń (246 modułów) |
 | Build produkcyjny | `npm run build` | przechodzi (trasy panelu to częściowy prerender) |
 | Testy RLS i funkcji SQL (pgTAP) | `npm run db:test` | 231/231 (11 plików; `i18n.test.sql`: język profilu, waluta szkoły; `platform_admin.test.sql`: status, blokada zapisów i odczytów, ochrona kolumn, funkcje tylko `service_role`, wygaszanie, zamknięta rejestracja) |
 | Testy przypadków użycia na prawdziwej bazie (z Mailpit) | `npm run test:integration` | 136/136 (11 plików; `i18n.integration.test.ts`: język w profilu, ustawienia szkoły z urządzenia, waluta rekordów; `admin.integration.test.ts`: panel, blokada, kody beta, rejestracja przy zamkniętym naborze także bezpośrednio przez API) |
@@ -297,7 +297,8 @@ Szczegółowa ścieżka do sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJN
 
 ### A4. Wielojęzyczność (plan: [WDROZENIE-WIELOJEZYCZNOSCI.md](WDROZENIE-WIELOJEZYCZNOSCI.md))
 - [x] Etapy 0-2: fundament, wybór języka, formatery, waluta i strefa szkoły z urządzenia, błędy i walidacja jako klucze (PR `feat/i18n-foundation`).
-- [ ] Etap 3: wyciągnięcie tekstów modułami (ok. 750 linii w 181 plikach) do katalogów `pl`, potem `en`; ekran ustawień szkoły (waluta, strefa, język domyślny); wywołania `formatMoney`/`formatIsoDate`/`formatDateHeading` na formatery.
+- [x] Etap 3 (część UI): teksty komponentów w katalogu `pl` (680 kluczy), etykiety, komunikaty akcji, formatery.
+- [ ] Etap 3, reszta: ekran ustawień szkoły (waluta, strefa, język domyślny) i blokada zmiany waluty przy istniejących rekordach z kwotami; metadane i manifest; teksty zależne od kraju (BLIK, `+48`).
 - [ ] Etap 4: powiadomienia, e-mail i push w języku odbiorcy (`message_key` + `params`), strona offline i manifest.
 - [ ] Etap 5: angielski (tłumaczenie z przeglądem, pseudo-lokalizacja), włączenie `ENABLED_LOCALES=pl,en`; etap 6: trzeci język jako test skalowalności.
 

@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { FormMessage, SubmitButton, TextField } from "@/shared/ui/form-fields";
 import type { SignupState } from "./actions";
+import { useTranslations } from "next-intl";
 
 export function SignupForm({
   action,
@@ -14,13 +15,14 @@ export function SignupForm({
   /** Rejestracja zamknięta: wymagany kod zaproszenia od zespołu. */
   requireCode?: boolean;
 }) {
+  const t = useTranslations();
   const [state, formAction] = useActionState(action, {});
   const errors = state.fieldErrors ?? {};
 
   if (state.confirmationSent) {
     return (
       <p role="status" className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-        Wysłaliśmy wiadomość z linkiem potwierdzającym. Kliknij go, aby aktywować konto.
+        {t("auth.signupSignupForm.wyslalismy_wiadomosc_z_linkiem")}
       </p>
     );
   }
@@ -30,24 +32,24 @@ export function SignupForm({
       <input type="hidden" name="next" value={next} />
       {requireCode ? (
         <TextField
-          label="Kod zaproszenia"
+          label={t("common.kod_zaproszenia")}
           name="betaCode"
           autoComplete="off"
           defaultValue={state.values?.betaCode}
           errors={errors.betaCode}
-          hint="Rejestracja jest na razie zamknięta. Kod dostajesz od zespołu DogTrainer, np. ABCD-EFGH-JKMN"
+          hint={t("auth.signupSignupForm.rejestracja_jest_na_razie_zamknieta_kod")}
           required
         />
       ) : null}
       <TextField
-        label="Imię i nazwisko"
+        label={t("common.imie_i_nazwisko")}
         name="fullName"
         autoComplete="name"
         defaultValue={state.values?.fullName}
         errors={errors.fullName}
       />
       <TextField
-        label="E-mail"
+        label={t("common.e_mail")}
         name="email"
         type="email"
         autoComplete="email"
@@ -56,17 +58,17 @@ export function SignupForm({
         required
       />
       <TextField
-        label="Hasło"
+        label={t("common.haslo")}
         name="password"
         type="password"
         autoComplete="new-password"
-        hint="Co najmniej 8 znaków"
+        hint={t("common.co_najmniej_8_znakow")}
         errors={errors.password}
         required
       />
       <FormMessage state={state} />
       <div>
-        <SubmitButton pendingLabel="Tworzenie konta...">Załóż konto</SubmitButton>
+        <SubmitButton pendingLabel={t("auth.signupSignupForm.tworzenie_konta")}>{t("common.zaloz_konto")}</SubmitButton>
       </div>
     </form>
   );

@@ -43,5 +43,8 @@
   "charge_settled": "Ta należność jest już opłacona lub anulowana",
   "password_weak_hint": "Wybierz mocniejsze hasło",
   "password_same_as_old": "Nowe hasło musi różnić się od obecnego",
-  "reason_required": "Powód jest wymagany przy blokadzie"
+  "reason_required": "Powód jest wymagany przy blokadzie",
+  "password_min": "Hasło musi mieć co najmniej {min} znaków",
+  "password_max": "Hasło może mieć najwyżej {max} znaków",
+  "adjustment_zero": "Korekta nie może być zerowa"
 }

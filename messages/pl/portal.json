@@ -1,0 +1,73 @@
+{
+  "dogsPage": {
+    "moje_psy": "Moje psy",
+    "nie_dodano_jeszcze_zadnego_psa": "Nie dodano jeszcze żadnego psa.",
+    "brak_dodatkowych_danych": "Brak dodatkowych danych",
+    "trener_zatwierdzi_psa_zanim_pojawi_sie_w": "Trener zatwierdzi psa, zanim pojawi się w zajęciach i pakietach.",
+    "wyslij_do_zatwierdzenia": "Wyślij do zatwierdzenia"
+  },
+  "morePage": {
+    "zobacz_wszystkie_powiadomienia": "Zobacz wszystkie powiadomienia"
+  },
+  "notificationsPage": {
+    "ustawienia": "Ustawienia"
+  },
+  "page": {
+    "wykorzystany": "Wykorzystany",
+    "z_sessionstotal_zajec_zostalo": "z {sessionsTotal} zajęć zostało",
+    "czesc_clientfirstname": "Cześć, {clientFirstName}",
+    "zostaly_ci_balance_sessionsword": "Zostały Ci {balance} {sessionsWord}.",
+    "zostalo_ci_ostatnie_zajecie": "Zostało Ci ostatnie zajęcie.",
+    "twoj_pakiet_sie_skonczyl": "Twój pakiet się skończył.",
+    "pakiet_name_co_robisz_dalej_trener": "Pakiet „{name}”. Co robisz dalej? Trener dostanie Twoją odpowiedź.",
+    "twoje_zajecia": "Twoje zajęcia",
+    "nie_masz_jeszcze_pakietu_zajec": "Nie masz jeszcze pakietu zajęć.",
+    "platnosc": "Płatność",
+    "po_terminie_termin_minal_formatisodate": "Po terminie, termin minął {formatIsoDate}",
+    "termin_platnosci_formatisodate": "Termin płatności: {formatIsoDate}",
+    "lacznie_do_zaplaty_formatmoney": "Łącznie do zapłaty: {formatMoney}",
+    "wszystko_oplacone_dziekujemy": "Wszystko opłacone. Dziękujemy!",
+    "wplate_ksieguje_trener_po_jej_otrzymaniu": "Wpłatę księguje trener po jej otrzymaniu, więc saldo zmieni się chwilę po płatności.",
+    "najblizsze_zajecia": "Najbliższe zajęcia",
+    "wszystkie": "Wszystkie",
+    "psy_czekajace_na_zatwierdzenie_przez": "Psy czekające na zatwierdzenie przez trenera: {pendingDogs}."
+  },
+  "paymentsPage": {
+    "do_zaplaty": "Do zapłaty",
+    "nadplata_na_koncie_fmt": "Nadpłata na koncie: {fmt}",
+    "wplate_ksieguje_trener_po_jej_otrzymaniu": "Wpłatę księguje trener po jej otrzymaniu (gotówka, przelew lub BLIK), więc saldo zmienia się chwilę po płatności.",
+    "naleznosci": "Należności",
+    "nie_ma_jeszcze_zaksiegowanych_wplat": "Nie ma jeszcze zaksięgowanych wpłat."
+  },
+  "pushPrompt": {
+    "wlacz": "Włącz",
+    "text": "<strong>Włącz powiadomienia push.</strong> Dostaniesz przypomnienia o zajęciach, wolne terminy i informacje od trenera."
+  },
+  "sessionsPage": {
+    "nie_moge_przyjsc_wysyla_informacje": "„Nie mogę przyjść” wysyła informację trenerowi. To trener odwołuje zajęcia (zgodnie z zasadami szkoły) i może zaproponować termin innym.",
+    "nie_ma_jeszcze_odbytych_zajec": "Nie ma jeszcze odbytych zajęć."
+  },
+  "slotsSection": {
+    "zgloszono_czekasz_na_decyzje_trenera": "Zgłoszono. Czekasz na decyzję trenera.",
+    "wycofaj_zgloszenie": "Wycofaj zgłoszenie",
+    "wycofywanie": "Wycofywanie...",
+    "jestes_na_liscie_chetnych": "Jesteś na liście chętnych",
+    "gdy_zwolni_sie_termin_dostaniesz": "Gdy zwolni się termin, dostaniesz powiadomienie. Kto pierwszy zgłosi „Biorę”, ten ma pierwszeństwo, ale wybiera trener.",
+    "wypisz_mnie_z_listy_chetnych": "Wypisz mnie z listy chętnych",
+    "chcesz_wczesniejszy_termin": "Chcesz wcześniejszy termin?",
+    "zapisz_sie_na_liste_chetnych_gdy_ktos": "Zapisz się na listę chętnych: gdy ktoś odwoła zajęcia, dostaniesz powiadomienie i możesz zająć wolny termin.",
+    "zapisz_mnie_na_liste_chetnych": "Zapisz mnie na listę chętnych"
+  },
+  "claimSlotForm": {
+    "ktory_pies": "Który pies?",
+    "biore": "Biorę",
+    "zglaszanie": "Zgłaszanie..."
+  },
+  "nav": {
+    "start": "Start",
+    "sessions": "Zajęcia",
+    "payments": "Płatności",
+    "dogs": "Psy",
+    "more": "Więcej"
+  }
+}

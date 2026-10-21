@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { ConfirmSubmit } from "@/shared/ui/confirm";
 import { Msg } from "@/shared/ui/msg";
+import { useTranslations } from "next-intl";
 
 /** Wynik akcji na zajęciach: komunikat o skutku albo błąd (z podpowiedzią, gdy brakuje pakietu). */
 export type SessionActionState = {
@@ -46,6 +47,7 @@ export function SessionActions({
   /** Odwołane zajęcia, które jeszcze się nie zaczęły: można przywrócić. */
   canRestore: boolean;
 }) {
+  const t = useTranslations();
   const [completeState, completeForm] = useActionState(completeAction, {});
   const [cancelState, cancelForm] = useActionState(cancelAction, {});
   const [undoState, undoForm] = useActionState(undoCompleteAction, {});
@@ -60,29 +62,29 @@ export function SessionActions({
         <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
           <form action={completeForm}>
             <ConfirmSubmit
-              title="Zakończyć zajęcia?"
+              title={t("scheduling.sessionActions.zakonczyc_zajecia")}
               description={
                 <>
-                  <p>Zajęcia zostaną rozliczone: zużyjemy jedno zajęcie z pakietu klienta (a bez pakietu zapytamy o należność).</p>
-                  <p className="mt-2">Pomyłkę możesz cofnąć do końca dnia.</p>
+                  <p>{t("scheduling.sessionActions.zajecia_zostana_rozliczone_zuzyjemy_jedno")}</p>
+                  <p className="mt-2">{t("scheduling.sessionActions.pomylke_mozesz_cofnac_do_konca_dnia")}</p>
                 </>
               }
-              confirmLabel="Zakończ zajęcia"
-              pendingLabel="Rozliczanie..."
+              confirmLabel={t("scheduling.sessionActions.zakoncz_zajecia")}
+              pendingLabel={t("scheduling.sessionActions.rozliczanie")}
               tone="primary"
             >
-              Zakończ zajęcia
+              {t("scheduling.sessionActions.zakoncz_zajecia")}
             </ConfirmSubmit>
           </form>
           <details className="text-sm">
             <summary className="inline-flex h-11 cursor-pointer items-center rounded-full border border-red-300 bg-red-50 px-5 font-medium text-red-700 hover:bg-red-100">
-              Odwołaj zajęcia
+              {t("scheduling.sessionActions.odwolaj_zajecia")}
             </summary>
             <form action={cancelForm} className="mt-2 flex max-w-xs flex-col gap-2 rounded-lg border border-zinc-200 p-3">
               <p className="text-zinc-600">
                 {cancelConsumesByPolicy
-                  ? `Do zajęć zostało mniej niż ${lateCancelHours} h, więc według polityki zajęcie z pakietu przepada.`
-                  : "Odwołanie bez konsekwencji dla pakietu."}
+                  ? t("scheduling.sessionActions.do_zajec_zostalo_mniej_niz", { lateCancelHours })
+                  : t("scheduling.sessionActions.odwolanie_bez_konsekwencji_dla_pakietu")}
               </p>
               <label className="flex items-start gap-2">
                 <input
@@ -92,28 +94,27 @@ export function SessionActions({
                   defaultChecked
                   className="mt-1"
                 />
-                <span>Zgodnie z polityką</span>
+                <span>{t("scheduling.sessionActions.zgodnie_z_polityka")}</span>
               </label>
               <label className="flex items-start gap-2">
                 <input type="radio" name="consume" value={cancelConsumesByPolicy ? "0" : "1"} className="mt-1" />
-                <span>{cancelConsumesByPolicy ? "Nie nalicz zajęcia (wyjątek)" : "Nalicz zajęcie z pakietu"}</span>
+                <span>{cancelConsumesByPolicy ? t("scheduling.sessionActions.nie_nalicz_zajecia_wyjatek") : t("scheduling.sessionActions.nalicz_zajecie_z_pakietu")}</span>
               </label>
               <ConfirmSubmit
                 variant="danger"
-                title="Odwołać zajęcia?"
+                title={t("scheduling.sessionActions.odwolac_zajecia")}
                 description={
                   <>
                     <p>
-                      Klient dostanie powiadomienie o odwołaniu za 30 sekund. Jeśli w tym czasie przywrócisz zajęcia, nie dostanie
-                      żadnego.
+                      {t("scheduling.sessionActions.klient_dostanie_powiadomienie_o_odwolaniu")}
                     </p>
-                    <p className="mt-2">Termin zwolni się i będziesz mógł ogłosić go klientom z listy chętnych.</p>
+                    <p className="mt-2">{t("scheduling.sessionActions.termin_zwolni_sie_i_bedziesz_mogl_oglosic")}</p>
                   </>
                 }
-                confirmLabel="Odwołaj zajęcia"
-                pendingLabel="Odwoływanie..."
+                confirmLabel={t("scheduling.sessionActions.odwolaj_zajecia")}
+                pendingLabel={t("common.odwolywanie")}
               >
-                Odwołaj zajęcia
+                {t("scheduling.sessionActions.odwolaj_zajecia")}
               </ConfirmSubmit>
             </form>
           </details>
@@ -125,16 +126,16 @@ export function SessionActions({
           <div>
             <ConfirmSubmit
               variant="secondary"
-              title="Cofnąć zakończenie zajęć?"
-              description="Zajęcie wróci do pakietu klienta, a nieopłacona należność za te zajęcia zostanie anulowana. Zajęcia wrócą do statusu „Zaplanowane”."
-              confirmLabel="Cofnij zakończenie"
-              pendingLabel="Cofanie..."
+              title={t("scheduling.sessionActions.cofnac_zakonczenie_zajec")}
+              description={t("scheduling.sessionActions.zajecie_wroci_do_pakietu_klienta_a")}
+              confirmLabel={t("scheduling.sessionActions.cofnij_zakonczenie")}
+              pendingLabel={t("scheduling.sessionActions.cofanie")}
               tone="primary"
             >
-              Cofnij zakończenie
+              {t("scheduling.sessionActions.cofnij_zakonczenie")}
             </ConfirmSubmit>
           </div>
-          <p className="text-sm text-zinc-500">Możliwe do końca dnia.</p>
+          <p className="text-sm text-zinc-500">{t("scheduling.sessionActions.mozliwe_do_konca_dnia")}</p>
         </form>
       ) : null}
 
@@ -143,13 +144,13 @@ export function SessionActions({
           <div>
             <ConfirmSubmit
               variant="secondary"
-              title="Przywrócić zajęcia?"
-              description="Zajęcia wrócą do kalendarza, zajęcie zabrane z pakietu zostanie zwrócone, a ogłoszenie wolnego terminu zamknięte. Jeśli klient już dostał powiadomienie o odwołaniu, dostanie informację o przywróceniu."
-              confirmLabel="Przywróć zajęcia"
-              pendingLabel="Przywracanie..."
+              title={t("scheduling.sessionActions.przywrocic_zajecia")}
+              description={t("scheduling.sessionActions.zajecia_wroca_do_kalendarza_zajecie")}
+              confirmLabel={t("scheduling.sessionActions.przywroc_zajecia")}
+              pendingLabel={t("scheduling.sessionActions.przywracanie")}
               tone="primary"
             >
-              Przywróć zajęcia
+              {t("scheduling.sessionActions.przywroc_zajecia")}
             </ConfirmSubmit>
           </div>
         </form>
@@ -157,30 +158,30 @@ export function SessionActions({
 
       {completeState.noPackage ? (
         <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm">
-          <p>Klient nie ma pakietu z wolnymi zajęciami.</p>
+          <p>{t("scheduling.sessionActions.klient_nie_ma_pakietu_z_wolnymi_zajeciami")}</p>
           {canCharge ? (
             <form action={completeForm} className="mt-2">
               <input type="hidden" name="withoutPackage" value="1" />
               <ConfirmSubmit
                 variant="secondary"
-                title="Zakończyć bez pakietu?"
-                description={`Zajęcia zostaną rozliczone jako pojedyncze: naliczymy należność ${singlePriceLabel}. Możesz to cofnąć do końca dnia, o ile klient jeszcze nie zapłacił.`}
-                confirmLabel="Zakończ i nalicz"
-                pendingLabel="Rozliczanie..."
+                title={t("scheduling.sessionActions.zakonczyc_bez_pakietu")}
+                description={t("scheduling.sessionActions.zajecia_zostana_rozliczone_jako", { singlePriceLabel })}
+                confirmLabel={t("scheduling.sessionActions.zakoncz_i_nalicz")}
+                pendingLabel={t("scheduling.sessionActions.rozliczanie")}
                 tone="primary"
               >
-                Zakończ bez pakietu (nalicz {singlePriceLabel})
+                {t("scheduling.sessionActions.zakoncz_bez_pakietu_nalicz", { singlePriceLabel })}
               </ConfirmSubmit>
             </form>
           ) : (
-            <p className="mt-1 text-zinc-600">Poproś trenera o rozliczenie bez pakietu.</p>
+            <p className="mt-1 text-zinc-600">{t("scheduling.sessionActions.popros_trenera_o_rozliczenie_bez_pakietu")}</p>
           )}
         </div>
       ) : null}
 
       {feedback ? (
         <p role="status" className="text-sm text-emerald-700">
-          {feedback}
+          <Msg text={feedback} />
         </p>
       ) : null}
       {error && !completeState.noPackage ? (

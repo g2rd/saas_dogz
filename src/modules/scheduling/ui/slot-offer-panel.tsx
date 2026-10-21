@@ -1,14 +1,16 @@
-import { formatIsoDate } from "@/shared/dates";
+
 import { dateInZone, timeInZone } from "@/shared/time";
 import { Badge } from "@/shared/ui/badge";
 import type { SlotOffer } from "../domain/slots";
 import { AcceptClaimForm, CloseOfferForm, type SlotActionState } from "./slot-offer-forms";
+import { getFormats } from "@/shared/i18n/server";
+import { getTranslations } from "next-intl/server";
 
 /**
  * Otwarte ogłoszenia wolnych terminów z kolejką zgłoszeń „Biorę” (od pierwszego zgłoszonego).
  * Trener wybiera osobę; wybrana dostaje komunikat, pozostałe informację, że termin zajęty.
  */
-export function SlotOfferPanel({
+export async function SlotOfferPanel({
   offers,
   timezone,
   acceptAction,
@@ -19,13 +21,15 @@ export function SlotOfferPanel({
   acceptAction: (claimId: string) => Promise<SlotActionState>;
   closeAction: (offerId: string) => Promise<SlotActionState>;
 }) {
+  const formats = await getFormats();
+  const t = await getTranslations();
   if (offers.length === 0) return null;
-  const stamp = (at: Date) => `${formatIsoDate(dateInZone(at, timezone))} ${timeInZone(at, timezone)}`;
+  const stamp = (at: Date) => `${formats.calendarDate(dateInZone(at, timezone))} ${timeInZone(at, timezone)}`;
 
   return (
     <section aria-labelledby="free-slots-heading" className="rounded-2xl border border-emerald-300 bg-emerald-50 p-4">
       <h2 id="free-slots-heading" className="text-lg font-semibold">
-        Wolne terminy
+        {t("common.wolne_terminy")}
       </h2>
       <ul className="mt-3 flex flex-col gap-4">
         {offers.map((offer) => (
@@ -38,7 +42,7 @@ export function SlotOfferPanel({
                 <p className="text-sm text-zinc-600">{[offer.typeName, offer.location, offer.note].filter(Boolean).join(" · ")}</p>
               </div>
               <Badge tone={offer.claims.length > 0 ? "warning" : "neutral"}>
-                {offer.claims.length === 0 ? "Czeka na zgłoszenia" : `Zgłoszeń: ${offer.claims.length}`}
+                {offer.claims.length === 0 ? t("scheduling.slotOfferPanel.czeka_na_zgloszenia") : t("scheduling.slotOfferPanel.zgloszen_length", { length: offer.claims.length })}
               </Badge>
             </div>
 
@@ -51,7 +55,7 @@ export function SlotOfferPanel({
                         {index + 1}. {claim.clientName}
                       </span>
                       <span className="text-sm text-zinc-600">
-                        {claim.dogName ? ` · ${claim.dogName}` : ""} · zgłosił(a) się {timeInZone(claim.createdAt, timezone)}
+                        {t("scheduling.slotOfferPanel.value_zglosil_a_sie_timeinzone", { value: claim.dogName ? ` · ${claim.dogName}` : "", timeInZone: timeInZone(claim.createdAt, timezone) })}
                       </span>
                     </span>
                                     <AcceptClaimForm

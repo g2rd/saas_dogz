@@ -7,20 +7,24 @@ import { createUserClient } from "@/shared/supabase/server";
 import { listPendingDogs } from "@/modules/dogs";
 import { listLowBalancePackages } from "@/modules/packages";
 import { listOverdueCharges } from "@/modules/payments";
-import { SESSION_STATUS_LABELS, formatSessionRange, getSessionAgenda } from "@/modules/scheduling";
-import { formatIsoDate } from "@/shared/dates";
-import { formatMoney, money } from "@/shared/money";
+import { formatSessionRange, getSessionAgenda } from "@/modules/scheduling";
+
+import { money } from "@/shared/money";
 import { countNewClientRequests } from "@/modules/notifications";
 import { Badge } from "@/shared/ui/badge";
 import { InstallPrompt } from "@/shared/ui/pwa";
 import { createOrganizationAction } from "./actions";
 import { OnboardingForm } from "./onboarding-form";
+import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
+import { getFormats } from "@/shared/i18n/server";
 
 export default function TrainerDashboard() {
+  const t = useTranslations();
   return (
     <>
-      <h1 className="sr-only text-2xl font-semibold md:not-sr-only">Panel trenera</h1>
-      <Suspense fallback={<p className="mt-4 text-zinc-500">Ładowanie...</p>}>
+      <h1 className="sr-only text-2xl font-semibold md:not-sr-only">{t("common.panel_trenera")}</h1>
+      <Suspense fallback={<p className="mt-4 text-zinc-500">{t("common.ladowanie")}</p>}>
         <DashboardContent />
       </Suspense>
     </>
@@ -28,6 +32,8 @@ export default function TrainerDashboard() {
 }
 
 async function DashboardContent() {
+  const formats = await getFormats();
+  const t = await getTranslations();
   const ctx = await getRequestContext();
 
   if (!ctx.ok) {
@@ -40,7 +46,7 @@ async function DashboardContent() {
       return (
         <section className="mt-6 flex flex-col gap-4">
           <p className="text-zinc-600 dark:text-zinc-400">
-            Zacznij od utworzenia organizacji. Potem dodasz klientów i ich psy.
+            {t("trainer.page.zacznij_od_utworzenia_organizacji_potem")}
           </p>
           <OnboardingForm action={createOrganizationAction} />
         </section>
@@ -79,19 +85,19 @@ async function DashboardContent() {
           href="/app/sessions"
           className="inline-flex h-11 items-center rounded-full bg-primary hover:bg-primary-hover px-6 font-medium text-primary-foreground"
         >
-          Zajęcia
+          {t("common.zajecia")}
         </Link>
         <Link
           href="/app/clients"
           className="inline-flex h-11 items-center rounded-full border border-zinc-300 px-6 font-medium dark:border-zinc-700"
         >
-          Klienci i psy
+          {t("trainer.page.klienci_i_psy")}
         </Link>
         <Link
           href="/app/packages"
           className="inline-flex h-11 items-center rounded-full border border-zinc-300 px-6 font-medium dark:border-zinc-700"
         >
-          Szablony pakietów
+          {t("common.szablony_pakietow")}
         </Link>
       </div>
 
@@ -101,9 +107,9 @@ async function DashboardContent() {
           className="flex min-h-14 items-center justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-800 dark:bg-amber-950/40"
         >
           <span className="font-medium">
-            {requestCount === 1 ? "1 nowa prośba klienta" : `Nowe prośby klientów: ${requestCount}`}
+            {requestCount === 1 ? t("trainer.page.1_nowa_prosba_klienta") : t("trainer.page.nowe_prosby_klientow_requestcount", { requestCount })}
           </span>
-          <Badge tone="warning">Zobacz</Badge>
+          <Badge tone="warning">{t("common.zobacz")}</Badge>
         </Link>
       ) : null}
 
@@ -113,7 +119,7 @@ async function DashboardContent() {
 
       {pendingDogList.length > 0 ? (
         <div>
-          <h2 className="mb-2 text-lg font-semibold">Psy do zatwierdzenia</h2>
+          <h2 className="mb-2 text-lg font-semibold">{t("trainer.page.psy_do_zatwierdzenia")}</h2>
           <ul className="divide-y divide-zinc-200 rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
             {pendingDogList.map((dog) => (
               <li key={dog.id}>
@@ -125,7 +131,7 @@ async function DashboardContent() {
                     <span className="font-medium">{dog.name}</span>
                     <span className="text-sm text-zinc-600 dark:text-zinc-400"> · {nameOf(dog.clientId)}</span>
                   </span>
-                  <Badge tone="warning">Czeka na zatwierdzenie</Badge>
+                  <Badge tone="warning">{t("trainer.page.czeka_na_zatwierdzenie")}</Badge>
                 </Link>
               </li>
             ))}
@@ -135,9 +141,9 @@ async function DashboardContent() {
 
       {todayAgenda ? (
         <div className="order-first">
-          <h2 className="mb-2 text-lg font-semibold">Dziś</h2>
+          <h2 className="mb-2 text-lg font-semibold">{t("trainer.page.dzis")}</h2>
           {todayAgenda.todaySessions.length === 0 ? (
-            <p className="text-zinc-600 dark:text-zinc-400">Na dziś nie ma zaplanowanych zajęć.</p>
+            <p className="text-zinc-600 dark:text-zinc-400">{t("common.na_dzis_nie_ma_zaplanowanych_zajec")}</p>
           ) : (
             <ul className="divide-y divide-zinc-200 rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
               {todayAgenda.todaySessions.map((session) => (
@@ -150,11 +156,11 @@ async function DashboardContent() {
                       <span className="font-medium tabular-nums">{formatSessionRange(session, todayAgenda.timezone)}</span>
                       <span className="text-sm text-zinc-600 dark:text-zinc-400">
                         {" "}
-                        · {session.clientName || "Bez klienta"} · {session.typeName}
+                        · {session.clientName || t("common.bez_klienta")} · {session.typeName}
                       </span>
                     </span>
                     <Badge tone={session.status === "completed" ? "success" : session.status === "canceled" ? "warning" : "neutral"}>
-                      {SESSION_STATUS_LABELS[session.status]}
+                      {t(`labels.sessionStatus.${session.status}`)}
                     </Badge>
                   </Link>
                 </li>
@@ -166,9 +172,9 @@ async function DashboardContent() {
 
       {low ? (
         <div>
-          <h2 className="mb-2 text-lg font-semibold">Kończące się pakiety</h2>
+          <h2 className="mb-2 text-lg font-semibold">{t("trainer.page.konczace_sie_pakiety")}</h2>
           {lowList.length === 0 ? (
-            <p className="text-zinc-600 dark:text-zinc-400">Żaden pakiet się nie kończy.</p>
+            <p className="text-zinc-600 dark:text-zinc-400">{t("trainer.page.zaden_pakiet_sie_nie_konczy")}</p>
           ) : (
             <ul className="divide-y divide-zinc-200 rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
               {lowList.map((pkg) => (
@@ -181,7 +187,7 @@ async function DashboardContent() {
                       <span className="font-medium">{nameOf(pkg.clientId)}</span>
                       <span className="text-sm text-zinc-600 dark:text-zinc-400"> · {pkg.name}</span>
                     </span>
-                    <Badge tone="warning">zostało {pkg.balance}</Badge>
+                    <Badge tone="warning">{t("trainer.page.zostalo_balance", { balance: pkg.balance })}</Badge>
                   </Link>
                 </li>
               ))}
@@ -192,9 +198,9 @@ async function DashboardContent() {
 
       {overdue ? (
         <div>
-          <h2 className="mb-2 text-lg font-semibold">Płatności po terminie</h2>
+          <h2 className="mb-2 text-lg font-semibold">{t("trainer.page.platnosci_po_terminie")}</h2>
           {overdueList.length === 0 ? (
-            <p className="text-zinc-600 dark:text-zinc-400">Brak zaległości.</p>
+            <p className="text-zinc-600 dark:text-zinc-400">{t("trainer.page.brak_zaleglosci")}</p>
           ) : (
             <ul className="divide-y divide-zinc-200 rounded-lg border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
               {overdueList.map((charge) => (
@@ -207,10 +213,10 @@ async function DashboardContent() {
                       <span className="font-medium">{nameOf(charge.clientId)}</span>
                       <span className="text-sm text-zinc-600 dark:text-zinc-400">
                         {" "}
-                        · {charge.description || "Należność"}, termin {formatIsoDate(charge.dueDate)}
+                        · {charge.description || t("common.naleznosc")}, termin {formats.calendarDate(charge.dueDate)}
                       </span>
                     </span>
-                    <Badge tone="danger">{formatMoney(money(charge.remainingMinor, charge.currency))}</Badge>
+                    <Badge tone="danger">{formats.money(money(charge.remainingMinor, charge.currency))}</Badge>
                   </Link>
                 </li>
               ))}

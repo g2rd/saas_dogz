@@ -1,0 +1,24 @@
+{
+  "notificationList": {
+    "brak_powiadomien_gdy_cos_sie_wydarzy": "Brak powiadomień. Gdy coś się wydarzy, zobaczysz to tutaj.",
+    "nieprzeczytane": "Nieprzeczytane:",
+    "nieprzeczytanych": "nieprzeczytanych"
+  },
+  "preferencesForm": {
+    "powiadomienia_w_aplikacji_dzwonek_sa": "Powiadomienia w aplikacji (dzwonek) są zawsze włączone. Wybierz, gdzie jeszcze mają do Ciebie docierać.",
+    "zapisano": "Zapisano.",
+    "zapisz": "Zapisz",
+    "to_urzadzenie": "To urządzenie",
+    "ta_przegladarka_nie_obsluguje_powiadomien": "Ta przeglądarka nie obsługuje powiadomień push lub serwer nie ma ich skonfigurowanych.",
+    "powiadomienia_sa_zablokowane_w": "Powiadomienia są zablokowane w ustawieniach przeglądarki. Zmień to w ustawieniach strony.",
+    "wylacz_push_na_tym_urzadzeniu": "Wyłącz push na tym urządzeniu",
+    "wlacz_push_na_tym_urzadzeniu": "Włącz push na tym urządzeniu",
+    "push_enabled": "Powiadomienia push włączone na tym urządzeniu.",
+    "push_enable_failed": "Nie udało się włączyć powiadomień push na tym urządzeniu.",
+    "push_disabled": "Powiadomienia push wyłączone na tym urządzeniu.",
+    "ios_install": "Na iPhonie powiadomienia push działają dopiero po dodaniu aplikacji do ekranu głównego: stuknij <strong>Udostępnij</strong>, potem <strong>Do ekranu początkowego</strong>, otwórz aplikację z ikony i wróć tutaj."
+  },
+  "requestButtons": {
+    "wyslano_trenerowi_join": "Wysłano trenerowi: {join}."
+  }
+}

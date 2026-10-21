@@ -65,6 +65,18 @@ export function ageInMonths(birthDate: string | null, now: Date): number | null 
   return months < 0 ? null : months;
 }
 
+/** Wiek psa jako klucz komunikatu z parametrami (tłumaczy go interfejs): `dogs.age.*`; `null`, gdy nie znamy daty urodzenia. */
+export function dogAgeMessage(birthDate: string | null, now: Date): { key: string; params: { months?: number; years?: number } } | null {
+  const months = ageInMonths(birthDate, now);
+  if (months === null) return null;
+  if (months < 1) return { key: "dogs.age.lt_month", params: {} };
+  if (months < 24) return { key: "dogs.age.months", params: { months } };
+  const years = Math.floor(months / 12);
+  const rest = months % 12;
+  return rest === 0 ? { key: "dogs.age.years", params: { years } } : { key: "dogs.age.years_months", params: { years, months: rest } };
+}
+
+/** Wiek psa po polsku (zapasowo; interfejs używa `dogAgeMessage`). */
 export function formatDogAge(birthDate: string | null, now: Date): string | null {
   const months = ageInMonths(birthDate, now);
   if (months === null) return null;

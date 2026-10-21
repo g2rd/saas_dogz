@@ -7,16 +7,19 @@ import { SessionTypeForm, getSessionType } from "@/modules/scheduling";
 import { SubmitButton } from "@/shared/ui/form-fields";
 import { requireContext } from "../../../../_lib/context";
 import { archiveSessionTypeAction, restoreSessionTypeAction, updateSessionTypeAction } from "../../actions";
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
 type Props = PageProps<"/app/sessions/types/[id]">;
 
 export default function SessionTypePage({ params }: Props) {
+  const t = useTranslations();
   return (
     <>
       <Link href="/app/sessions/types" className="text-sm text-zinc-600 dark:text-zinc-400">
-        ← Rodzaje zajęć
+        {t("trainer.sessionsTypesPage.rodzaje_zajec")}
       </Link>
-      <Suspense fallback={<p className="mt-6 text-zinc-500">Ładowanie...</p>}>
+      <Suspense fallback={<p className="mt-6 text-zinc-500">{t("common.ladowanie")}</p>}>
         <TypeDetails params={params} />
       </Suspense>
     </>
@@ -24,6 +27,7 @@ export default function SessionTypePage({ params }: Props) {
 }
 
 async function TypeDetails({ params }: Pick<Props, "params">) {
+  const t = await getTranslations();
   const { id } = await params;
   const ctx = await requireContext();
   const result = await getSessionType(ctx, id);
@@ -40,35 +44,35 @@ async function TypeDetails({ params }: Pick<Props, "params">) {
       <header className="flex flex-wrap items-start justify-between gap-4">
         <h1 className="text-2xl font-semibold">
           {type.name}
-          {archived ? <span className="ml-2 text-base text-zinc-500">(archiwum)</span> : null}
+          {archived ? <span className="ml-2 text-base text-zinc-500">{t("common.archiwum")}</span> : null}
         </h1>
         {canWrite ? (
           <form action={(archived ? restoreSessionTypeAction : archiveSessionTypeAction).bind(null, id)}>
             {archived ? (
-              <SubmitButton variant="secondary" pendingLabel="Chwila...">
-                Przywróć z archiwum
+              <SubmitButton variant="secondary" pendingLabel={t("common.chwila")}>
+                {t("common.przywroc_z_archiwum")}
               </SubmitButton>
             ) : (
               <ConfirmSubmit
                 variant="danger"
-                title="Zarchiwizować rodzaj zajęć?"
-                description="Rodzaj zniknie z listy przy planowaniu zajęć. Istniejące zajęcia zostają bez zmian, a rodzaj możesz przywrócić."
-                confirmLabel="Archiwizuj"
-                pendingLabel="Chwila..."
+                title={t("trainer.sessionsTypesPage.zarchiwizowac_rodzaj_zajec")}
+                description={t("trainer.sessionsTypesPage.rodzaj_zniknie_z_listy_przy_planowaniu")}
+                confirmLabel={t("common.archiwizuj")}
+                pendingLabel={t("common.chwila")}
               >
-                Archiwizuj
+                {t("common.archiwizuj")}
               </ConfirmSubmit>
             )}
           </form>
         ) : null}
       </header>
       <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        Zmiana czasu trwania dotyczy nowo planowanych zajęć; istniejące zachowują swoją godzinę zakończenia.
+        {t("trainer.sessionsTypesPage.zmiana_czasu_trwania_dotyczy_nowo")}
       </p>
       {canWrite ? (
         <SessionTypeForm
           action={updateSessionTypeAction.bind(null, id)}
-          submitLabel="Zapisz zmiany"
+          submitLabel={t("common.zapisz_zmiany")}
           values={{
             name: type.name,
             durationMinutes: type.durationMinutes,

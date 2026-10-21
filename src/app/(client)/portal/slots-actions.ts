@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { claimSlot, joinWaitlist, leaveWaitlist, withdrawSlotClaim, type ClaimSlotState } from "@/modules/portal";
 import { requirePortalContext } from "../_lib/context";
+import { msg } from "@/shared/i18n/messages";
 
 const refresh = () => revalidatePath("/portal", "layout");
 
@@ -26,7 +27,7 @@ export async function claimSlotAction(_prev: ClaimSlotState, formData: FormData)
   const result = await claimSlot(ctx, Object.fromEntries(formData));
   if (!result.ok) return { error: result.error.message };
   refresh();
-  return { message: "Zgłoszono! Czekasz na decyzję trenera. Dostaniesz powiadomienie." };
+  return { message: msg("feedback.slot_claimed") };
 }
 
 export async function withdrawClaimAction(claimId: string) {

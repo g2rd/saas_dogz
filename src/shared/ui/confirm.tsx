@@ -2,6 +2,7 @@
 
 import { useId, useRef } from "react";
 import { useFormStatus } from "react-dom";
+import { useTranslations } from "next-intl";
 
 type Variant = "primary" | "secondary" | "danger";
 
@@ -39,6 +40,7 @@ export function ConfirmSubmit({
   tone?: "danger" | "primary";
   disabled?: boolean;
 }) {
+  const t = useTranslations();
   const { pending } = useFormStatus();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -85,7 +87,7 @@ export function ConfirmSubmit({
               onClick={() => dialogRef.current?.close()}
               className="inline-flex h-11 items-center justify-center rounded-full border border-zinc-300 px-6 font-medium hover:bg-zinc-50"
             >
-              Anuluj
+              {t("common.anuluj")}
             </button>
             <button
               type="button"

@@ -1,0 +1,78 @@
+{
+  "announceSlotForm": {
+    "oglos_wolny_termin": "Ogłoś wolny termin",
+    "klienci_zapisani_na_liste_chetnych": "Klienci zapisani na listę chętnych dostaną powiadomienie. Zgłoszą się przyciskiem „Biorę”, a Ty wybierzesz osobę.",
+    "notatka_opcjonalnie": "Notatka (opcjonalnie)",
+    "np_trening_w_parku_godzina_17_00": "Np. „Trening w parku, godzina 17:00”.",
+    "wyslij_ogloszenie": "Wyślij ogłoszenie",
+    "oglosic_wolny_termin": "Ogłosić wolny termin?",
+    "klienci_zapisani_na_liste_chetnych_2": "Klienci zapisani na listę chętnych dostaną powiadomienie. Do 30 sekund możesz jeszcze zamknąć ogłoszenie bez wysyłania.",
+    "oglaszanie": "Ogłaszanie..."
+  },
+  "scheduleSessionForm": {
+    "klient": "Klient",
+    "wybierz_klienta": "Wybierz klienta",
+    "rodzaj_zajec": "Rodzaj zajęć",
+    "data": "Data",
+    "godzina": "Godzina",
+    "miejsce_opcjonalnie": "Miejsce (opcjonalnie)",
+    "trener": "Trener",
+    "planowanie": "Planowanie...",
+    "client_has_no_dogs": "Klient nie ma psów",
+    "no_dog": "Bez wskazania psa"
+  },
+  "sessionActions": {
+    "zakoncz_zajecia": "Zakończ zajęcia",
+    "zakonczyc_zajecia": "Zakończyć zajęcia?",
+    "zajecia_zostana_rozliczone_zuzyjemy_jedno": "Zajęcia zostaną rozliczone: zużyjemy jedno zajęcie z pakietu klienta (a bez pakietu zapytamy o należność).",
+    "pomylke_mozesz_cofnac_do_konca_dnia": "Pomyłkę możesz cofnąć do końca dnia.",
+    "rozliczanie": "Rozliczanie...",
+    "odwolaj_zajecia": "Odwołaj zajęcia",
+    "odwolanie_bez_konsekwencji_dla_pakietu": "Odwołanie bez konsekwencji dla pakietu.",
+    "do_zajec_zostalo_mniej_niz": "Do zajęć zostało mniej niż {lateCancelHours} h, więc według polityki zajęcie z pakietu przepada.",
+    "zgodnie_z_polityka": "Zgodnie z polityką",
+    "nalicz_zajecie_z_pakietu": "Nalicz zajęcie z pakietu",
+    "nie_nalicz_zajecia_wyjatek": "Nie nalicz zajęcia (wyjątek)",
+    "odwolac_zajecia": "Odwołać zajęcia?",
+    "klient_dostanie_powiadomienie_o_odwolaniu": "Klient dostanie powiadomienie o odwołaniu za 30 sekund. Jeśli w tym czasie przywrócisz zajęcia, nie dostanie żadnego.",
+    "termin_zwolni_sie_i_bedziesz_mogl_oglosic": "Termin zwolni się i będziesz mógł ogłosić go klientom z listy chętnych.",
+    "cofnij_zakonczenie": "Cofnij zakończenie",
+    "cofnac_zakonczenie_zajec": "Cofnąć zakończenie zajęć?",
+    "zajecie_wroci_do_pakietu_klienta_a": "Zajęcie wróci do pakietu klienta, a nieopłacona należność za te zajęcia zostanie anulowana. Zajęcia wrócą do statusu „Zaplanowane”.",
+    "cofanie": "Cofanie...",
+    "mozliwe_do_konca_dnia": "Możliwe do końca dnia.",
+    "przywroc_zajecia": "Przywróć zajęcia",
+    "przywrocic_zajecia": "Przywrócić zajęcia?",
+    "zajecia_wroca_do_kalendarza_zajecie": "Zajęcia wrócą do kalendarza, zajęcie zabrane z pakietu zostanie zwrócone, a ogłoszenie wolnego terminu zamknięte. Jeśli klient już dostał powiadomienie o odwołaniu, dostanie informację o przywróceniu.",
+    "przywracanie": "Przywracanie...",
+    "klient_nie_ma_pakietu_z_wolnymi_zajeciami": "Klient nie ma pakietu z wolnymi zajęciami.",
+    "zakoncz_bez_pakietu_nalicz": "Zakończ bez pakietu (nalicz {singlePriceLabel})",
+    "zakonczyc_bez_pakietu": "Zakończyć bez pakietu?",
+    "zajecia_zostana_rozliczone_jako": "Zajęcia zostaną rozliczone jako pojedyncze: naliczymy należność {singlePriceLabel}. Możesz to cofnąć do końca dnia, o ile klient jeszcze nie zapłacił.",
+    "zakoncz_i_nalicz": "Zakończ i nalicz",
+    "popros_trenera_o_rozliczenie_bez_pakietu": "Poproś trenera o rozliczenie bez pakietu."
+  },
+  "sessionTypeForm": {
+    "nazwa_zajec": "Nazwa zajęć",
+    "np_trening_indywidualny_konsultacja": "Np. Trening indywidualny, Konsultacja",
+    "czas_trwania_minuty": "Czas trwania (minuty)",
+    "cena_pojedynczych_zajec_zl": "Cena pojedynczych zajęć (zł)",
+    "naliczana_gdy_zajecia_rozliczasz_bez": "Naliczana, gdy zajęcia rozliczasz bez pakietu"
+  },
+  "slotOfferForms": {
+    "wybierz": "Wybierz",
+    "wybrac_clientname": "Wybrać: {clientName}?",
+    "zajecia_when_zostana_zarezerwowane_dla": "Zajęcia {when} zostaną zarezerwowane dla {clientName}, a ta osoba dostanie komunikat „Miejsce jest dla Ciebie!”.",
+    "pozostale_osoby_dostana_informacje_ze": "Pozostałe osoby dostaną informację, że termin jest zajęty.",
+    "wybierz_i_zarezerwuj": "Wybierz i zarezerwuj",
+    "zamknij_ogloszenie": "Zamknij ogłoszenie",
+    "zamknac_ogloszenie": "Zamknąć ogłoszenie?",
+    "ogloszenie_zniknie_a_osoby_ktore_zglosily": "Ogłoszenie zniknie, a osoby, które zgłosiły „Biorę”, dostaną informację, że termin jest zajęty. Jeśli zamkniesz je w ciągu 30 sekund od ogłoszenia, nikt nie dostanie żadnego powiadomienia.",
+    "zamykanie": "Zamykanie..."
+  },
+  "slotOfferPanel": {
+    "zgloszen_length": "Zgłoszeń: {length}",
+    "czeka_na_zgloszenia": "Czeka na zgłoszenia",
+    "value_zglosil_a_sie_timeinzone": "{value} · zgłosił(a) się {timeInZone}"
+  }
+}

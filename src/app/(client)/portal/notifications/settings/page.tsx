@@ -4,15 +4,17 @@ import { PreferencesForm, PushToggle, getNotificationPreferences } from "@/modul
 import { notificationEnv } from "@/shared/env";
 import { requirePortalContext } from "../../../_lib/context";
 import { savePortalPreferencesAction, subscribePortalPushAction, unsubscribePortalPushAction } from "../actions";
+import { useTranslations } from "next-intl";
 
 export default function PortalNotificationSettingsPage() {
+  const t = useTranslations();
   return (
     <>
       <Link href="/portal/notifications" className="text-sm underline">
-        ← Powiadomienia
+        {t("common.powiadomienia_2")}
       </Link>
-      <h1 className="mt-2 text-2xl font-semibold">Ustawienia powiadomień</h1>
-      <Suspense fallback={<p className="mt-4 text-zinc-500">Ładowanie...</p>}>
+      <h1 className="mt-2 text-2xl font-semibold">{t("common.ustawienia_powiadomien")}</h1>
+      <Suspense fallback={<p className="mt-4 text-zinc-500">{t("common.ladowanie")}</p>}>
         <Settings />
       </Suspense>
     </>

@@ -99,6 +99,6 @@ export type MemberInvitationPreview =
   | { status: "not_found" | "used" | "revoked" | "expired" };
 
 export type TeamOverview = {
-  members: { userId: string; name: string; role: MemberRole | "owner"; status: "active" | "suspended"; isYou: boolean }[];
+  members: { userId: string; /** Imię i nazwisko; `null`, gdy osoba go nie podała (UI pokazuje wtedy „Ty” albo „Użytkownik bez imienia”). */ name: string | null; role: MemberRole | "owner"; status: "active" | "suspended"; isYou: boolean }[];
   pending: { id: string; email: string; role: MemberRole; expiresAt: Date; expired: boolean }[];
 };

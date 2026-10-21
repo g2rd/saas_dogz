@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import type { FormState } from "@/shared/form";
 import { FormMessage, SubmitButton, TextField } from "@/shared/ui/form-fields";
+import { useTranslations } from "next-intl";
 
 export type TemplateFormValues = {
   name: string;
@@ -21,6 +22,7 @@ export function TemplateForm({
   values?: TemplateFormValues;
   submitLabel: string;
 }) {
+  const t = useTranslations();
   const [state, formAction] = useActionState(action, {});
   const errors = state.fieldErrors ?? {};
   const v = (name: string, fallback?: string | number | null) =>
@@ -28,9 +30,9 @@ export function TemplateForm({
 
   return (
     <form action={formAction} className="flex max-w-md flex-col gap-4">
-      <TextField label="Nazwa pakietu" name="name" defaultValue={v("name", values?.name)} errors={errors.name} required />
+      <TextField label={t("packages.templateForm.nazwa_pakietu")} name="name" defaultValue={v("name", values?.name)} errors={errors.name} required />
       <TextField
-        label="Liczba zajęć"
+        label={t("common.liczba_zajec")}
         name="sessionsCount"
         type="number"
         inputMode="numeric"
@@ -40,23 +42,23 @@ export function TemplateForm({
         required
       />
       <TextField
-        label="Cena (zł)"
+        label={t("common.cena_zl")}
         name="price"
         inputMode="decimal"
         defaultValue={v("price", values?.price)}
         errors={errors.price}
-        hint="Np. 800 lub 800,50"
+        hint={t("packages.templateForm.np_800_lub_800_50")}
         required
       />
       <TextField
-        label="Ważność (dni)"
+        label={t("common.waznosc_dni")}
         name="validityDays"
         type="number"
         inputMode="numeric"
         min={1}
         defaultValue={v("validityDays", values?.validityDays)}
         errors={errors.validityDays}
-        hint="Zostaw puste, jeśli pakiet nie wygasa"
+        hint={t("packages.templateForm.zostaw_puste_jesli_pakiet_nie_wygasa")}
       />
       <FormMessage state={state} />
       <div>

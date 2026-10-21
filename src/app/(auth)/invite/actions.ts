@@ -20,8 +20,8 @@ export async function joinWithCodeAction(_prev: FormState, formData: FormData): 
   const secret = normalizeSecret(String(formData.get("code") ?? ""));
   if (!secret) {
     return {
-      error: "Niepoprawny kod.",
-      fieldErrors: { code: ["Kod ma 10 znaków (litery i cyfry), np. ABCDE-FGHJK"] },
+      error: msg("errors.invite.invalid_code"),
+      fieldErrors: { code: [msg("errors.invite.code_hint")] },
       values: { code: String(formData.get("code") ?? "") },
     };
   }
@@ -29,10 +29,9 @@ export async function joinWithCodeAction(_prev: FormState, formData: FormData): 
 }
 
 const MESSAGES: Record<string, string> = {
-  email_mismatch:
-    "To zaproszenie jest przypisane do innego adresu e-mail. Wyloguj się i użyj konta z właściwym adresem.",
-  invitation_unusable: "To zaproszenie wygasło lub zostało już użyte. Poproś trenera o nowe.",
-  throttled: "Zbyt wiele nieudanych prób. Spróbuj ponownie za kilka minut.",
+  email_mismatch: msg("errors.invite.email_mismatch"),
+  invitation_unusable: msg("errors.invite.unusable_client"),
+  throttled: msg("errors.invite.throttled"),
 };
 
 function acceptError(error: { code: string; message: string; details?: unknown }): string {
@@ -64,12 +63,12 @@ export async function inviteSignupAction(
   const preview = await lookupInvitation(db, secret, email.trim() === "" ? null : email);
   if (!preview.ok) return toFormState(preview.error, formData);
   if (preview.value.status !== "valid") {
-    return { error: "To zaproszenie wygasło lub zostało już użyte. Poproś trenera o nowe.", values: {} };
+    return { error: msg("errors.invite.unusable_client"), values: {} };
   }
   if (preview.value.emailMatches === false) {
     return {
       error: msg("validation.fix_fields"),
-      fieldErrors: { email: ["Podaj adres e-mail, na który wysłano zaproszenie"] },
+      fieldErrors: { email: [msg("errors.invite.use_invited_email")] },
       values: { fullName: String(formData.get("fullName") ?? ""), email },
     };
   }

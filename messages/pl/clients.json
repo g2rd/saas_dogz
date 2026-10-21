@@ -1,0 +1,9 @@
+{
+  "clientForm": {
+    "imie": "Imię",
+    "nazwisko": "Nazwisko",
+    "telefon": "Telefon",
+    "numer_polski_bez_prefiksu_zapiszemy_jako": "Numer polski bez prefiksu zapiszemy jako +48",
+    "status": "Status"
+  }
+}

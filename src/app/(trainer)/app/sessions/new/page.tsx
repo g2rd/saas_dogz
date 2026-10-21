@@ -6,15 +6,18 @@ import { listOrganizationDogs } from "@/modules/dogs";
 import { ScheduleSessionForm, getSessionAgenda, listSessionTypes } from "@/modules/scheduling";
 import { requireContext } from "../../../_lib/context";
 import { scheduleSessionAction } from "../actions";
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
 export default function NewSessionPage({ searchParams }: PageProps<"/app/sessions/new">) {
+  const tr = useTranslations();
   return (
     <>
       <Link href="/app/sessions" className="text-sm text-zinc-600 dark:text-zinc-400">
-        ← Zajęcia
+        {tr("common.zajecia_2")}
       </Link>
-      <h1 className="mt-2 mb-6 text-2xl font-semibold">Zaplanuj zajęcia</h1>
-      <Suspense fallback={<p className="text-zinc-500">Ładowanie...</p>}>
+      <h1 className="mt-2 mb-6 text-2xl font-semibold">{tr("common.zaplanuj_zajecia")}</h1>
+      <Suspense fallback={<p className="text-zinc-500">{tr("common.ladowanie")}</p>}>
         <ScheduleForm searchParams={searchParams} />
       </Suspense>
     </>
@@ -24,6 +27,7 @@ export default function NewSessionPage({ searchParams }: PageProps<"/app/session
 const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
 
 async function ScheduleForm({ searchParams }: Pick<PageProps<"/app/sessions/new">, "searchParams">) {
+  const tr = await getTranslations();
   const params = await searchParams;
   const ctx = await requireContext();
 
@@ -40,9 +44,9 @@ async function ScheduleForm({ searchParams }: Pick<PageProps<"/app/sessions/new"
   if (types.value.length === 0) {
     return (
       <p className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm dark:border-amber-800 dark:bg-amber-950/40">
-        Najpierw dodaj rodzaj zajęć w sekcji{" "}
+        {tr("trainer.sessionsNewPage.najpierw_dodaj_rodzaj_zajec_w_sekcji")}{" "}
         <Link href="/app/sessions/types" className="underline">
-          Rodzaje zajęć
+          {tr("common.rodzaje_zajec")}
         </Link>
         .
       </p>

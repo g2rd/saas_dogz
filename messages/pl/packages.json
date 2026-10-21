@@ -1,0 +1,29 @@
+{
+  "adjustPackageForm": {
+    "zmiana_liczby_zajec": "Zmiana liczby zajęć",
+    "np_1_odjecie_zajec_lub_1_dodanie_saldo": "Np. -1 (odjęcie zajęć) lub 1 (dodanie). Saldo nie może być ujemne.",
+    "powod_opcjonalnie": "Powód (opcjonalnie)",
+    "zapisz_korekte": "Zapisz korektę",
+    "zapisac_korekte_salda": "Zapisać korektę salda?",
+    "saldo_pakietu_zmieni_sie_od_razu_a_wpis": "Saldo pakietu zmieni się od razu, a wpis zostanie w historii (korekty nie da się usunąć, można ją tylko skorygować kolejnym wpisem)."
+  },
+  "sellPackageForm": {
+    "szablon_pakietu": "Szablon pakietu",
+    "wlasny_pakiet_lub_zmiana_ustawien_z": "Własny pakiet lub zmiana ustawień z szablonu",
+    "nazwa": "Nazwa",
+    "przy_szablonie_wpisz_tylko_zeby_zmienic": "Przy szablonie wpisz tylko, żeby zmienić cenę (np. rabat)",
+    "poczatek_waznosci": "Początek ważności",
+    "termin_platnosci": "Termin płatności",
+    "puste_za_7_dni": "Puste = za 7 dni",
+    "sprzedac_pakiet": "Sprzedać pakiet?",
+    "klient_dostanie_pakiet_zajec_i_powstanie": "Klient dostanie pakiet zajęć i powstanie należność za niego. Nieużyty pakiet możesz później anulować (razem z nieopłaconą należnością).",
+    "sprzedawanie": "Sprzedawanie...",
+    "custom_package": "Własny pakiet (wpisz dane poniżej)",
+    "template_option": "{name}: {sessions}, {price}"
+  },
+  "templateForm": {
+    "nazwa_pakietu": "Nazwa pakietu",
+    "np_800_lub_800_50": "Np. 800 lub 800,50",
+    "zostaw_puste_jesli_pakiet_nie_wygasa": "Zostaw puste, jeśli pakiet nie wygasa"
+  }
+}

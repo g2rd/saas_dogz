@@ -3,19 +3,21 @@
 import { useActionState } from "react";
 import { FormMessage, SubmitButton, TextField } from "@/shared/ui/form-fields";
 import type { ForgotPasswordState } from "./actions";
+import { useTranslations } from "next-intl";
 
 export function ForgotPasswordForm({
   action,
 }: {
   action: (prev: ForgotPasswordState, formData: FormData) => Promise<ForgotPasswordState>;
 }) {
+  const t = useTranslations();
   const [state, formAction] = useActionState(action, {});
   const errors = state.fieldErrors ?? {};
 
   if (state.sent) {
     return (
       <p role="status" className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-        Jeśli konto z tym adresem istnieje, wysłaliśmy na nie link do ustawienia nowego hasła.
+        {t("auth.forgotPasswordForgotPasswordForm.jesli_konto_z_tym_adresem_istnieje")}
       </p>
     );
   }
@@ -23,7 +25,7 @@ export function ForgotPasswordForm({
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <TextField
-        label="E-mail"
+        label={t("common.e_mail")}
         name="email"
         type="email"
         autoComplete="email"
@@ -33,7 +35,7 @@ export function ForgotPasswordForm({
       />
       <FormMessage state={state} />
       <div>
-        <SubmitButton pendingLabel="Wysyłanie...">Wyślij link</SubmitButton>
+        <SubmitButton pendingLabel={t("common.wysylanie")}>{t("auth.forgotPasswordForgotPasswordForm.wyslij_link")}</SubmitButton>
       </div>
     </form>
   );

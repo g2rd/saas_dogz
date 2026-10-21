@@ -146,7 +146,7 @@ const adjustmentSchema = z.object({
       .int(msg("validation.integer"))
       .min(-500, msg("validation.adjustment_too_large"))
       .max(500, msg("validation.adjustment_too_large"))
-      .refine((v) => v !== 0, "Korekta nie może być zerowa"),
+      .refine((v) => v !== 0, msg("validation.adjustment_zero")),
   ),
   reason: z.enum(["adjustment", "refund"]).default("adjustment"),
   note: formText(300).transform((v) => (v === "" ? null : v)),

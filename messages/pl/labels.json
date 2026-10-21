@@ -1,0 +1,89 @@
+{
+  "clientStatus": {
+    "lead": "Zainteresowany",
+    "active": "Aktywny",
+    "inactive": "Nieaktywny"
+  },
+  "dogSex": {
+    "male": "Samiec",
+    "female": "Suka",
+    "unknown": "Nie podano"
+  },
+  "noteKind": {
+    "health": "Zdrowie",
+    "behavior": "Zachowanie",
+    "vaccination": "Szczepienie",
+    "other": "Inne"
+  },
+  "approvalStatus": {
+    "pending": "Czeka na zatwierdzenie",
+    "approved": "Zatwierdzony",
+    "rejected": "Odrzucony"
+  },
+  "memberRole": {
+    "owner": "Właściciel",
+    "admin": "Administrator",
+    "trainer": "Trener",
+    "assistant": "Asystent"
+  },
+  "requestAction": {
+    "renew": "Odnów pakiet",
+    "pay": "Zapłacę",
+    "end": "Kończę współpracę",
+    "cancel": "Nie mogę przyjść"
+  },
+  "requestConfirmation": {
+    "renew": "Dziękujemy! Trener dostał informację, że chcesz odnowić pakiet.",
+    "pay": "Dziękujemy! Trener dostał informację, że zapłacisz.",
+    "end": "Dziękujemy! Trener dostał informację, że kończysz współpracę.",
+    "cancel": "Dziękujemy! Trener dostał informację, że nie możesz przyjść, i zdecyduje o odwołaniu zajęć."
+  },
+  "requestStatus": {
+    "new": "Nowa",
+    "seen": "Obejrzana"
+  },
+  "channel": {
+    "push": "Powiadomienia push na telefonie",
+    "email": "E-mail"
+  },
+  "packageStatus": {
+    "active": "Aktywny",
+    "depleted": "Wykorzystany",
+    "expired": "Wygasł",
+    "canceled": "Anulowany"
+  },
+  "ledgerReason": {
+    "purchase": "Zakup pakietu",
+    "session": "Zajęcia",
+    "late_cancel": "Późne odwołanie",
+    "adjustment": "Korekta",
+    "refund": "Zwrot",
+    "expiry": "Wygaśnięcie"
+  },
+  "chargeStatus": {
+    "void": "Anulowana",
+    "unpaid": "Do zapłaty",
+    "partial": "Częściowo opłacona",
+    "paid": "Opłacona",
+    "overdue": "Po terminie"
+  },
+  "paymentMethod": {
+    "cash": "Gotówka",
+    "transfer": "Przelew",
+    "blik": "BLIK",
+    "card": "Karta",
+    "other": "Inne"
+  },
+  "sessionStatus": {
+    "scheduled": "Zaplanowane",
+    "completed": "Odbyte",
+    "canceled": "Odwołane"
+  },
+  "attendance": {
+    "planned": "Zaplanowane",
+    "attended": "Obecny",
+    "canceled": "Odwołane",
+    "late_canceled": "Późno odwołane",
+    "no_show": "Nieobecność"
+  }
+}
