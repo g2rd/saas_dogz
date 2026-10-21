@@ -32,11 +32,12 @@ Zdalne repozytorium: `https://github.com/g2rd/saas_dogz`. **Gałąź `dev` jest 
 - Prośby klienta („Odnów”, „Zapłacę”, „Kończę”, „Nie mogę przyjść”) są informacją dla trenera, bez akceptacji; ogłoszony wolny termin przydziela trener (nie automat).
 - Potwierdzenia na wrażliwych operacjach, okno 30 s i cofanie do końca dnia (zakończenie zajęć).
 - **Commity bez dopisku `Co-Authored-By` o Claude.**
+- **Pull requesty i zatwierdzanie (2026-10-21):** Claude wypycha tylko gałęzie `feat/*`/`fix/*` i otwiera PR-y do `dev`; automatyczny review (Claude w GitHub Actions) dodaje komentarze; **PR-y zatwierdza i scala wyłącznie właściciel** (`dev` -> `main` również). Claude nie pushuje do `dev`/`main`, nie scala i nie zatwierdza.
 - Aplikacja tylko w jasnym motywie.
 - **Właściciel platformy** musi widzieć użycie (ile szkół, trenerów, klientów) i móc blokować dostęp (koniec testów, brak płatności): panel `/admin` (ADR 0012). Dostęp: to samo logowanie e-mail + hasło, osobne konto z wpisem w `platform_admins` i weryfikacja dwuetapowa TOTP (wymagana na produkcji).
 
 ### Jak pracujemy (definicja „zrobione” dla etapu)
-1. Nowa gałąź `feat/...` z `dev`; po zakończeniu scalamy ją do `dev` (fast-forward). **`main` zmieniamy wyłącznie po zatwierdzeniu przez właściciela.** `git push` robimy tylko na prośbę właściciela; logowanie do GitHuba idzie przez przeglądarkę, więc push uruchamiaj w terminalu użytkownika (`run_in_terminal`), nie w powłoce agenta.
+1. Nowa gałąź `feat/...` z `origin/dev`; po zakończeniu Claude wypycha ją i otwiera PR do `dev` (push w terminalu użytkownika, bo logowanie do GitHuba idzie przez przeglądarkę). Review robi workflow `claude-review.yml`; **PR zatwierdza i scala właściciel**, `main` zmienia się tylko PR-em `dev` -> `main` zatwierdzonym przez właściciela.
 2. Migracja SQL z RLS (nowa tabela = polityki + test pgTAP); zapisy wielotabelowe jako funkcje `security definer`, które same sprawdzają rolę i przynależność identyfikatorów do organizacji; wyścigi: blokada wiersza osobnym zapytaniem, dopiero potem odczyt stanu.
 3. Domena z testami jednostkowymi, przypadki użycia z `authorize`, repozytoria, testy integracyjne na prawdziwej bazie (izolacja organizacji, wyścigi).
 4. UI mobile-first, przeklikanie w przeglądarce, poprawki znalezionych błędów.
@@ -285,7 +286,8 @@ Szczegółowa ścieżka do sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJN
 - [ ] Przed wdrożeniem: nadać konto właściciela (`admin:grant` z prawdziwym adresem), zamknąć rejestrację w `/admin/codes`, ustawić `NEXT_PUBLIC_SUPPORT_EMAIL`, sprawdzić MFA na hostowanym Supabase.
 
 ### A3. Code review przez AI (GitHub Actions)
-- [x] Workflow `.github/workflows/claude-review.yml` (2026-10-21): na pull requestach pełny przegląd z komentarzami w liniach kodu (skill `code-review`), na pushach do `dev` i `main` przegląd nowych commitów jako komentarz pod ostatnim commitem (po polsku, wg priorytetów z `CLAUDE.md`). Sekret `ANTHROPIC_API_KEY` dodał właściciel; wymagana też aplikacja Claude GitHub App na repozytorium. Review niczego nie blokuje. **Nie zweryfikowano jeszcze na GitHubie** (workflow zadziała dopiero po wypchnięciu). Wymaga od nas pilnowania kosztu tokenów (`--max-turns`, `concurrency`, `timeout-minutes` są ustawione).
+- [x] Workflow `.github/workflows/claude-review.yml` (2026-10-21): review każdego pull requesta z komentarzami w liniach kodu (skill `code-review` przez `claude-code-action`, szkice pomijane), po polsku wg priorytetów z `CLAUDE.md`. Sekret `ANTHROPIC_API_KEY` dodał właściciel. Wersja z reviewem pushów do `dev` została wycofana: `claude-code-action` nie obsługuje zdarzenia `push`, a przy przepływie przez PR byłaby dublem. **Review PR-a nie był jeszcze uruchomiony na GitHubie** (pierwszy PR go sprawdzi). Review niczego nie blokuje ani nie zatwierdza.
+- [ ] **Ochrona gałęzi (robi właściciel w ustawieniach GitHuba):** reguła (ruleset) dla `dev` i `main`: wymagany pull request, blokada bezpośrednich pushów i force-push, wymagany status CI po jego dodaniu. Claude używa konta właściciela do pushy, więc GitHub nie odróżni go od właściciela; blokada bezpośrednich pushów chroni przed omyłką, a zakaz scalania Claude'a wynika z reguły w `CLAUDE.md`. Pełne rozdzielenie ról wymaga osobnego konta GitHub dla Claude'a z wymaganym zatwierdzeniem właściciela (CODEOWNERS).
 - [ ] CI z testami (typecheck, lint, testy, `supabase test db`, build) jako osobny workflow i wymagany status przed scaleniem.
 
 ### B. Pomysły zgłoszone przez właściciela, jeszcze nie zrobione
