@@ -145,8 +145,8 @@ Wykonaj listę z sekcji 6 dokumentu [WDROZENIE-DEMO-10-TESTEROW.md](WDROZENIE-DE
 
 ## Krok 9. Monitoring i kopie (🧑, 20 min)
 
-1. **Monitor dostępności** (UptimeRobot lub podobny): adres `https://staging.twojadomena.pl/login`, alert na e-mail. Trasa crona wymaga nagłówka, więc zdrowie powiadomień sprawdzaj zapytaniem z końca `supabase/cron/outbox-cron.sql` (`net._http_response`: kod 200 = w porządku, 500 = są zdarzenia, które wyczerpały 5 prób) albo w Vercel → Logs.
-2. **Sentry** (opcjonalnie, darmowy plan): na razie nie jest podłączony w kodzie (to osobne zadanie).
+1. **Monitor dostępności** (UptimeRobot lub podobny): adres `https://staging.twojadomena.pl/api/health`, interwał 1-5 minut, alert na e-mail przy kodzie innym niż 200. Odpowiedź `200 {"status":"ok"}` oznacza, że baza odpowiada i powiadomienia się przetwarzają; `503 {"status":"degraded","checks":{...}}` oznacza brak odpowiedzi bazy (`database: false`) albo zdarzenia czekające w kolejce dłużej niż 15 minut (`outbox: false`: cron nie działa lub zdarzenia wyczerpały próby). Endpoint jest publiczny i nie zwraca żadnych danych. Szczegóły crona: zapytanie z końca `supabase/cron/outbox-cron.sql` (`net._http_response`) albo Vercel → Logs.
+2. **Sentry** (opcjonalnie, darmowy plan, region UE): załóż projekt (platforma „Next.js”/„JavaScript”), skopiuj DSN i ustaw `SENTRY_DSN` w Vercel (opcjonalnie `SENTRY_ENVIRONMENT`, `SENTRY_RELEASE`). Bez `SENTRY_DSN` nic nie jest wysyłane. Błędy serwera (render, akcje, trasy API, cron) trafiają do Sentry z typem i komunikatem błędu, stosem, wzorcem trasy (np. `/invite/[secret]`, nie rzeczywistym adresem), metodą i kodem `digest` (ten sam, który użytkownik widzi na stronie błędu); bez nagłówków, ciasteczek, treści żądań, adresów e-mail i identyfikatorów użytkowników. Sentry jest podprocesorem: dopisz go do polityki prywatności i umowy powierzenia. Błędy przeglądarki nie są raportowane (kod `digest` ze strony błędu wystarcza do znalezienia wpisu).
 3. **Test odtworzenia kopii** na osobnym projekcie przed startem testów: kopia, której nie odtworzono, nie istnieje.
 
 ## Obsługa na co dzień

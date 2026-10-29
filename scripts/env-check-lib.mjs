@@ -125,6 +125,11 @@ export function validateEnv(env, options = {}) {
   else good("EMAIL_FROM");
 
   // 6. Dane operatora w regulaminie i kontakt
+  // Sentry jest opcjonalny, ale zła wartość oznacza ciche gubienie błędów
+  if (!isSet(env.SENTRY_DSN)) warn("SENTRY_DSN", "brak (błędy serwera nie będą raportowane do Sentry)");
+  else if (!/^https?:\/\/[^@/]+@[^/]+\/(?:.*\/)?\d+\/?$/.test(env.SENTRY_DSN.trim())) warn("SENTRY_DSN", "nie wygląda jak DSN (https://<klucz>@<host>/<numer-projektu>)");
+  else good("SENTRY_DSN");
+
   if (!isSet(env.NEXT_PUBLIC_SUPPORT_EMAIL)) fail("NEXT_PUBLIC_SUPPORT_EMAIL", "brak (kontakt w regulaminie, na ekranie zawieszenia i w pasku „tylko do odczytu”)");
   else good("NEXT_PUBLIC_SUPPORT_EMAIL");
   for (const name of ["NEXT_PUBLIC_OPERATOR_NAME", "NEXT_PUBLIC_OPERATOR_ADDRESS"]) {
