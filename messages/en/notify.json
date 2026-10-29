@@ -72,6 +72,10 @@
     "title": "Account is read-only",
     "body": "You can view data but not change it.{hasReason, select, yes { Reason: {reason}.} other {}} Contact support to unlock editing."
   },
+  "org_access_expired": {
+    "title": "Your access period has ended",
+    "body": "The account is now read-only: you can view your data but not change it. Contact support to extend your access."
+  },
   "org_restored": {
     "title": "Account access restored",
     "body": "Your account is fully working again.{hasUntil, select, yes { Access is granted until {until}.} other {}}"

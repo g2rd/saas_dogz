@@ -72,6 +72,10 @@
     "title": "Konto tylko do odczytu",
     "body": "Możesz przeglądać dane, ale nie możesz ich zmieniać.{hasReason, select, yes { Powód: {reason}.} other {}} Skontaktuj się z obsługą, aby odblokować zapis."
   },
+  "org_access_expired": {
+    "title": "Okres dostępu dobiegł końca",
+    "body": "Konto jest teraz tylko do odczytu: możesz przeglądać dane, ale nie możesz ich zmieniać. Skontaktuj się z obsługą, aby przedłużyć dostęp."
+  },
   "org_restored": {
     "title": "Dostęp do konta przywrócony",
     "body": "Twoje konto znów działa w pełni.{hasUntil, select, yes { Dostęp jest przyznany do {until}.} other {}}"

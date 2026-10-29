@@ -210,6 +210,7 @@ Migracje `supabase/migrations/20261016000001` … `0018` (wszystkie zastosowane 
 16. **Opinie testerów i import klientów** (etap 10, migracje 0014-0015, moduł `feedback`, rozszerzony `clients`): „Zgłoś problem lub pomysł” w `Więcej` obu paneli (`/app/feedback`, `/portal/feedback`; tabela `feedback` z RLS: tylko własne zgłoszenia, bez edycji i usuwania, ekran źródłowy bez zapytania w adresie); przegląd i „Oznacz jako obejrzane” w `/admin/feedback`. Import klientów i psów z CSV (`/app/clients/import`): wgranie pliku albo wklejenie, separator `;` `,` tabulator, nagłówki po polsku i angielsku, podgląd z listą problemów (błędy pomijają wiersz, złe e-mail i telefon to ostrzeżenia), duplikaty w pliku i w szkole (e-mail, telefon), limit 500 wierszy i 1 MB, zapis atomową funkcją SQL `import_clients`, bez zaproszeń i powiadomień. Teksty w `messages/{pl,en}/report.json` i `clients.import.*`.
 15. **Wielojęzyczność, etap 5 (angielski)**: `messages/en/` dla wszystkich przestrzeni (742 klucze), wybór języka w `Więcej` (`ENABLED_LOCALES=pl,en`), parytet kluczy i parametrów w teście, poprawione pominięte teksty (pulpit, konto klienta, zaległości, potwierdzenia próśb), usunięta wzmianka o BLIK.
 14. **Wielojęzyczność, etap 4** (migracja 0013, ADR 0013): powiadomienia jako `message_key` + `params` (przestrzeń `notify`), render w języku odbiorcy (`profiles.locale`, tylko języki włączone) dla skrzynki, e-maila i push; dzwonek składa treść w języku widza; e-maile zaproszeń w języku szkoły; metadane, manifest i `offline.html` zależne od języka; tłumacz poza żądaniem `src/shared/i18n/translator.ts`.
+26. **Jakość techniczna** (ADR 0019, migracja `20261029000004`): kody powodu (`note_code`, `status_reason_code`, `undone_before_send`) zamiast polskich tekstów z automatów, wygenerowane typy bazy (`database.types.ts`, klienci typowani, kontrola aktualności w CI), neutralny tekst zapasowy `sw.js`, pseudo-lokalizacja (`ENABLE_PSEUDO_LOCALE` + ciasteczko `dt_pseudo`) i test układu 23 ekranów bez przewijania w poziomie.
 13. **Poprawka:** wybór zgłoszenia na wolny termin, gdy termin już minął, rzucał wyjątek (500 w konsoli). Teraz akcje „Wybierz” i „Zamknij ogłoszenie” zwracają komunikat przy przycisku (`slot-offer-forms.tsx`), a lista trenera pomija ogłoszenia z minionym terminem; test regresji w `slots.integration.test.ts`.
 
 ### Funkcje widoczne dla użytkownika
@@ -295,7 +296,7 @@ Szczegółowa ścieżka do sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJN
 - [ ] **Kopie zapasowe i monitoring minimum:** dzienne kopie Supabase (z testem przywracania), Sentry (darmowy), monitor dostępności.
 - [ ] **Zbieranie opinii** i kryterium „komuś się spodobało” ustalone z góry (np. dodał klientów, sprzedał pakiet, klient użył panelu).
 - [x] Zrobione (PR `feat/ci-quality-minimum`): `error.tsx`/`not-found.tsx`/`global-error.tsx`, przegląd `npm audit` (produkcja 0 podatności, 5 deweloperskich świadomie zostaje), CI, przegląd RLS z testem niezmienników, limity.
-- [ ] Zostaje z domknięcia: obsługa wygasłej sesji (komunikat zamiast „Brak uprawnień”), linki powrotu na podstronach w trybie `standalone`, generowane typy bazy, Sentry i monitor dostępności, limity Supabase Auth i dostawcy poczty przy wdrożeniu (lista w PRZEGLAD-BEZPIECZENSTWA.md).
+- [ ] Zostaje z domknięcia: obsługa wygasłej sesji (komunikat zamiast „Brak uprawnień”), linki powrotu na podstronach w trybie `standalone`, ~~generowane typy bazy~~ (zrobione, ADR 0019), Sentry i monitor dostępności, limity Supabase Auth i dostawcy poczty przy wdrożeniu (lista w PRZEGLAD-BEZPIECZENSTWA.md).
 
 ### A2. Dopracowania panelu właściciela
 - [ ] Przeklikać w przeglądarce rejestrację z kodem przy zamkniętym naborze (formularz, błędy) oraz rejestrację klienta i zespołu z zaproszenia; ponowne logowanie do `/admin` kodem TOTP; panel na telefonie.
@@ -320,9 +321,9 @@ Szczegółowa ścieżka do sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJN
 - [x] Etap 3: ekran ustawień szkoły (waluta, strefa, język) i blokada zmiany waluty przy istniejących rekordach z kwotami (PR `feat/school-settings`, ADR 0014); metadane i manifest zrobione w etapie 4.
 - [ ] Etap 3, reszta: podpowiedź `+48` zależna od kraju (razem z biblioteką numerów).
 - [x] Etap 4: powiadomienia, e-mail i push w języku odbiorcy (`message_key` + `params`), e-maile zaproszeń, metadane, manifest, strona offline.
-- [ ] Etap 4, reszta: kody powodu (`reason_code`) w rejestrach SQL zamiast tekstu; polski tekst zapasowy w `public/sw.js`.
+- [x] Etap 4, reszta: kody powodu w rejestrach SQL zamiast tekstu i neutralny tekst zapasowy w `public/sw.js` (PR `feat/tech-quality`, ADR 0019).
 - [x] Etap 5 (wersja robocza): angielski kompletny i włączony.
-- [ ] Etap 5, reszta: przegląd tłumaczenia przez osobę znającą branżę, pseudo-lokalizacja (przepełnienia układu), przeklikanie na telefonie, strony publiczne i prawne po angielsku, region w profilu (format daty), podpowiedź `+48` razem z biblioteką numerów; etap 6: trzeci język jako test skalowalności.
+- [ ] Etap 5, reszta: przegląd tłumaczenia przez osobę znającą branżę, pseudo-lokalizacja (zrobione: `e2e/pseudo-locale.spec.ts`, ADR 0019), przeklikanie na telefonie, strony publiczne i prawne po angielsku, region w profilu (format daty), podpowiedź `+48` razem z biblioteką numerów; etap 6: trzeci język jako test skalowalności.
 
 ### B. Pomysły zgłoszone przez właściciela, jeszcze nie zrobione
 - **QR szkoły z akceptacją:** stały QR/link trenera; klient zakłada konto i wysyła prośbę o dołączenie, trener akceptuje (powstaje kartoteka i dostęp). Zaproponowane, czeka na decyzję.

@@ -66,6 +66,11 @@ jobs:
         run: npx supabase start --exclude studio,imgproxy,logflare,vector,edge-runtime,supavisor
       - name: Testy bazy (RLS i funkcje, pgTAP)
         run: npx supabase test db
+      # Typy z migracji muszą być zacommitowane: po zmianie schematu uruchom `npm run db:types`
+      - name: Typy bazy są aktualne
+        run: |
+          npm run db:types
+          git diff --exit-code src/shared/db/database.types.ts
       - name: Testy przypadków użycia na prawdziwej bazie
         run: npm run test:integration
       - name: Zatrzymaj Supabase
