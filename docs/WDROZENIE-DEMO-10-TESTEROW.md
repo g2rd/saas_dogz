@@ -1,5 +1,7 @@
 # Wdrożenie wersji demo: 10 trenerów, test przez kilka tygodni
 
+> **Nieaktualne na dziś (2026-10-29):** właściciel zdecydował, że nie będzie zewnętrznych testerów, a testy odbywają się lokalnie ([LOKALNE-SRODOWISKO.md](LOKALNE-SRODOWISKO.md)). Dokument zostaje jako materiał na wypadek rekrutacji testerów w przyszłości.
+
 Stan na 2026-10-21. Dokument jest instrukcją krok po kroku. Cel: dać **10 wybranym trenerom działającą aplikację** (z ich klientami) na **4-6 tygodni**, żeby zebrać opinie i sprawdzić, czy ktoś będzie chciał za nią płacić. **Bez pobierania opłat**, ale z pełną kontrolą właściciela: wgląd w to, kto i jak używa aplikacji, oraz możliwość zawieszenia dostępu (np. po okresie testów albo braku płatności). Wersja pełna (sprzedaż): [WDROZENIE-PELNE-PRODUKCJA.md](WDROZENIE-PELNE-PRODUKCJA.md). Kontekst: [ARCHITEKTURA-I-STAN-PRAC.md](ARCHITEKTURA-I-STAN-PRAC.md), [WDROZENIE-PRODUKCYJNE.md](WDROZENIE-PRODUKCYJNE.md) (limitacje i ryzyka).
 
 Oznaczenia: 🧑 robisz Ty (konta, DNS, decyzje, rozmowy), 🤖 robi się w kodzie (agent albo programista), ⚠️ pułapka, ✅ test sprawdzający. Szacunki czasu są orientacyjne i bez gwarancji.

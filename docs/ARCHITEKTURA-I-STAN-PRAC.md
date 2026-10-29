@@ -24,7 +24,7 @@ Stan na 2026-10-29 (po scaleniu wszystkich gałęzi funkcji do `dev` i `main`). 
 | 9b. Wielojęzyczność, etapy 0-5: `next-intl`, wybór języka z urządzenia i w `Więcej`, formatery, waluta i strefa szkoły z urządzenia, błędy i walidacja jako klucze, teksty UI w katalogu `pl` (680 kluczy), powiadomienia, e-maile zaproszeń, metadane, manifest i strona offline w języku odbiorcy (`message_key` + `params`) (ADR 0013, migracje 0012-0013, [WDROZENIE-WIELOJEZYCZNOSCI.md](WDROZENIE-WIELOJEZYCZNOSCI.md)) | ✅ kod i testy; angielski kompletny i włączony (`ENABLED_LOCALES=pl,en`), przegląd człowieka i pseudo-lokalizacja zostają | `main` |
 | 9c. Ustawienia szkoły: ekran `/app/settings` (waluta, strefa czasowa, język szkoły, próg i skutek późnego odwołania), blokada zmiany waluty przy pakietach, należnościach i wpłatach (`DT018`), walidacja i dziennik zmian w bazie (ADR 0014, migracja `20261021000001`) | ✅ kod i testy (pgTAP, integracyjne, E2E) | `main` (PR #19, scalone `dev` → `main` 2026-10-29) |
 | 9d. Po teście z właścicielem (2026-10-29): ponowna zgoda po zmianie regulaminu (ADR 0015), e-mail końca dostępu (0016), wygasła sesja i linki powrotu (0017), region i numery telefonów (0018), kody powodu, typy bazy i pseudo-lokalizacja (0019), monitoring `/api/health` i Sentry (0020), link i QR szkoły z akceptacją (0021), historia zmian z „Cofnij” (0022), kafelek wolnych terminów | ✅ kod i testy (pgTAP 325, integracyjne 160, E2E 58) | `dev`, `main` |
-| **10. Oddanie testerom na 2 tygodnie** (regulamin i zgody, formularz opinii, import CSV, monitoring, sterowanie demo, instrukcja dla trenera) | ✅ **kod i testy gotowe**; zostaje po stronie właściciela przegląd prawnika, kopie zapasowe, Sentry i monitor, kryterium sukcesu, rekrutacja testerów i kody beta (sekcja 8 A). **Staging odpada** (decyzja 2026-10-29), sposób udostępnienia aplikacji testerom ustala właściciel | `main` |
+| **10. Testy lokalne właściciela** (wcześniej: oddanie testerom na 2 tygodnie) | ✅ **kod i testy gotowe**. **Nie będzie zewnętrznych testerów ani stagingu** (decyzja 2026-10-29): aplikację testuje lokalnie właściciel (instrukcja: [LOKALNE-SRODOWISKO.md](LOKALNE-SRODOWISKO.md), konta testowe: `npm run seed:local`). Pozycje o wdrożeniu, prawniku i rekrutacji przesunięte do „jeśli aplikacja trafi do prawdziwych użytkowników” (sekcja 8 A) | `main` |
 
 Zdalne repozytorium: `https://github.com/g2rd/saas_dogz`. **Gałąź `dev` jest gałęzią integracyjną: tam trafiają wszystkie zmiany. `main` zawiera tylko to, co właściciel zatwierdził; do `main` wchodzimy dopiero po jego wyraźnym zatwierdzeniu (merge `dev` do `main` i push).** Stan na 2026-10-29: po scaleniu wszystkich gałęzi funkcji (pozycje 22-30 w sekcji 5) `dev` i `main` wskazują na ten sam commit; nic nie czeka na `main`. Scalenia do `dev` i `main` wykonał Claude na wyraźne polecenie właściciela w czacie (wyjątek opisany niżej).
 
@@ -37,8 +37,8 @@ Zdalne repozytorium: `https://github.com/g2rd/saas_dogz`. **Gałąź `dev` jest 
 - **Commity bez dopisku `Co-Authored-By` o Claude.**
 - **Pull requesty i zatwierdzanie (2026-10-21):** Claude wypycha tylko gałęzie `feat/*`/`fix/*` i otwiera PR-y do `dev`; automatycznego review nie ma (wycofany); **PR-y zatwierdza i scala wyłącznie właściciel** (`dev` -> `main` również). Claude nie pushuje do `dev`/`main`, nie scala i nie zatwierdza. **Wyjątek tylko na wyraźne polecenie właściciela w czacie** (2026-10-21: scalenie stosu PR-ów do `dev`); wykonanie w terminalu użytkownika (`run_in_terminal`), bo środowisko Claude'a blokuje scalanie bez przeglądu.
 - Aplikacja tylko w jasnym motywie.
-- **Hosting: Vercel (2026-10-29).** Samodzielny hosting (`output: "standalone"`, Dockerfile, docker-compose z Cloudflare Tunnel, kopie bazy na własnym serwerze) odpada i nie jest planowany. Wdrożenie według [WDROZENIE-STAGING.md](WDROZENIE-STAGING.md). Uwaga: plan Vercel Hobby jest tylko do użytku niekomercyjnego; przy pierwszej sprzedaży (lub gdy testy mają charakter komercyjny) trzeba przejść na plan Pro.
-- **Staging odpada (2026-10-29).** Nie wdrażamy osobnego środowiska zdalnego na czas testów; instrukcja [WDROZENIE-STAGING.md](WDROZENIE-STAGING.md) zostaje na wypadek wdrożenia. Sposób udostępnienia aplikacji testerom ustala właściciel.
+- **Hosting (gdyby kiedyś był potrzebny): Vercel (2026-10-29).** Samodzielny hosting (`output: "standalone"`, Dockerfile, docker-compose z Cloudflare Tunnel, kopie bazy na własnym serwerze) odpada i nie jest planowany. Wdrożenie według [WDROZENIE-STAGING.md](WDROZENIE-STAGING.md). Uwaga: plan Vercel Hobby jest tylko do użytku niekomercyjnego; przy pierwszej sprzedaży (lub gdy testy mają charakter komercyjny) trzeba przejść na plan Pro.
+- **Brak testerów i brak stagingu (2026-10-29).** Aplikację testuje wyłącznie właściciel, lokalnie (instrukcja [LOKALNE-SRODOWISKO.md](LOKALNE-SRODOWISKO.md), konta: `npm run seed:local`). Nie wdrażamy środowiska zdalnego, nie rekrutujemy testerów ani kodów beta; [WDROZENIE-STAGING.md](WDROZENIE-STAGING.md), [WDROZENIE-DEMO-10-TESTEROW.md](WDROZENIE-DEMO-10-TESTEROW.md) i [INSTRUKCJA-DLA-TRENERA.md](INSTRUKCJA-DLA-TRENERA.md) zostają jako materiał na przyszłość.
 - **Właściciel platformy** musi widzieć użycie (ile szkół, trenerów, klientów) i móc blokować dostęp (koniec testów, brak płatności): panel `/admin` (ADR 0012). Dostęp: to samo logowanie e-mail + hasło, osobne konto z wpisem w `platform_admins` i weryfikacja dwuetapowa TOTP (wymagana na produkcji).
 
 ### Jak pracujemy (definicja „zrobione” dla etapu)
@@ -299,29 +299,26 @@ Szczegółowa ścieżka do sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJN
 
 **Zrobione dla demo:** panel właściciela `/admin` z wglądem i blokowaniem dostępu, status szkoły egzekwowany w bazie, zamknięta rejestracja kodami beta, MFA admina (ADR 0012). **Zrobione w PR `feat/tester-feedback-import`:** formularz opinii „Zgłoś problem lub pomysł” (1.4) z przeglądem w `/admin/feedback` i import klientów z CSV (1.5). **Zrobione w PR `feat/ci-quality-minimum`:** CI (`ci.yml`), strony błędów, nagłówki bezpieczeństwa, limity, utwardzenie uprawnień bazy i test niezmienników. **Blokujące, jeszcze niezbudowane (sekcja 1 instrukcji demo):** zgody i regulamin testów (1.3), Sentry i monitor dostępności (1.6) są gotowe w kodzie (PR `feat/monitoring`, ADR 0020; zostaje konto Sentry i monitor po stronie właściciela), e-mail „dostęp kończy się za 7 dni”.
 
-### A. Przekazanie aplikacji testerom (stan 2026-10-29)
+### A. Testy lokalne właściciela i dalsze kroki (stan 2026-10-29)
 
-**Decyzja właściciela (2026-10-29): staging nie jest potrzebny.** Osobne środowisko zdalne ([WDROZENIE-STAGING.md](WDROZENIE-STAGING.md)) nie jest planowane; dokument zostaje jako instrukcja na wypadek wdrożenia. Sposób udostępnienia aplikacji testerom ustala właściciel (do czasu wdrożenia aplikacja działa lokalnie, instrukcja: [LOKALNE-SRODOWISKO.md](LOKALNE-SRODOWISKO.md)). Pozycje oznaczone 🌐 dotyczą każdego środowiska z prawdziwymi użytkownikami, gdziekolwiek zostanie uruchomione.
+**Decyzja właściciela (2026-10-29): nie będzie zewnętrznych testerów, jedyne testy odbywają się lokalnie u właściciela, więc staging nie jest potrzebny.** Aplikacja działa na lokalnym Supabase ([LOKALNE-SRODOWISKO.md](LOKALNE-SRODOWISKO.md)): `npm run db:start`, `db:reset`, `npm run seed:local` (konta testowe), `npm run dev`; testy automatyczne i scenariusze ręczne są opisane w tym samym dokumencie. Do ręcznego pokazania powiadomień służy `/admin/demo` (`DEMO_CONTROLS=1`).
 
 **Zrobione w kodzie i testach:**
 - [x] Formularz opinii „Zgłoś problem lub pomysł”, import klientów z CSV, CI (typecheck, lint, testy, baza, E2E), strony błędów, nagłówki bezpieczeństwa, limity, przegląd RLS (ADR 0014-0022, sekcja 5).
 - [x] Regulamin, polityka prywatności i zgody (szkic) z ponowną zgodą po zmianie wersji (ADR 0015).
 - [x] Powiadomienia (dzwonek, push, e-mail) w języku odbiorcy, e-mail o końcu dostępu (ADR 0016), wygasła sesja i linki powrotu (ADR 0017), region i numery telefonów (ADR 0018).
 - [x] Monitoring w kodzie: `/api/health`, raportowanie błędów do Sentry po ustawieniu `SENTRY_DSN` (ADR 0020).
-- [x] Link i QR szkoły z akceptacją (ADR 0021), historia zmian z „Cofnij” (ADR 0022), kafelek wolnych terminów, osobne konto właściciela platformy.
-- [x] **Sterowanie demo** (`/admin/demo`, wymaga `DEMO_CONTROLS=1`): powiadomienie testowe, przetwarzanie kolejki od razu, „przewijanie czasu” (reguły dzienne za N dni); `seed:demo` z 10 szkołami; `seed:local` z kontami testowymi.
-- [x] **Instrukcja dla trenera:** [INSTRUKCJA-DLA-TRENERA.md](INSTRUKCJA-DLA-TRENERA.md) (instalacja PWA, pierwsze kroki, klienci, pakiety, zajęcia, Cofnij, zgłaszanie uwag).
+- [x] Link i QR szkoły z akceptacją (ADR 0021), historia zmian z „Cofnij” (ADR 0022), kafelek wolnych terminów, osobne konto właściciela platformy, sterowanie demo.
+- [x] Konta i dane testowe jednym poleceniem (`seed:local`), kopia i odtwarzanie danych lokalnych (`db:backup`, `db:restore`), `seed:demo` z 10 szkołami.
 - [x] Test PWA i push na prawdziwych telefonach: wykonał właściciel (działa).
 
-**Zostaje po stronie właściciela (🧑):**
-- [ ] 🌐 **Przegląd prawnika:** treść regulaminu, polityki prywatności i umowy powierzenia to szkic (dane operatora, regiony i podprocesorzy z Sentry, okresy przechowywania, zakres odpowiedzialności). Po zmianie treści podnieś `LEGAL_VERSION` w `src/shared/legal.ts` i ustaw `NEXT_PUBLIC_OPERATOR_NAME`, `NEXT_PUBLIC_OPERATOR_ADDRESS`, `NEXT_PUBLIC_SUPPORT_EMAIL`.
-- [ ] 🌐 **Kopie zapasowe** środowiska z prawdziwymi danymi (z testem odtworzenia) i monitoring (konto Sentry z `SENTRY_DSN`, monitor na `/api/health`).
-- [ ] 🌐 **Kryterium „komuś się spodobało”** ustalone z góry (np. dodał klientów, sprzedał pakiet, klient użył panelu); opinie zbierasz sam (komunikatory, telefon), bez ankiet.
-- [ ] 🌐 **Rekrutacja testerów** i kody beta (`/admin/codes`), zamknięcie rejestracji, nadanie konta właściciela platformy (`admin:grant` z prawdziwym adresem, osobne konto z MFA).
-- [ ] 🌐 Jeśli aplikacja ma działać zdalnie: Supabase w UE, hosting (decyzja: Vercel; Hobby tylko do użytku niekomercyjnego), e-mail (Resend + SPF/DKIM), sekrety, cron powiadomień co minutę i `npm run env:check`/`smoke` (instrukcja: WDROZENIE-STAGING.md).
-- [ ] **GitHub:** pierwszy przebieg CI na `dev`/`main` i ochrona gałęzi z wymaganymi kontrolami (patrz A3).
+**Zostaje po stronie właściciela (lokalnie):**
+- [ ] Przeklikać nowe funkcje według scenariuszy z [LOKALNE-SRODOWISKO.md](LOKALNE-SRODOWISKO.md) (sekcja 3) i zgłaszać znalezione błędy.
+- [ ] **GitHub:** pierwszy przebieg CI na `dev`/`main` i ochrona gałęzi z wymaganymi kontrolami (A3).
 
-**Odłożone, niewymagane do testów:** wpisy wejść do panelu w audycie, stronicowanie przeglądu przy kilkuset szkołach, role wewnętrzne (wsparcie tylko do odczytu), przeklikanie w przeglądarce rejestracji z kodem beta przy zamkniętym naborze i ponownego logowania do `/admin` kodem TOTP, limity Supabase Auth i dostawcy poczty (lista w PRZEGLAD-BEZPIECZENSTWA.md).
+**Tylko jeśli aplikacja kiedyś trafi do prawdziwych użytkowników (dziś nie planowane):** przegląd prawnika (regulamin, polityka prywatności, umowa powierzenia, dane operatora w `NEXT_PUBLIC_OPERATOR_*`, Sentry jako podprocesor; po zmianie treści podnieś `LEGAL_VERSION`); środowisko zdalne (Supabase w UE, hosting: Vercel, e-mail przez Resend z SPF/DKIM, sekrety, cron powiadomień, `env:check`, `smoke`; instrukcja: [WDROZENIE-STAGING.md](WDROZENIE-STAGING.md)); kopie zapasowe z testem odtworzenia, konto Sentry i monitor na `/api/health`; osobne konto właściciela z MFA, zamknięta rejestracja i kody beta; ustalone kryterium sukcesu; rekrutacja testerów ([WDROZENIE-DEMO-10-TESTEROW.md](WDROZENIE-DEMO-10-TESTEROW.md), [INSTRUKCJA-DLA-TRENERA.md](INSTRUKCJA-DLA-TRENERA.md)).
+
+**Odłożone, niewymagane:** wpisy wejść do panelu w audycie, stronicowanie przeglądu przy kilkuset szkołach, role wewnętrzne (wsparcie tylko do odczytu), przeklikanie rejestracji z kodem beta przy zamkniętym naborze i ponownego logowania do `/admin` kodem TOTP, limity Supabase Auth i dostawcy poczty (lista w PRZEGLAD-BEZPIECZENSTWA.md).
 
 ### A2. Dopracowania panelu właściciela
 - [ ] Przeklikać w przeglądarce rejestrację z kodem przy zamkniętym naborze (formularz, błędy) oraz rejestrację klienta i zespołu z zaproszenia; ponowne logowanie do `/admin` kodem TOTP; panel na telefonie.
@@ -393,16 +390,12 @@ Walidacja (10-15 wywiadów z trenerami, ceny 49/79/119 zł, 5-10 pilotażystów,
 
 ### Kolejne plany (kolejność proponowana)
 
-**Po stronie właściciela (🧑), bez tego nie ruszymy dalej:**
-1. Sprawdzenie pierwszego przebiegu CI na GitHubie (`quality`, `database`, `e2e`) i ustawienie ich jako wymaganych w rulesecie `dev` i `main` (w tym nowy krok „Typy bazy są aktualne”).
-2. ~~Staging~~ odpada (decyzja 2026-10-29); hosting, gdy aplikacja trafi do prawdziwych użytkowników: Vercel (decyzja), wdrożenie według [WDROZENIE-STAGING.md](WDROZENIE-STAGING.md); konto Sentry (`SENTRY_DSN`) i monitor na `/api/health`.
-3. Przegląd prawnika dla regulaminu, polityki prywatności i umowy powierzenia (po zmianie treści podnieś `LEGAL_VERSION`); dane operatora w zmiennych `NEXT_PUBLIC_OPERATOR_*`.
-4. Założenie kont (Supabase w UE, Resend, domena), nadanie konta właściciela platformy, rekrutacja 10 testerów i kody beta.
+**Po stronie właściciela:** testy lokalne według [LOKALNE-SRODOWISKO.md](LOKALNE-SRODOWISKO.md) i zgłaszanie błędów; pierwszy przebieg CI na GitHubie i ochrona gałęzi. Staging, prawnik, hosting, konta zewnętrzne i rekrutacja testerów **nie są planowane** (decyzja 2026-10-29), opis na przyszłość w sekcji 8 A.
 
 **Po stronie kodu:** wszystkie punkty z poprzedniej listy są zrobione (ponowna zgoda, e-mail końca dostępu, wygasła sesja, region i telefony, jakość techniczna, monitoring, link szkoły, historia zmian, kafelek chętnych; szczegóły w sekcji 5, pozycje 22-30). Samodzielny hosting odpada (Vercel). Pozostaje do rozważenia: edycja danych prośby przed akceptacją i powiadomienie o odrzuceniu, filtr historii po kliencie i cofanie korekt, przegląd angielskiego przez człowieka, trzeci język (etap 6), generowane typy w pozostałych repozytoriach.
 
 **Po okresie testowym (jeśli się spodoba):** plany, limity i Stripe Billing, kalendarz poza minimum, zadania domowe z filmami, płatności online i faktury (sekcja 8 C).
 
-**Wielojęzyczność:** etapy 0-5 gotowe i w `main`. Zostają: przegląd angielskiego przez osobę znającą branżę, pseudo-lokalizacja, etap 6 (trzeci język jako test skalowalności).
+**Wielojęzyczność:** etapy 0-5 gotowe i w `main`. Zostają: przegląd angielskiego przez osobę znającą branżę (pseudo-lokalizacja zrobiona), etap 6 (trzeci język jako test skalowalności).
 
 **Zasada:** każda zmiana na osobnej gałęzi `feat/...` z aktualnego `origin/dev`, testy (typecheck, lint, test, db:test, test:integration, check:boundaries, e2e, build), aktualizacja tego pliku i ADR, commit bez dopisku o Claude, wypchnięcie gałęzi i PR do `dev`.
