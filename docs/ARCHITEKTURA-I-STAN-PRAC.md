@@ -36,6 +36,7 @@ Zdalne repozytorium: `https://github.com/g2rd/saas_dogz`. **Gałąź `dev` jest 
 - **Commity bez dopisku `Co-Authored-By` o Claude.**
 - **Pull requesty i zatwierdzanie (2026-10-21):** Claude wypycha tylko gałęzie `feat/*`/`fix/*` i otwiera PR-y do `dev`; automatycznego review nie ma (wycofany); **PR-y zatwierdza i scala wyłącznie właściciel** (`dev` -> `main` również). Claude nie pushuje do `dev`/`main`, nie scala i nie zatwierdza. **Wyjątek tylko na wyraźne polecenie właściciela w czacie** (2026-10-21: scalenie stosu PR-ów do `dev`); wykonanie w terminalu użytkownika (`run_in_terminal`), bo środowisko Claude'a blokuje scalanie bez przeglądu.
 - Aplikacja tylko w jasnym motywie.
+- **Hosting: Vercel (2026-10-29).** Samodzielny hosting (`output: "standalone"`, Dockerfile, docker-compose z Cloudflare Tunnel, kopie bazy na własnym serwerze) odpada i nie jest planowany. Wdrożenie według [WDROZENIE-STAGING.md](WDROZENIE-STAGING.md). Uwaga: plan Vercel Hobby jest tylko do użytku niekomercyjnego; przy pierwszej sprzedaży (lub gdy testy mają charakter komercyjny) trzeba przejść na plan Pro.
 - **Właściciel platformy** musi widzieć użycie (ile szkół, trenerów, klientów) i móc blokować dostęp (koniec testów, brak płatności): panel `/admin` (ADR 0012). Dostęp: to samo logowanie e-mail + hasło, osobne konto z wpisem w `platform_admins` i weryfikacja dwuetapowa TOTP (wymagana na produkcji).
 
 ### Jak pracujemy (definicja „zrobione” dla etapu)
