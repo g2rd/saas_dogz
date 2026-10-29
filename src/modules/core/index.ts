@@ -32,4 +32,5 @@ export {
 } from "./domain/permissions";
 export { slugify } from "./domain/slug";
 export { getRequestContext, getSessionUser, type SessionUser } from "./infrastructure/request-context";
+export { hasCurrentConsent, recordConsent } from "./infrastructure/consents";
 export { findAccessNotice, isBlockedStatus, loadOrgAccess, type AccessNotice } from "./infrastructure/org-access";

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { NotificationList, listNotifications } from "@/modules/notifications";
+import { BackLink } from "@/shared/ui/back-link";
 import { SubmitButton } from "@/shared/ui/form-fields";
 import { requirePortalContext } from "../../_lib/context";
 import { markAllPortalReadAction, openPortalNotificationAction } from "./actions";
@@ -11,6 +12,7 @@ export default function PortalNotificationsPage() {
   const t = useTranslations();
   return (
     <>
+      <BackLink href="/portal/more">{t("common.back_to_more")}</BackLink>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">{t("common.powiadomienia")}</h1>
         <Link href="/portal/notifications/settings" className="text-sm underline">

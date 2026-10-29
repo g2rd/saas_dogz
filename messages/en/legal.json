@@ -143,5 +143,11 @@
   },
   "consent": {
     "label": "I accept the <terms>Test terms</terms> and the <privacy>Privacy Policy</privacy>."
+  },
+  "reconsent": {
+    "title": "We have updated our terms",
+    "intro": "The documents you agreed to have changed (version of {version}). To keep using the app, please read them and accept the new version.",
+    "submit": "Accept and continue",
+    "logout": "Sign out"
   }
 }

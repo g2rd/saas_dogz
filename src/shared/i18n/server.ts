@@ -7,11 +7,13 @@ import {
   intlLocale,
   isLocale,
   LOCALE_COOKIE,
+  REGION_COOKIE,
   parseAcceptLanguage,
   resolveLocale,
   type Locale,
   type ResolvedLocale,
 } from "./locale";
+import { DEFAULT_PHONE_COUNTRY, phonePrefix } from "../phone";
 import type { Translator } from "./messages";
 
 export type LocaleContext = ResolvedLocale & {
@@ -31,8 +33,9 @@ export type LocaleContext = ResolvedLocale & {
 export async function getLocaleContext(): Promise<LocaleContext> {
   const [cookieStore, headerStore] = await Promise.all([cookies(), headers()]);
   const cookie = cookieStore.get(LOCALE_COOKIE)?.value;
+  const regionCookie = cookieStore.get(REGION_COOKIE)?.value;
   const enabled = enabledLocales();
-  const resolved = resolveLocale({ cookie, acceptLanguage: headerStore.get("accept-language"), enabled });
+  const resolved = resolveLocale({ cookie, regionCookie, acceptLanguage: headerStore.get("accept-language"), enabled });
   return {
     ...resolved,
     intl: intlLocale(resolved.locale, resolved.region),
@@ -40,6 +43,19 @@ export async function getLocaleContext(): Promise<LocaleContext> {
     chosen: isLocale(cookie) && enabled.includes(cookie) ? cookie : null,
     preferred: (isLocale(cookie) && enabled.includes(cookie) ? cookie : parseAcceptLanguage(headerStore.get("accept-language"))[0]?.language) ?? resolved.locale,
   };
+}
+
+/** Kraj, z którego liczymy numery telefonu bez prefiksu: region użytkownika, a bez niego Polska (`DEFAULT_PHONE_COUNTRY`). */
+export async function getPhoneCountry(): Promise<string> {
+  return (await getLocaleContext()).region ?? DEFAULT_PHONE_COUNTRY;
+}
+
+/** Podpowiedź pod polem telefonu: kraj i prefiks, z którym zapiszemy numer bez prefiksu (region użytkownika). */
+export async function getPhoneHint(): Promise<string> {
+  const [t, context] = await Promise.all([getTranslations(), getLocaleContext()]);
+  const country = context.region ?? DEFAULT_PHONE_COUNTRY;
+  const name = new Intl.DisplayNames([context.intl], { type: "region" }).of(country) ?? country;
+  return t("clients.clientForm.phone_hint", { country: name, prefix: phonePrefix(country) });
 }
 
 /** Formatery dat, godzin i kwot w języku i regionie bieżącego żądania (serwer). */

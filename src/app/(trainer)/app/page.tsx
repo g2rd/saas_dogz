@@ -7,7 +7,7 @@ import { createUserClient } from "@/shared/supabase/server";
 import { listPendingDogs } from "@/modules/dogs";
 import { listLowBalancePackages } from "@/modules/packages";
 import { listOverdueCharges } from "@/modules/payments";
-import { formatSessionRange, getSessionAgenda } from "@/modules/scheduling";
+import { formatSessionRange, getSessionAgenda, getSlotSummary } from "@/modules/scheduling";
 
 import { money } from "@/shared/money";
 import { countNewClientRequests } from "@/modules/notifications";
@@ -37,12 +37,13 @@ async function DashboardContent() {
   const ctx = await getRequestContext();
 
   if (!ctx.ok) {
-    if (ctx.error.code === "unauthenticated") redirect("/login");
+    if (ctx.error.code === "unauthenticated") redirect("/login?expired=1");
     if (ctx.error.code === "org_suspended") redirect("/suspended");
     if (ctx.error.code === "no_organization") {
       // Klient bez organizacji ma panel w /portal; dopiero świeże konto zakłada organizację.
       const db = await createUserClient();
-      if ((await resolveLandingPath(db)) === "/portal") redirect("/portal");
+      const landing = await resolveLandingPath(db);
+      if (landing === "/portal" || landing === "/school") redirect(landing);
       return (
         <section className="mt-6 flex flex-col gap-4">
           <p className="text-zinc-600 dark:text-zinc-400">
@@ -58,14 +59,16 @@ async function DashboardContent() {
   const org = await getOrganization(ctx.value);
   const c = ctx.value;
 
-  const [low, overdue, clients, agenda, pendingDogs, newRequests] = await Promise.all([
+  const [low, overdue, clients, agenda, pendingDogs, newRequests, slotSummary] = await Promise.all([
     hasPermission(c, "packages.read") ? listLowBalancePackages(c) : null,
     hasPermission(c, "payments.read") ? listOverdueCharges(c) : null,
     listClients(c),
     hasPermission(c, "sessions.read") ? getSessionAgenda(c, { upcomingDays: 0 }) : null,
     hasPermission(c, "dogs.write") ? listPendingDogs(c) : null,
     countNewClientRequests(c),
+    hasPermission(c, "sessions.read") ? getSlotSummary(c) : null,
   ]);
+  const slots = slotSummary?.ok ? slotSummary.value : null;
   const requestCount = newRequests.ok ? newRequests.value : 0;
   const pendingDogList = pendingDogs?.ok ? pendingDogs.value : [];
   const todayAgenda = agenda?.ok ? agenda.value : null;
@@ -110,6 +113,28 @@ async function DashboardContent() {
             {requestCount === 1 ? t("trainer.page.1_nowa_prosba_klienta") : t("trainer.page.nowe_prosby_klientow_requestcount", { requestCount })}
           </span>
           <Badge tone="warning">{t("common.zobacz")}</Badge>
+        </Link>
+      ) : null}
+
+      {slots && (slots.waitlist > 0 || slots.openOffers > 0) ? (
+        <Link
+          href="/app/sessions"
+          data-testid="slots-tile"
+          className={`flex min-h-14 items-center justify-between gap-3 rounded-lg border px-4 py-3 ${
+            slots.pendingClaims > 0
+              ? "border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/40"
+              : "border-zinc-200 dark:border-zinc-800"
+          }`}
+        >
+          <span>
+            <span className="block font-medium">{t("trainer.page.slots_waitlist", { count: slots.waitlist })}</span>
+            <span className="block text-sm text-zinc-600 dark:text-zinc-400">
+              {slots.openOffers === 0
+                ? t("trainer.page.slots_no_offers")
+                : t("trainer.page.slots_offers", { offers: slots.openOffers, claims: slots.pendingClaims })}
+            </span>
+          </span>
+          <Badge tone={slots.pendingClaims > 0 ? "warning" : "neutral"}>{t(slots.pendingClaims > 0 ? "trainer.page.slots_choose" : "common.zobacz")}</Badge>
         </Link>
       ) : null}
 

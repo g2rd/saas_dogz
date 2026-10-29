@@ -6,7 +6,7 @@ import type { RequestContext } from "@/shared/context";
 export async function requireContext(): Promise<RequestContext> {
   const ctx = await getRequestContext();
   if (ctx.ok) return ctx.value;
-  if (ctx.error.code === "unauthenticated") redirect("/login");
+  if (ctx.error.code === "unauthenticated") redirect("/login?expired=1");
   if (ctx.error.code === "no_organization") redirect("/app");
   if (ctx.error.code === "org_suspended") redirect("/suspended");
   throw new Error(ctx.error.message);

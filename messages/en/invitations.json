@@ -41,5 +41,75 @@
       "join": "Create an account or log in with the same email address and accept the invitation: {link}",
       "join_html": "Create an account or log in with the same email address."
     }
+  },
+  "schoolJoin": {
+    "link": {
+      "title": "School link and QR code",
+      "description": "Show clients the QR code (for example on your door or business card) or send them the link. The client creates an account and sends a request, and you accept it.",
+      "empty": "The school link has not been created yet.",
+      "create": "Create school link",
+      "creating": "Creating...",
+      "qr_label": "School QR code",
+      "address": "Link address",
+      "rotate": "Generate a new link",
+      "rotate_title": "Generate a new link?",
+      "rotate_description": "The current link and any printed QR codes will stop working. Requests that already came in stay.",
+      "rotate_confirm": "Generate new link",
+      "rotating": "Generating..."
+    },
+    "page": {
+      "title": "Join {school}",
+      "intro": "Create an account or sign in, then send a request. The trainer has to accept it before you can see your sessions and packages.",
+      "invalid_title": "This link is not valid",
+      "invalid_body": "This school link or QR code no longer works. Ask your trainer for a current one.",
+      "logged_as": "Signed in as {email}.",
+      "already_member": "You already have access to this school.",
+      "go_portal": "Go to the client portal",
+      "go_status": "View your requests",
+      "loading": "Checking the link..."
+    },
+    "form": {
+      "first_name": "First name",
+      "last_name": "Last name",
+      "phone": "Phone (optional)",
+      "note": "Message to the trainer (optional)",
+      "note_hint": "For example your dog’s name and what you need.",
+      "submit": "Send request",
+      "sending": "Sending..."
+    },
+    "status": {
+      "title": "Your join requests",
+      "empty": "You have no join requests.",
+      "pending": "Waiting for the trainer to accept",
+      "approved": "Accepted",
+      "rejected": "Declined",
+      "pending_hint": "You will get a notification once it is accepted. You can sign out and come back later.",
+      "sent": "Sent {date}",
+      "open_portal": "Go to the client portal",
+      "logout": "Sign out",
+      "school": "School: {school}"
+    },
+    "requests": {
+      "title": "Join requests",
+      "intro": "Clients who scanned the QR code or used the school link and are waiting for your approval.",
+      "empty": "No pending requests.",
+      "back": "More",
+      "approve": "Accept",
+      "reject": "Decline",
+      "new_client": "New client (from the request details)",
+      "existing_client": "Link to an existing client",
+      "approve_title": "Accept this request?",
+      "approve_description": "{name} will get access to the client portal, and a client will appear in your records (or be linked to the one you chose).",
+      "approve_confirm": "Accept",
+      "approving": "Saving...",
+      "reject_title": "Decline this request?",
+      "reject_description": "The request will be declined. The person will see the status but will not get a notification.",
+      "reject_confirm": "Decline request",
+      "rejecting": "Declining...",
+      "sent": "{date}",
+      "phone": "Phone: {phone}",
+      "email": "E-mail: {email}",
+      "menu": "Join requests"
+    }
   }
 }

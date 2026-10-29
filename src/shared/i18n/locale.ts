@@ -1,3 +1,5 @@
+import { SUPPORTED_REGIONS } from "./currency";
+
 /** Obsługiwane języki interfejsu (kod ISO 639-1). Źródłowy jest polski; kolejne języki dodaje się wg procedury z docs/WDROZENIE-WIELOJEZYCZNOSCI.md. */
 export const LOCALES = ["pl", "en"] as const;
 export type Locale = (typeof LOCALES)[number];
@@ -7,11 +9,19 @@ export const DEFAULT_LOCALE: Locale = "pl";
 /** Ciasteczko z językiem wybranym w ustawieniach (`Więcej`). Bez niego język bierzemy z przeglądarki lub telefonu. */
 export const LOCALE_COOKIE = "dt_locale";
 
+/** Ciasteczko z regionem wybranym w ustawieniach (`Więcej`); bez niego region bierzemy z przeglądarki lub telefonu. */
+export const REGION_COOKIE = "dt_region";
+
 /** Nazwy języków w nich samych (do przełącznika). */
 export const LOCALE_LABELS: Record<Locale, string> = {
   pl: "Polski",
   en: "English",
 };
+
+/** Kod regionu (kraju ISO 3166-1 alfa-2) spośród obsługiwanych w ustawieniach. */
+export function isRegion(value: unknown): value is string {
+  return typeof value === "string" && SUPPORTED_REGIONS.includes(value);
+}
 
 export function isLocale(value: unknown): value is Locale {
   return typeof value === "string" && (LOCALES as readonly string[]).includes(value);
@@ -65,8 +75,10 @@ export function parseAcceptLanguage(header: string | null | undefined): Language
 
 export type ResolvedLocale = {
   locale: Locale;
-  /** Region z preferencji przeglądarki (np. `GB`), do wyboru waluty; `null`, gdy go brak. */
+  /** Region wybrany w ustawieniach albo z preferencji przeglądarki (np. `GB`), do formatów, waluty i numerów telefonu; `null`, gdy go brak. */
   region: string | null;
+  /** Region wybrany ręcznie (ciasteczko); `null` = automatycznie z urządzenia. */
+  chosenRegion: string | null;
   source: "cookie" | "browser" | "default";
 };
 
@@ -76,22 +88,24 @@ export type ResolvedLocale = {
  */
 export function resolveLocale(input: {
   cookie?: string | null;
+  regionCookie?: string | null;
   acceptLanguage?: string | null;
   enabled?: readonly Locale[];
 }): ResolvedLocale {
   const enabled = input.enabled ?? enabledLocales();
   const tags = parseAcceptLanguage(input.acceptLanguage);
-  const region = tags.find((t) => t.region)?.region ?? null;
+  const chosenRegion = isRegion(input.regionCookie) ? input.regionCookie : null;
+  const region = chosenRegion ?? tags.find((t) => t.region)?.region ?? null;
 
   if (isLocale(input.cookie) && enabled.includes(input.cookie)) {
-    return { locale: input.cookie, region, source: "cookie" };
+    return { locale: input.cookie, region, chosenRegion, source: "cookie" };
   }
   for (const tag of tags) {
     if (isLocale(tag.language) && enabled.includes(tag.language)) {
-      return { locale: tag.language, region: tag.region ?? region, source: "browser" };
+      return { locale: tag.language, region: chosenRegion ?? tag.region ?? region, chosenRegion, source: "browser" };
     }
   }
-  return { locale: DEFAULT_LOCALE, region, source: "default" };
+  return { locale: DEFAULT_LOCALE, region, chosenRegion, source: "default" };
 }
 
 /** Znacznik BCP 47 do formatowania (`Intl`): język z regionem, gdy znamy region (np. `en-GB`). */

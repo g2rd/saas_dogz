@@ -1,0 +1,57 @@
+{
+  "title": "Change history",
+  "intro": "Who changed your school’s data and when. You can undo recent payments, packages and sessions as long as the rules allow it.",
+  "empty": "No entries.",
+  "back": "More",
+  "menu": "Change history",
+  "more": "Show older",
+  "by": "{actor}",
+  "system": "System",
+  "undo": "Undo",
+  "undoing": "Undoing...",
+  "unknown_client": "client",
+  "undo_labels": {
+    "void_payment": "Void payment",
+    "cancel_package": "Cancel package",
+    "undo_complete": "Undo completion",
+    "undo_cancel": "Restore session"
+  },
+  "undo_titles": {
+    "void_payment": "Void this payment?",
+    "cancel_package": "Cancel this package?",
+    "undo_complete": "Undo the session completion?",
+    "undo_cancel": "Restore the canceled session?"
+  },
+  "undo_descriptions": {
+    "void_payment": "The payment will be voided and the charges will be due again. The client will be notified.",
+    "cancel_package": "The package will be canceled. This is only possible if it has not been used yet.",
+    "undo_complete": "The session goes back to scheduled and the session returns to the client’s package. Only possible until the end of the day.",
+    "undo_cancel": "The session returns to the calendar and to the package. Only possible before the session starts."
+  },
+  "undone": "Undone.",
+  "action": {
+    "payment_recorded": "Payment {amount} from {client}",
+    "payment_voided": "Payment {amount} voided ({client})",
+    "charge_voided": "Charge voided",
+    "client_package_sold": "Package “{package}” sold ({client})",
+    "client_package_canceled": "Package “{package}” canceled ({client})",
+    "client_package_adjusted": "Balance of package “{package}” adjusted ({client})",
+    "training_session_scheduled": "Session scheduled for {date} at {time} ({client})",
+    "training_session_completed": "Session completed on {date} at {time} ({client})",
+    "training_session_completion_undone": "Completion undone for the session on {date} at {time} ({client})",
+    "training_session_canceled": "Session canceled for {date} at {time} ({client})",
+    "training_session_cancel_undone": "Canceled session restored for {date} at {time} ({client})",
+    "slot_offer_created": "Free slot announced",
+    "slot_claim_accepted": "Free slot assigned",
+    "client_request_created": "Client request",
+    "client_invited": "Client invited to the portal",
+    "invitation_accepted": "Client accepted the portal invitation",
+    "client_access_revoked": "Client portal access removed",
+    "member_invited": "Team member invited",
+    "member_joined": "Team member joined",
+    "member_invitation_revoked": "Team invitation revoked",
+    "organization_created": "School created",
+    "organization_status_changed": "School status changed (platform owner)",
+    "organization_access_expired": "Access period ended"
+  }
+}

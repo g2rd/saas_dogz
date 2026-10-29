@@ -72,12 +72,28 @@
     "title": "Account is read-only",
     "body": "You can view data but not change it.{hasReason, select, yes { Reason: {reason}.} other {}} Contact support to unlock editing."
   },
+  "org_access_expired": {
+    "title": "Your access period has ended",
+    "body": "The account is now read-only: you can view your data but not change it. Contact support to extend your access."
+  },
   "org_restored": {
     "title": "Account access restored",
     "body": "Your account is fully working again.{hasUntil, select, yes { Access is granted until {until}.} other {}}"
   },
+  "org_access_ending": {
+    "title": "Your access is ending soon",
+    "body": "{days, plural, one {Access to your school ends in # day} other {Access to your school ends in # days}} (until {until}). After that the account becomes read-only. Contact support to extend it."
+  },
   "invitation_accepted": {
     "title": "{client} joined the client area",
     "body": "The client accepted the invitation and now has access to the area."
+  },
+  "join_request_created": {
+    "title": "{name} asks to join",
+    "body": "A new request to join your school came in through your link or QR code. Accept or decline it."
+  },
+  "join_request_approved": {
+    "title": "Request accepted",
+    "body": "The trainer accepted your request. You now have access to the client portal."
   }
 }

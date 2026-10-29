@@ -60,6 +60,10 @@
     "refund": "Zwrot",
     "expiry": "Wygaśnięcie"
   },
+  "ledgerNote": {
+    "undo_complete": "Cofnięcie zakończenia zajęć",
+    "restore_canceled": "Przywrócenie odwołanych zajęć"
+  },
   "chargeStatus": {
     "void": "Anulowana",
     "unpaid": "Do zapłaty",

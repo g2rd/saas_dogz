@@ -41,5 +41,75 @@
       "join": "Załóż konto lub zaloguj się na ten sam adres e-mail i przyjmij zaproszenie: {link}",
       "join_html": "Załóż konto lub zaloguj się na ten sam adres e-mail."
     }
+  },
+  "schoolJoin": {
+    "link": {
+      "title": "Link i kod QR szkoły",
+      "description": "Pokaż klientom kod QR (np. na drzwiach lub wizytówce) albo wyślij im link. Klient zakłada konto i wysyła prośbę, a Ty ją akceptujesz.",
+      "empty": "Link szkoły jeszcze nie został utworzony.",
+      "create": "Utwórz link szkoły",
+      "creating": "Tworzenie...",
+      "qr_label": "Kod QR szkoły",
+      "address": "Adres linku",
+      "rotate": "Wygeneruj nowy link",
+      "rotate_title": "Wygenerować nowy link?",
+      "rotate_description": "Dotychczasowy link i wydrukowane kody QR przestaną działać. Prośby, które już wpłynęły, zostają.",
+      "rotate_confirm": "Wygeneruj nowy link",
+      "rotating": "Generowanie..."
+    },
+    "page": {
+      "title": "Dołącz do szkoły {school}",
+      "intro": "Załóż konto lub zaloguj się, a potem wyślij prośbę. Trener musi ją zaakceptować, zanim zobaczysz swoje zajęcia i pakiety.",
+      "invalid_title": "Link jest nieważny",
+      "invalid_body": "Ten link lub kod QR szkoły już nie działa. Poproś trenera o aktualny.",
+      "logged_as": "Zalogowano jako {email}.",
+      "already_member": "Masz już dostęp do tej szkoły.",
+      "go_portal": "Przejdź do panelu klienta",
+      "go_status": "Zobacz swoje prośby",
+      "loading": "Sprawdzanie linku..."
+    },
+    "form": {
+      "first_name": "Imię",
+      "last_name": "Nazwisko",
+      "phone": "Telefon (opcjonalnie)",
+      "note": "Wiadomość do trenera (opcjonalnie)",
+      "note_hint": "Np. imię psa i czego potrzebujesz.",
+      "submit": "Wyślij prośbę",
+      "sending": "Wysyłanie..."
+    },
+    "status": {
+      "title": "Twoje prośby o dołączenie",
+      "empty": "Nie masz żadnych próśb o dołączenie.",
+      "pending": "Czeka na akceptację trenera",
+      "approved": "Zaakceptowana",
+      "rejected": "Odrzucona",
+      "pending_hint": "Dostaniesz powiadomienie po akceptacji. Możesz się wylogować i wrócić później.",
+      "sent": "Wysłano {date}",
+      "open_portal": "Przejdź do panelu klienta",
+      "logout": "Wyloguj",
+      "school": "Szkoła: {school}"
+    },
+    "requests": {
+      "title": "Prośby o dołączenie",
+      "intro": "Klienci, którzy zeskanowali kod QR lub użyli linku szkoły i czekają na Twoją akceptację.",
+      "empty": "Brak oczekujących próśb.",
+      "back": "Więcej",
+      "approve": "Akceptuj",
+      "reject": "Odrzuć",
+      "new_client": "Nowy klient (z danych prośby)",
+      "existing_client": "Połącz z istniejącym klientem",
+      "approve_title": "Zaakceptować prośbę?",
+      "approve_description": "{name} dostanie dostęp do panelu klienta, a w kartotece pojawi się klient (albo zostanie połączony z wybranym).",
+      "approve_confirm": "Akceptuj",
+      "approving": "Zapisywanie...",
+      "reject_title": "Odrzucić prośbę?",
+      "reject_description": "Prośba zostanie odrzucona. Osoba zobaczy status, ale nie dostanie powiadomienia.",
+      "reject_confirm": "Odrzuć prośbę",
+      "rejecting": "Odrzucanie...",
+      "sent": "{date}",
+      "phone": "Telefon: {phone}",
+      "email": "E-mail: {email}",
+      "menu": "Prośby o dołączenie"
+    }
   }
 }

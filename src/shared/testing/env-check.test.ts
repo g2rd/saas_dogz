@@ -18,6 +18,7 @@ const valid = (): Record<string, string> => ({
   RESEND_API_KEY: "re_1234567890abcdef",
   EMAIL_FROM: "DogTrainer <powiadomienia@example.org>",
   NEXT_PUBLIC_SUPPORT_EMAIL: "pomoc@example.org",
+  SENTRY_DSN: "https://abc123@o1.ingest.de.sentry.io/4500000000000001",
   NEXT_PUBLIC_OPERATOR_NAME: "Firma Sp. z o.o.",
   NEXT_PUBLIC_OPERATOR_ADDRESS: "ul. Testowa 1, 00-001 Warszawa",
   ENABLED_LOCALES: "pl,en",

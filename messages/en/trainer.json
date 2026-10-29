@@ -130,7 +130,11 @@
     "brak_zaleglosci": "Nothing overdue.",
     "client_fallback": "Client",
     "organization": "Organization: <strong>{name}</strong>",
-    "overdue_line": "{label}, due {date}"
+    "overdue_line": "{label}, due {date}",
+    "slots_waitlist": "{count, plural, one {# client waiting for a free slot} other {# clients waiting for a free slot}}",
+    "slots_no_offers": "No free slots are announced right now.",
+    "slots_offers": "{offers, plural, one {# announced slot} other {# announced slots}}, {claims, plural, =0 {no requests yet} one {# request waiting for your pick} other {# requests waiting for your pick}}",
+    "slots_choose": "Choose"
   },
   "requestsPage": {
     "prosby_klientow": "Client requests",

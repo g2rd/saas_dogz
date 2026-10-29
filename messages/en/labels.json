@@ -60,6 +60,10 @@
     "refund": "Refund",
     "expiry": "Expiry"
   },
+  "ledgerNote": {
+    "undo_complete": "Session completion undone",
+    "restore_canceled": "Canceled session restored"
+  },
   "chargeStatus": {
     "void": "Canceled",
     "unpaid": "Unpaid",

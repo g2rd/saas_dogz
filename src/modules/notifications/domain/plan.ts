@@ -40,6 +40,9 @@ export const NOTIFIABLE_EVENT_TYPES = [
   "training_session.restored",
   "payment.voided",
   "organization.status_changed",
+  "organization.access_ending",
+  "join_request.created",
+  "join_request.approved",
 ] as const;
 
 export function isNotifiable(type: string): boolean {
@@ -251,6 +254,16 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
       const reason = typeof event.payload.reason === "string" ? event.payload.reason : "";
       const until = typeof event.payload.access_until === "string" ? new Date(event.payload.access_until) : null;
       const validUntil = until !== null && !Number.isNaN(until.getTime());
+      // Automat końca dostępu zapisuje kod powodu zamiast tekstu: treść składa się w języku odbiorcy
+      if (to === "read_only" && event.payload.reason_code === "access_expired") {
+        return toStaff({
+          type: event.type,
+          messageKey: "org_access_expired",
+          params: { accessUntil: validUntil ? until.toISOString() : "", timezone: facts.timezone },
+          link: "/app",
+          data: { status: to },
+        });
+      }
       if (to === "suspended" || to === "read_only") {
         return toStaff({
           type: event.type,
@@ -271,6 +284,37 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
       }
       return [];
     }
+
+    case "organization.access_ending": {
+      const until = typeof event.payload.access_until === "string" ? new Date(event.payload.access_until) : null;
+      const days = Number(event.payload.days);
+      if (until === null || Number.isNaN(until.getTime()) || !Number.isFinite(days) || days < 1) return [];
+      return toStaff({
+        type: event.type,
+        messageKey: "org_access_ending",
+        params: { days, accessUntil: until.toISOString(), timezone: facts.timezone },
+        link: "/app",
+        data: { days },
+      });
+    }
+
+    case "join_request.created":
+      return toStaff({
+        type: event.type,
+        messageKey: "join_request_created",
+        params: { name: typeof event.payload.name === "string" ? event.payload.name : "" },
+        link: "/app/join-requests",
+        data: {},
+      });
+
+    case "join_request.approved":
+      return toClient({
+        type: event.type,
+        messageKey: "join_request_approved",
+        params: {},
+        link: "/portal",
+        data: {},
+      });
 
     case "invitation.accepted":
       return toStaff({

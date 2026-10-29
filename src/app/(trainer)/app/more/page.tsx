@@ -40,6 +40,8 @@ async function Links() {
   const items = [
     { href: "/app/packages", label: t("common.szablony_pakietow"), show: hasPermission(ctx, "packages.read") },
     { href: "/app/sessions/types", label: t("common.rodzaje_zajec"), show: hasPermission(ctx, "sessions.read") },
+    { href: "/app/join-requests", label: t("invitations.schoolJoin.requests.menu"), show: hasPermission(ctx, "clients.read") },
+    { href: "/app/history", label: t("history.menu"), show: hasPermission(ctx, "audit.read") },
     { href: "/app/team", label: t("common.zespol"), show: hasPermission(ctx, "members.read") },
     { href: "/app/settings", label: t("settings.link"), show: hasPermission(ctx, "organization.update") },
     { href: "/app/notifications", label: t("common.powiadomienia"), show: true },

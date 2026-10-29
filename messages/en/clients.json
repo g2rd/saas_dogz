@@ -3,7 +3,7 @@
     "imie": "First name",
     "nazwisko": "Last name",
     "telefon": "Phone",
-    "numer_polski_bez_prefiksu_zapiszemy_jako": "A number without a country code is saved as Polish (+48)",
+    "phone_hint": "A number without a prefix is saved as a number from {country} ({prefix}). Enter a number from another country with a plus and its prefix.",
     "status": "Status"
   },
   "import": {

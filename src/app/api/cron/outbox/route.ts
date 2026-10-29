@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { runOutbox } from "@/modules/notifications";
 import { notificationEnv } from "@/shared/env";
+import { reportError } from "@/shared/monitoring/sentry";
 
 /** Porównanie stałoczasowe, żeby sekret nie wyciekał przez czas odpowiedzi. */
 function secretMatches(header: string | null, secret: string): boolean {
@@ -26,6 +27,7 @@ async function handle(request: Request): Promise<Response> {
     return Response.json(result, { status: result.stuck > 0 ? 500 : 200 });
   } catch (error) {
     console.error("[cron/outbox]", error);
+    await reportError(error, { source: "cron/outbox", route: "/api/cron/outbox", method: request.method });
     return Response.json({ error: "Przetwarzanie nie powiodło się" }, { status: 500 });
   }
 }

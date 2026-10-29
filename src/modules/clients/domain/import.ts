@@ -145,7 +145,7 @@ function splitFullName(full: string): { first: string; last: string } {
  * Zamienia tabelę z pliku na wiersze do importu i listę problemów. Czysta funkcja: ten sam kod działa w podglądzie
  * i przy zapisie (zapis nie ufa podglądowi i liczy wszystko od nowa).
  */
-export function planClientImport(table: string[][], existing: ExistingContacts): ImportPlan {
+export function planClientImport(table: string[][], existing: ExistingContacts, phoneCountry?: string | null): ImportPlan {
   const [header = [], ...body] = table;
   const columns = header.map((cell) => matchHeader(cell));
   const ignoredColumns = header.filter((_, index) => columns[index] === null && header[index].trim() !== "");
@@ -198,7 +198,7 @@ export function planClientImport(table: string[][], existing: ExistingContacts):
       result.issues.push({ line, code: "email_dropped", severity: "warning", value: get("email") });
       email = null;
     }
-    let phone = normalizePhone(get("phone"));
+    let phone = normalizePhone(get("phone"), phoneCountry);
     if (phone && !isValidPhone(phone)) {
       result.issues.push({ line, code: "phone_dropped", severity: "warning", value: get("phone") });
       phone = null;

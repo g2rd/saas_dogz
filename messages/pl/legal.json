@@ -143,5 +143,11 @@
   },
   "consent": {
     "label": "Akceptuję <terms>Regulamin testów</terms> i <privacy>Politykę prywatności</privacy>."
+  },
+  "reconsent": {
+    "title": "Zaktualizowaliśmy regulamin",
+    "intro": "Zmieniły się dokumenty, których dotyczy Twoja zgoda (wersja z dnia {version}). Żeby korzystać dalej z aplikacji, zapoznaj się z nimi i zaakceptuj nową wersję.",
+    "submit": "Akceptuję i przechodzę dalej",
+    "logout": "Wyloguj"
   }
 }

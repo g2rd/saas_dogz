@@ -72,12 +72,28 @@
     "title": "Konto tylko do odczytu",
     "body": "Możesz przeglądać dane, ale nie możesz ich zmieniać.{hasReason, select, yes { Powód: {reason}.} other {}} Skontaktuj się z obsługą, aby odblokować zapis."
   },
+  "org_access_expired": {
+    "title": "Okres dostępu dobiegł końca",
+    "body": "Konto jest teraz tylko do odczytu: możesz przeglądać dane, ale nie możesz ich zmieniać. Skontaktuj się z obsługą, aby przedłużyć dostęp."
+  },
   "org_restored": {
     "title": "Dostęp do konta przywrócony",
     "body": "Twoje konto znów działa w pełni.{hasUntil, select, yes { Dostęp jest przyznany do {until}.} other {}}"
   },
+  "org_access_ending": {
+    "title": "Dostęp do konta kończy się wkrótce",
+    "body": "{days, plural, one {Dostęp do Twojej szkoły kończy się za # dzień} few {Dostęp do Twojej szkoły kończy się za # dni} many {Dostęp do Twojej szkoły kończy się za # dni} other {Dostęp do Twojej szkoły kończy się za # dnia}} (do {until}). Potem konto przejdzie w tryb tylko do odczytu. Skontaktuj się z obsługą, aby go przedłużyć."
+  },
   "invitation_accepted": {
     "title": "{client} dołączył(a) do panelu klienta",
     "body": "Klient przyjął zaproszenie i ma już dostęp do panelu."
+  },
+  "join_request_created": {
+    "title": "{name} prosi o dołączenie",
+    "body": "Nowa prośba o dostęp do szkoły przez Twój link lub kod QR. Zaakceptuj ją albo odrzuć."
+  },
+  "join_request_approved": {
+    "title": "Prośba zaakceptowana",
+    "body": "Trener zaakceptował Twoją prośbę. Masz już dostęp do panelu klienta."
   }
 }

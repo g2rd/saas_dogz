@@ -4,10 +4,12 @@ import { logoutAction } from "./actions";
 import { AccessBanner } from "./access-banner";
 import { BottomNavSlot } from "./bottom-nav-slot";
 import { HeaderBadges } from "./header-badges";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
+import { requireCurrentConsent } from "../../_lib/legal-gate";
 
-export default function TrainerLayout({ children }: LayoutProps<"/app">) {
-  const t = useTranslations();
+export default async function TrainerLayout({ children }: LayoutProps<"/app">) {
+  await requireCurrentConsent();
+  const t = await getTranslations();
   return (
     <div className="flex min-h-screen flex-col">
       <header className="border-b border-zinc-200 pt-[env(safe-area-inset-top)] dark:border-zinc-800">
