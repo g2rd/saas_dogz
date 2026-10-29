@@ -17,7 +17,7 @@ export async function getSessionUser(): Promise<Result<SessionUser>> {
   const db = await createUserClient();
   const { data } = await db.auth.getClaims();
   const claims = data?.claims;
-  if (!claims?.sub) return err(appError("unauthenticated", msg("errors.auth.sign_in_required")));
+  if (!claims?.sub) return err(appError("unauthenticated", msg("errors.auth.sign_in_required"), { reason: "session_expired" }));
   return ok({ id: claims.sub, email: typeof claims.email === "string" ? claims.email : null });
 }
 
@@ -29,7 +29,7 @@ export async function getRequestContext(): Promise<Result<RequestContext>> {
   const db = await createUserClient();
   const { data: claimsData } = await db.auth.getClaims();
   const userId = claimsData?.claims?.sub;
-  if (!userId) return err(appError("unauthenticated", msg("errors.auth.sign_in_required")));
+  if (!userId) return err(appError("unauthenticated", msg("errors.auth.sign_in_required"), { reason: "session_expired" }));
 
   const { data: memberships, error } = await db
     .from("organization_members")

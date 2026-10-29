@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { getOrganizationSettings } from "@/modules/core";
 import { NotificationList, listNotifications } from "@/modules/notifications";
+import { BackLink } from "@/shared/ui/back-link";
 import { SubmitButton } from "@/shared/ui/form-fields";
 import { requireContext } from "../../_lib/context";
 import { markAllReadAction, openNotificationAction } from "./actions";
@@ -12,6 +13,7 @@ export default function NotificationsPage() {
   const t = useTranslations();
   return (
     <>
+      <BackLink href="/app/more">{t("common.back_to_more")}</BackLink>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">{t("common.powiadomienia")}</h1>
         <Link href="/app/notifications/settings" className="text-sm underline">

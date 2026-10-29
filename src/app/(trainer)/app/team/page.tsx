@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { hasPermission } from "@/modules/core";
 import { MemberInviteForm, getTeam } from "@/modules/invitations";
 import { Badge } from "@/shared/ui/badge";
+import { BackLink } from "@/shared/ui/back-link";
 import { requireContext } from "../../_lib/context";
 import { inviteMemberAction, revokeMemberInvitationAction } from "./actions";
 import { getFormats } from "@/shared/i18n/server";
@@ -13,6 +14,7 @@ export default function TeamPage() {
   const t = useTranslations();
   return (
     <>
+      <BackLink href="/app/more">{t("common.back_to_more")}</BackLink>
       <h1 className="text-2xl font-semibold">{t("common.zespol")}</h1>
       <Suspense fallback={<p className="mt-4 text-zinc-500">{t("common.ladowanie")}</p>}>
         <Team />

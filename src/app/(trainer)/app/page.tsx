@@ -37,7 +37,7 @@ async function DashboardContent() {
   const ctx = await getRequestContext();
 
   if (!ctx.ok) {
-    if (ctx.error.code === "unauthenticated") redirect("/login");
+    if (ctx.error.code === "unauthenticated") redirect("/login?expired=1");
     if (ctx.error.code === "org_suspended") redirect("/suspended");
     if (ctx.error.code === "no_organization") {
       // Klient bez organizacji ma panel w /portal; dopiero świeże konto zakłada organizację.

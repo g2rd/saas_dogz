@@ -98,5 +98,6 @@
     "title": "Page not found",
     "text": "This page doesn't exist or you don't have access to it. Check the address or go back to the home page.",
     "home": "Back to the home page"
-  }
+  },
+  "back_to_more": "More"
 }

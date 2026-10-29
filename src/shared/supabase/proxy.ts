@@ -33,11 +33,19 @@ export async function updateSession(request: NextRequest) {
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
 
-  if (isProtected && !isAuthenticated) {
+  // Wywołania akcji serwerowych (nagłówek `next-action`) przepuszczamy: każda akcja sama sprawdza sesję (kontekst, RLS) i odsyła
+  // do logowania z wyjaśnieniem (`toFormState`); przekierowanie z proxy zostawiłoby formularz bez reakcji.
+  const isServerAction = request.headers.has("next-action");
+
+  if (isProtected && !isAuthenticated && !isServerAction) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", pathname);
-    return NextResponse.redirect(url);
+    // Ciasteczko sesji jest, ale nie przechodzi weryfikacji (wygasła lub unieważniona): login pokaże wyjaśnienie.
+    // Kod 303 sprawia, że także wysłanie formularza (POST) kończy się zwykłym wejściem na stronę logowania.
+    const hadSession = request.cookies.getAll().some((cookie) => cookie.name.startsWith("sb-") && cookie.name.includes("auth-token"));
+    if (hadSession) url.searchParams.set("expired", "1");
+    return NextResponse.redirect(url, 303);
   }
 
   return response;

@@ -212,6 +212,7 @@ Migracje `supabase/migrations/20261016000001` … `0018` (wszystkie zastosowane 
 14. **Wielojęzyczność, etap 4** (migracja 0013, ADR 0013): powiadomienia jako `message_key` + `params` (przestrzeń `notify`), render w języku odbiorcy (`profiles.locale`, tylko języki włączone) dla skrzynki, e-maila i push; dzwonek składa treść w języku widza; e-maile zaproszeń w języku szkoły; metadane, manifest i `offline.html` zależne od języka; tłumacz poza żądaniem `src/shared/i18n/translator.ts`.
 22. **Ponowna zgoda po zmianie regulaminu** (ADR 0015, migracja `20261029000001`): funkcja `accept_legal` dopisuje zgody na bieżącą wersję `LEGAL_VERSION`, bramka `requireCurrentConsent` w układach `/app` i `/portal` odsyła konta bez zgody na `/accept-terms` (pole zgody jak w rejestracji, wylogowanie), po akceptacji wejście do panelu; scenariusz E2E. Konta E2E dostają zgodę na bieżącą wersję, a powitania w testach szuka się po roli nagłówka.
 23. **Zapowiedź końca dostępu** (ADR 0016, migracja `20261029000002`): reguły dzienne tworzą zdarzenie `organization.access_ending` 7 dni i 1 dzień przed `access_until` dla szkół w statusie `trial`/`active`; właściciele i administratorzy dostają dzwonek, e-mail i push w swoim języku (`notify.org_access_ending`), bez duplikatów, a po przedłużeniu dostępu zapowiedzi wracają; scenariusz E2E.
+24. **Wygasła sesja i linki powrotu** (ADR 0017, bez migracji): proxy dodaje `expired=1` do przekierowania na `/login`, gdy ciasteczko sesji jest nieważne, strona logowania pokazuje „Sesja wygasła. Zaloguj się ponownie.”, akcje serwerowe po utracie sesji (`reason: session_expired` → `toFormState`) odsyłają do logowania, `BackLink` na podstronach „Więcej” (zespół, powiadomienia, zgłoszenia w obu panelach); `e2e/session.spec.ts`.
 13. **Poprawka:** wybór zgłoszenia na wolny termin, gdy termin już minął, rzucał wyjątek (500 w konsoli). Teraz akcje „Wybierz” i „Zamknij ogłoszenie” zwracają komunikat przy przycisku (`slot-offer-forms.tsx`), a lista trenera pomija ogłoszenia z minionym terminem; test regresji w `slots.integration.test.ts`.
 
 ### Funkcje widoczne dla użytkownika
@@ -227,6 +228,7 @@ Migracje `supabase/migrations/20261016000001` … `0018` (wszystkie zastosowane 
 | Lint | `npm run lint` | czysto |
 | Testy jednostkowe (domena, symulacja service workera, i18n) | `npm test` | 268/268 |
 | Testy end-to-end (przeglądarka, komputer i telefon) | `npm run e2e` | 37/37 (11 plików ze scenariuszami w `e2e/`, ok. 1 min; `settings.spec.ts`: zmiana ustawień, blokada waluty po sprzedaży pakietu, błąd walidacji, brak dostępu trenera) |
+| Testy end-to-end (przeglądarka, komputer i telefon) | `npm run e2e` | 42/42 (12 plików ze scenariuszami w `e2e/`, ok. 1 min; `settings.spec.ts`: zmiana ustawień, blokada waluty po sprzedaży pakietu, błąd walidacji, brak dostępu trenera) |
 | Granice modułów | `npm run check:boundaries` | brak naruszeń (280 modułów) |
 | Build produkcyjny | `npm run build` | przechodzi (trasy panelu to częściowy prerender) |
 | Testy RLS i funkcji SQL (pgTAP) | `npm run db:test` | 302/302 (18 plików; `school_settings.test.sql`: zmiana ustawień bez kwot, przepisanie cennika, blokada waluty `DT018`, strefa i kształt pól, dziennik zmian, brak uprawnień trenera i obcej osoby; `consents.test.sql`: zgody z metadanych rejestracji, odczyt własnych, brak zapisu przez użytkownika; `security_invariants.test.sql`: 13 reguł RLS i uprawnień dla każdej tabeli i funkcji; `rate_limits.test.sql`: limity zaproszeń i opinii; `feedback.test.sql`: zgłoszenia tylko własne, rola i szkoła, brak edycji; `import_clients.test.sql`: atomowy import, duplikaty e-mail, limit, role; `notification_messages.test.sql`: klucz i parametry powiadomień, ograniczenia, brak prawa zmiany przez odbiorcę; `i18n.test.sql`: język profilu, waluta szkoły; `platform_admin.test.sql`: status, blokada zapisów i odczytów, ochrona kolumn, funkcje tylko `service_role`, wygaszanie, zamknięta rejestracja) |
@@ -238,7 +240,7 @@ Panel `/admin` (lista szkół, karta, zmiana statusu z potwierdzeniem, strona ko
 ### Czego NIE zweryfikowano
 - **PWA i push na prawdziwych telefonach** (instalacja, zgoda, dostarczenie, kliknięcie, strona offline); service worker sprawdzony tylko symulacją (wbudowana przeglądarka nie obsługuje SW, lokalny Chrome z rozszerzeniem nie miał dostępu do adresu lokalnego). Klucze VAPID są tylko lokalne.
 - Potwierdzenia wpłat, pakietów, archiwizacji i odbierania dostępu oraz „Cofnij zakończenie”, storno i „Anuluj pakiet” w przeglądarce (są testy pgTAP i integracyjne); wybór zgłoszenia przez trenera w przeglądarce.
-- Rejestracja i zaproszenia przy włączonym potwierdzeniu e-mail; odświeżanie wygasłej sesji w `proxy.ts`.
+- Rejestracja i zaproszenia przy włączonym potwierdzeniu e-mail; odświeżanie wygasłej sesji w `proxy.ts` (komunikat po utracie sesji pokrywa test E2E z zepsutym ciasteczkiem, ale nie prawdziwe wygaśnięcie tokenu).
 - Przy zamkniętej rejestracji: formularz `/signup` z polem kodu, rejestracja klienta i zespołu z zaproszenia (logika i baza są pokryte testami, brak przeklikania w przeglądarce); ponowne logowanie do `/admin` na nowej sesji kodem TOTP; panel `/admin` na telefonie; e-mail do właściciela szkoły po zmianie statusu (plan i dane testowane tylko pośrednio).
 - Wydajność RLS na dużych zbiorach; `npm audit` zgłosił 5 podatności o wysokiej wadze w zależnościach scaffoldu (nie przeglądane).
 
@@ -298,7 +300,8 @@ Szczegółowa ścieżka do sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJN
 - [ ] **Kopie zapasowe i monitoring minimum:** dzienne kopie Supabase (z testem przywracania), Sentry (darmowy), monitor dostępności.
 - [ ] **Zbieranie opinii** i kryterium „komuś się spodobało” ustalone z góry (np. dodał klientów, sprzedał pakiet, klient użył panelu).
 - [x] Zrobione (PR `feat/ci-quality-minimum`): `error.tsx`/`not-found.tsx`/`global-error.tsx`, przegląd `npm audit` (produkcja 0 podatności, 5 deweloperskich świadomie zostaje), CI, przegląd RLS z testem niezmienników, limity.
-- [ ] Zostaje z domknięcia: obsługa wygasłej sesji (komunikat zamiast „Brak uprawnień”), linki powrotu na podstronach w trybie `standalone`, generowane typy bazy, Sentry i monitor dostępności, limity Supabase Auth i dostawcy poczty przy wdrożeniu (lista w PRZEGLAD-BEZPIECZENSTWA.md).
+- [x] Obsługa wygasłej sesji (komunikat zamiast „Brak uprawnień”) i linki powrotu na podstronach w trybie `standalone` (PR `feat/session-expiry`, ADR 0017).
+- [ ] Zostaje z domknięcia: generowane typy bazy, Sentry i monitor dostępności, limity Supabase Auth i dostawcy poczty przy wdrożeniu (lista w PRZEGLAD-BEZPIECZENSTWA.md).
 
 ### A2. Dopracowania panelu właściciela
 - [ ] Przeklikać w przeglądarce rejestrację z kodem przy zamkniętym naborze (formularz, błędy) oraz rejestrację klienta i zespołu z zaproszenia; ponowne logowanie do `/admin` kodem TOTP; panel na telefonie.
@@ -365,6 +368,7 @@ Walidacja (10-15 wywiadów z trenerami, ceny 49/79/119 zł, 5-10 pilotażystów,
 
 ### Kolejne plany (kolejność proponowana)
 Ustawienia szkoły zrobione (PR `feat/school-settings`, oparty na `feat/e2e-tests`): po tym etapie wszystko jest w jednym stosie gałęzi, więc **scalenie samego PR-a `feat/school-settings` do `dev` wprowadza cały stos** (opinie i import, CI, zgody, staging, testy E2E, ustawienia szkoły); osobny jest tylko PR `chore/remove-claude-review`. Następne drobne zadania: ponowna zgoda po zmianie `LEGAL_VERSION`, ~~e-mail „dostęp kończy się za 7 dni”~~ (zrobione, ADR 0016), komunikat o wygasłej sesji, region w profilu.
+Ustawienia szkoły zrobione (PR `feat/school-settings`, oparty na `feat/e2e-tests`): po tym etapie wszystko jest w jednym stosie gałęzi, więc **scalenie samego PR-a `feat/school-settings` do `dev` wprowadza cały stos** (opinie i import, CI, zgody, staging, testy E2E, ustawienia szkoły); osobny jest tylko PR `chore/remove-claude-review`. Następne drobne zadania: ponowna zgoda po zmianie `LEGAL_VERSION`, e-mail „dostęp kończy się za 7 dni”, ~~komunikat o wygasłej sesji~~ (zrobione, ADR 0017), region w profilu.
 
 **Po stronie właściciela (🧑), bez tego nie ruszymy dalej:**
 1. PR `dev` → `main` (staging, E2E, ustawienia szkoły) i sprawdzenie pierwszego przebiegu CI na GitHubie (`quality`, `database`, `e2e`); potem ustawienie ich jako wymaganych w rulesecie `dev` i `main`.
