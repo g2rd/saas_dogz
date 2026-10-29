@@ -1,0 +1,57 @@
+{
+  "title": "Historia zmian",
+  "intro": "Kto i kiedy zmienił dane szkoły. Ostatnie wpłaty, pakiety i zajęcia możesz cofnąć, dopóki reguły na to pozwalają.",
+  "empty": "Brak wpisów.",
+  "back": "Więcej",
+  "menu": "Historia zmian",
+  "more": "Pokaż starsze",
+  "by": "{actor}",
+  "system": "System",
+  "undo": "Cofnij",
+  "undoing": "Cofanie...",
+  "unknown_client": "klient",
+  "undo_labels": {
+    "void_payment": "Anuluj wpłatę",
+    "cancel_package": "Anuluj pakiet",
+    "undo_complete": "Cofnij zakończenie",
+    "undo_cancel": "Przywróć zajęcia"
+  },
+  "undo_titles": {
+    "void_payment": "Anulować wpłatę?",
+    "cancel_package": "Anulować pakiet?",
+    "undo_complete": "Cofnąć zakończenie zajęć?",
+    "undo_cancel": "Przywrócić odwołane zajęcia?"
+  },
+  "undo_descriptions": {
+    "void_payment": "Wpłata zostanie anulowana, a należności znów będą do zapłaty. Klient dostanie informację.",
+    "cancel_package": "Pakiet zostanie anulowany. Jest to możliwe tylko wtedy, gdy nie był jeszcze używany.",
+    "undo_complete": "Zajęcia wrócą do statusu zaplanowanych, a zajęcie do pakietu klienta. Możliwe tylko do końca dnia.",
+    "undo_cancel": "Zajęcia wrócą do kalendarza, a zajęcie do pakietu. Możliwe tylko przed rozpoczęciem zajęć."
+  },
+  "undone": "Cofnięto.",
+  "action": {
+    "payment_recorded": "Wpłata {amount} od {client}",
+    "payment_voided": "Anulowano wpłatę {amount} ({client})",
+    "charge_voided": "Anulowano należność",
+    "client_package_sold": "Sprzedano pakiet „{package}” ({client})",
+    "client_package_canceled": "Anulowano pakiet „{package}” ({client})",
+    "client_package_adjusted": "Korekta salda pakietu „{package}” ({client})",
+    "training_session_scheduled": "Zaplanowano zajęcia {date} o {time} ({client})",
+    "training_session_completed": "Zakończono zajęcia {date} o {time} ({client})",
+    "training_session_completion_undone": "Cofnięto zakończenie zajęć {date} o {time} ({client})",
+    "training_session_canceled": "Odwołano zajęcia {date} o {time} ({client})",
+    "training_session_cancel_undone": "Przywrócono odwołane zajęcia {date} o {time} ({client})",
+    "slot_offer_created": "Ogłoszono wolny termin",
+    "slot_claim_accepted": "Przydzielono wolny termin",
+    "client_request_created": "Prośba klienta",
+    "client_invited": "Zaproszono klienta do panelu",
+    "invitation_accepted": "Klient przyjął zaproszenie do panelu",
+    "client_access_revoked": "Odebrano klientowi dostęp do panelu",
+    "member_invited": "Zaproszono członka zespołu",
+    "member_joined": "Członek zespołu dołączył",
+    "member_invitation_revoked": "Odwołano zaproszenie do zespołu",
+    "organization_created": "Utworzono szkołę",
+    "organization_status_changed": "Zmieniono status szkoły (właściciel platformy)",
+    "organization_access_expired": "Okres dostępu dobiegł końca"
+  }
+}

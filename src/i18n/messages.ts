@@ -27,6 +27,7 @@ export const NAMESPACES = [
   "labels",
   "feedback",
   "settings",
+  "history",
 ] as const;
 
 export type Messages = Record<string, unknown>;
