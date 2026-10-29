@@ -76,6 +76,10 @@
     "title": "Account access restored",
     "body": "Your account is fully working again.{hasUntil, select, yes { Access is granted until {until}.} other {}}"
   },
+  "org_access_ending": {
+    "title": "Your access is ending soon",
+    "body": "{days, plural, one {Access to your school ends in # day} other {Access to your school ends in # days}} (until {until}). After that the account becomes read-only. Contact support to extend it."
+  },
   "invitation_accepted": {
     "title": "{client} joined the client area",
     "body": "The client accepted the invitation and now has access to the area."

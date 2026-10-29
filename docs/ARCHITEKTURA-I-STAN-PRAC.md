@@ -211,6 +211,7 @@ Migracje `supabase/migrations/20261016000001` … `0018` (wszystkie zastosowane 
 15. **Wielojęzyczność, etap 5 (angielski)**: `messages/en/` dla wszystkich przestrzeni (742 klucze), wybór języka w `Więcej` (`ENABLED_LOCALES=pl,en`), parytet kluczy i parametrów w teście, poprawione pominięte teksty (pulpit, konto klienta, zaległości, potwierdzenia próśb), usunięta wzmianka o BLIK.
 14. **Wielojęzyczność, etap 4** (migracja 0013, ADR 0013): powiadomienia jako `message_key` + `params` (przestrzeń `notify`), render w języku odbiorcy (`profiles.locale`, tylko języki włączone) dla skrzynki, e-maila i push; dzwonek składa treść w języku widza; e-maile zaproszeń w języku szkoły; metadane, manifest i `offline.html` zależne od języka; tłumacz poza żądaniem `src/shared/i18n/translator.ts`.
 22. **Ponowna zgoda po zmianie regulaminu** (ADR 0015, migracja `20261029000001`): funkcja `accept_legal` dopisuje zgody na bieżącą wersję `LEGAL_VERSION`, bramka `requireCurrentConsent` w układach `/app` i `/portal` odsyła konta bez zgody na `/accept-terms` (pole zgody jak w rejestracji, wylogowanie), po akceptacji wejście do panelu; scenariusz E2E. Konta E2E dostają zgodę na bieżącą wersję, a powitania w testach szuka się po roli nagłówka.
+23. **Zapowiedź końca dostępu** (ADR 0016, migracja `20261029000002`): reguły dzienne tworzą zdarzenie `organization.access_ending` 7 dni i 1 dzień przed `access_until` dla szkół w statusie `trial`/`active`; właściciele i administratorzy dostają dzwonek, e-mail i push w swoim języku (`notify.org_access_ending`), bez duplikatów, a po przedłużeniu dostępu zapowiedzi wracają; scenariusz E2E.
 13. **Poprawka:** wybór zgłoszenia na wolny termin, gdy termin już minął, rzucał wyjątek (500 w konsoli). Teraz akcje „Wybierz” i „Zamknij ogłoszenie” zwracają komunikat przy przycisku (`slot-offer-forms.tsx`), a lista trenera pomija ogłoszenia z minionym terminem; test regresji w `slots.integration.test.ts`.
 
 ### Funkcje widoczne dla użytkownika
@@ -283,6 +284,7 @@ Trener tworzy kartotekę klienta, potem na jej karcie w sekcji „Panel klienta�
 Szczegółowa ścieżka do sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJNE.md](WDROZENIE-PRODUKCYJNE.md). Instrukcje krok po kroku: [WDROZENIE-DEMO-10-TESTEROW.md](WDROZENIE-DEMO-10-TESTEROW.md) (demo) i [WDROZENIE-PELNE-PRODUKCJA.md](WDROZENIE-PELNE-PRODUKCJA.md) (sprzedaż).
 
 **Zrobione dla demo:** panel właściciela `/admin` z wglądem i blokowaniem dostępu, status szkoły egzekwowany w bazie, zamknięta rejestracja kodami beta, MFA admina (ADR 0012). **Zrobione w PR `feat/tester-feedback-import`:** formularz opinii „Zgłoś problem lub pomysł” (1.4) z przeglądem w `/admin/feedback` i import klientów z CSV (1.5). **Zrobione w PR `feat/ci-quality-minimum`:** CI (`ci.yml`), strony błędów, nagłówki bezpieczeństwa, limity, utwardzenie uprawnień bazy i test niezmienników. **Blokujące, jeszcze niezbudowane (sekcja 1 instrukcji demo):** Sentry i monitor dostępności (1.6), e-mail „dostęp kończy się za 7 dni”.
+**Zrobione dla demo:** panel właściciela `/admin` z wglądem i blokowaniem dostępu, status szkoły egzekwowany w bazie, zamknięta rejestracja kodami beta, MFA admina (ADR 0012). **Zrobione w PR `feat/tester-feedback-import`:** formularz opinii „Zgłoś problem lub pomysł” (1.4) z przeglądem w `/admin/feedback` i import klientów z CSV (1.5). **Zrobione w PR `feat/ci-quality-minimum`:** CI (`ci.yml`), strony błędów, nagłówki bezpieczeństwa, limity, utwardzenie uprawnień bazy i test niezmienników. **Blokujące, jeszcze niezbudowane (sekcja 1 instrukcji demo):** zgody i regulamin testów (1.3), Sentry i monitor dostępności (1.6). E-mail „dostęp kończy się za 7 dni / 1 dzień” jest gotowy (PR `feat/access-expiry-email`, ADR 0016).
 
 ### A. Żeby oddać aplikację testerom na 2 tygodnie (bez płatności)
 - [ ] **Staging z HTTPS** (Vercel + osobny projekt Supabase w UE, własna domena, migracje z CI): bez niego nie da się porządnie przetestować PWA i push na telefonach.
@@ -300,7 +302,8 @@ Szczegółowa ścieżka do sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJN
 
 ### A2. Dopracowania panelu właściciela
 - [ ] Przeklikać w przeglądarce rejestrację z kodem przy zamkniętym naborze (formularz, błędy) oraz rejestrację klienta i zespołu z zaproszenia; ponowne logowanie do `/admin` kodem TOTP; panel na telefonie.
-- [ ] E-mail do trenera 7 i 1 dzień przed końcem dostępu; wpisy wejść do panelu w audycie; stronicowanie przeglądu przy kilkuset szkołach; role wewnętrzne (wsparcie tylko do odczytu); skrypt `seed:demo` z przykładowymi szkołami.
+- [x] E-mail do trenera 7 i 1 dzień przed końcem dostępu (PR `feat/access-expiry-email`, ADR 0016, migracja `20261029000002`).
+- [ ] Wpisy wejść do panelu w audycie; stronicowanie przeglądu przy kilkuset szkołach; role wewnętrzne (wsparcie tylko do odczytu); skrypt `seed:demo` z przykładowymi szkołami.
 - [ ] Przed wdrożeniem: nadać konto właściciela (`admin:grant` z prawdziwym adresem), zamknąć rejestrację w `/admin/codes`, ustawić `NEXT_PUBLIC_SUPPORT_EMAIL`, sprawdzić MFA na hostowanym Supabase.
 
 ### A3. Ochrona gałęzi i CI
@@ -361,6 +364,7 @@ Walidacja (10-15 wywiadów z trenerami, ceny 49/79/119 zł, 5-10 pilotażystów,
 **Stan (2026-10-29):** wszystkie gałęzie funkcji są scalone do `dev`, a `dev` do `main` (`a307ad8`). Właściciel tylko testuje i akceptuje zmiany; jedyne testy, jakich potrzebuje, to E2E (potwierdzone 2026-10-29), więc nowe funkcje dostają testy automatyczne z E2E dla krytycznych ścieżek. Etap 10 (oddanie testerom) jest po stronie kodu prawie domknięty; zostaje wdrożenie i rzeczy, które robi właściciel.
 
 ### Kolejne plany (kolejność proponowana)
+Ustawienia szkoły zrobione (PR `feat/school-settings`, oparty na `feat/e2e-tests`): po tym etapie wszystko jest w jednym stosie gałęzi, więc **scalenie samego PR-a `feat/school-settings` do `dev` wprowadza cały stos** (opinie i import, CI, zgody, staging, testy E2E, ustawienia szkoły); osobny jest tylko PR `chore/remove-claude-review`. Następne drobne zadania: ponowna zgoda po zmianie `LEGAL_VERSION`, ~~e-mail „dostęp kończy się za 7 dni”~~ (zrobione, ADR 0016), komunikat o wygasłej sesji, region w profilu.
 
 **Po stronie właściciela (🧑), bez tego nie ruszymy dalej:**
 1. PR `dev` → `main` (staging, E2E, ustawienia szkoły) i sprawdzenie pierwszego przebiegu CI na GitHubie (`quality`, `database`, `e2e`); potem ustawienie ich jako wymaganych w rulesecie `dev` i `main`.

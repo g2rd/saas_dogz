@@ -76,4 +76,36 @@ test.describe("powiadomienia", () => {
     await page.goto("/app/notifications");
     await expect(page.getByText("Kasia Zajęta nie może przyjść na zajęcia").first()).toBeVisible();
   });
+
+  test("koniec dostępu: właściciel dostaje e-mail 7 dni i 1 dzień przed końcem, bez powtórek i bez zapowiedzi dla odległego terminu", async () => {
+    const owner = await createAccount("koniec-dostepu");
+    const school = await createSchool(owner);
+    const other = await createAccount("dostep-daleko");
+    const farSchool = await createSchool(other);
+    const inDays = (days: number) => new Date(Date.now() + days * 24 * 3600 * 1000).toISOString();
+    const events = async (schoolId: string) =>
+      ((await adminDb().from("outbox_events").select("payload").eq("organization_id", schoolId).eq("type", "organization.access_ending")).data ?? []).map(
+        (row) => (row.payload as { days: number }).days,
+      );
+
+    // Szkoła w okresie próbnym kończy dostęp za 5 dni, druga dopiero za 20
+    await adminDb().from("organizations").update({ status: "trial", access_until: inDays(5) }).eq("id", school.id);
+    await adminDb().from("organizations").update({ status: "trial", access_until: inDays(20) }).eq("id", farSchool.id);
+    await processNotifications(BASE_URL, E2E_CRON_SECRET);
+
+    await expect.poll(async () => (await lastEmailTo(owner.email))?.subject ?? "", { timeout: 15_000 }).toBe("Dostęp do konta kończy się wkrótce");
+    expect((await lastEmailTo(owner.email))?.text).toContain("za 7 dni");
+    expect(await events(school.id)).toEqual([7]);
+    expect(await events(farSchool.id)).toEqual([]);
+
+    // Ponowne uruchomienie reguł dziennych niczego nie dubluje
+    await processNotifications(BASE_URL, E2E_CRON_SECRET);
+    expect(await events(school.id)).toEqual([7]);
+
+    // Doba przed końcem: druga zapowiedź (za 1 dzień)
+    await adminDb().from("organizations").update({ access_until: inDays(0.5) }).eq("id", school.id);
+    await processNotifications(BASE_URL, E2E_CRON_SECRET);
+    await expect.poll(async () => (await lastEmailTo(owner.email))?.text ?? "", { timeout: 15_000 }).toContain("za 1 dzień");
+    expect((await events(school.id)).sort()).toEqual([1, 7]);
+  });
 });
