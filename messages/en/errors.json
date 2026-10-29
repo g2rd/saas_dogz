@@ -85,7 +85,8 @@
     "read_only": "The school’s account is read-only, so changes can’t be saved. Please contact support.",
     "signup_closed": "Sign-up is closed. An invitation code is required.",
     "currency_locked": "The currency can’t be changed because the school already has packages, charges or payments.",
-    "rate_limited": "Too many submissions in a short time. Please try again later."
+    "rate_limited": "Too many submissions in a short time. Please try again later.",
+    "join_request_closed": "This request has already been decided."
   },
   "invite": {
     "invalid_code": "Invalid code.",

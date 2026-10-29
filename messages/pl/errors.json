@@ -85,7 +85,8 @@
     "read_only": "Konto szkoły jest w trybie tylko do odczytu, więc nie można zapisywać zmian. Skontaktuj się z obsługą.",
     "signup_closed": "Rejestracja jest zamknięta. Potrzebny jest kod zaproszenia.",
     "currency_locked": "Waluty nie można zmienić, bo w szkole są już pakiety, należności lub wpłaty.",
-    "rate_limited": "Zbyt wiele zgłoszeń w krótkim czasie. Spróbuj ponownie później."
+    "rate_limited": "Zbyt wiele zgłoszeń w krótkim czasie. Spróbuj ponownie później.",
+    "join_request_closed": "Ta prośba została już rozpatrzona."
   },
   "invite": {
     "invalid_code": "Niepoprawny kod.",

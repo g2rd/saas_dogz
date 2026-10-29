@@ -66,7 +66,7 @@ export function outboxRepository(db: SupabaseClient) {
       const payload = event.payload;
 
       // Zmiana statusu szkoły przez właściciela platformy: wiadomość dla właścicieli i administratorów, bez klienta
-      if (event.type === "organization.status_changed") {
+      if (event.type === "organization.status_changed" || event.type === "join_request.created") {
         const staff = must(
           await db.from("organization_members").select("user_id, role").eq("organization_id", orgId).eq("status", "active"),
           "members",

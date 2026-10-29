@@ -40,6 +40,8 @@ export const NOTIFIABLE_EVENT_TYPES = [
   "training_session.restored",
   "payment.voided",
   "organization.status_changed",
+  "join_request.created",
+  "join_request.approved",
 ] as const;
 
 export function isNotifiable(type: string): boolean {
@@ -271,6 +273,24 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
       }
       return [];
     }
+
+    case "join_request.created":
+      return toStaff({
+        type: event.type,
+        messageKey: "join_request_created",
+        params: { name: typeof event.payload.name === "string" ? event.payload.name : "" },
+        link: "/app/join-requests",
+        data: {},
+      });
+
+    case "join_request.approved":
+      return toClient({
+        type: event.type,
+        messageKey: "join_request_approved",
+        params: {},
+        link: "/portal",
+        data: {},
+      });
 
     case "invitation.accepted":
       return toStaff({

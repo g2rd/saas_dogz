@@ -6,6 +6,16 @@ export {
   lookupInvitation,
   revokeClientAccess,
 } from "./application/invitations";
+export {
+  decideJoinRequest,
+  getSchoolJoinLink,
+  listJoinRequests,
+  listMyJoinRequests,
+  lookupSchoolJoin,
+  requestSchoolJoin,
+  rotateSchoolJoinLink,
+} from "./application/school-join";
+export { SCHOOL_JOIN_TOKEN_PATTERN, type JoinRequest, type JoinRequestStatus, type SchoolJoinLink } from "./domain/school-join";
 export type {
   ClientAccessInfo,
   CreatedInvitation,
