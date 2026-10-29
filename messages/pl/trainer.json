@@ -130,7 +130,11 @@
     "brak_zaleglosci": "Brak zaległości.",
     "client_fallback": "Klient",
     "organization": "Organizacja: <strong>{name}</strong>",
-    "overdue_line": "{label}, termin {date}"
+    "overdue_line": "{label}, termin {date}",
+    "slots_waitlist": "{count, plural, one {# chętny na wolny termin} few {# chętnych na wolny termin} many {# chętnych na wolny termin} other {# chętnych na wolny termin}}",
+    "slots_no_offers": "Nie ma teraz ogłoszonych wolnych terminów.",
+    "slots_offers": "{offers, plural, one {# ogłoszony termin} few {# ogłoszone terminy} many {# ogłoszonych terminów} other {# ogłoszonych terminów}}, {claims, plural, =0 {brak zgłoszeń} one {# zgłoszenie czeka na wybór} few {# zgłoszenia czekają na wybór} many {# zgłoszeń czeka na wybór} other {# zgłoszeń czeka na wybór}}",
+    "slots_choose": "Wybierz"
   },
   "requestsPage": {
     "prosby_klientow": "Prośby klientów",

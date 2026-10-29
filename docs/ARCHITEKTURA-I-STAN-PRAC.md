@@ -219,6 +219,7 @@ Migracje `supabase/migrations/20261016000001` … `0018` (wszystkie zastosowane 
 27. **Monitoring** (ADR 0020, bez migracji): `GET /api/health` (200/503: baza i zaległości outboxu starsze niż 15 minut), raportowanie błędów serwera do Sentry bez SDK (`SENTRY_DSN`, wzorzec trasy zamiast adresu, bez danych osobowych; `onRequestError` i cron), ostrzeżenie w `env:check`, instrukcja w `WDROZENIE-STAGING.md` (krok 9); `e2e/monitoring.spec.ts`.
 28. **Link i kod QR szkoły z akceptacją trenera** (ADR 0021, migracja `20261029000005`): tabele `school_join_links` i `join_requests` (RLS), funkcje `rotate_school_join_link`, `lookup_school_join`, `request_school_join`, `decide_join_request`; strony `/school/[token]` (rejestracja i prośba), `/school` (status), `/app/join-requests` (link, QR, lista próśb, akceptacja z opcją połączenia z istniejącym klientem, odrzucenie); token linku jako dowód przy zamkniętej rejestracji; powiadomienia dla trenera i klienta; pgTAP `school_join.test.sql` i `e2e/school-join.spec.ts`.
 29. **Historia zmian z „Cofnij”** (ADR 0022, bez migracji): `/app/history` (właściciel i administrator), moduł `history` (odczyt dziennika audytu z opisem obiektu i autora, język widza), przycisk „Cofnij” przy najnowszej wpłacie, sprzedaży pakietu, zakończeniu i odwołaniu zajęć, gdy stan jeszcze pozwala (wykonują go istniejące przypadki użycia, reguły pilnuje baza), pozycja w „Więcej”; `e2e/history.spec.ts`.
+30. **Kafelek wolnych terminów na pulpicie** (bez migracji): `getSlotSummary` (liczba chętnych, otwartych ogłoszeń i zgłoszeń czekających na wybór) i kafelek na `/app` (pojawia się, gdy są chętni lub ogłoszenia; żółty, gdy czekają zgłoszenia; prowadzi do `/app/sessions`); `e2e/slots-tile.spec.ts`.
 13. **Poprawka:** wybór zgłoszenia na wolny termin, gdy termin już minął, rzucał wyjątek (500 w konsoli). Teraz akcje „Wybierz” i „Zamknij ogłoszenie” zwracają komunikat przy przycisku (`slot-offer-forms.tsx`), a lista trenera pomija ogłoszenia z minionym terminem; test regresji w `slots.integration.test.ts`.
 
 ### Funkcje widoczne dla użytkownika
@@ -353,6 +354,8 @@ Szczegółowa ścieżka do sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJN
 - Widok **historii zmian** (audyt jest zapisywany, brak ekranu) z „Cofnij” przy odwracalnych wpisach; kafelek „chętni na wolny termin” na pulpicie; preferencje dni i godzin na liście chętnych.
 - **QR szkoły z akceptacją:** stały QR/link trenera; klient zakłada konto i wysyła prośbę o dołączenie, trener akceptuje (powstaje kartoteka i dostęp). Zaproponowane, czeka na decyzję.
 - ~~Widok **historii zmian** z „Cofnij” przy odwracalnych wpisach~~ ✅ zrobione (PR `feat/history`, ADR 0022); kafelek „chętni na wolny termin” na pulpicie; preferencje dni i godzin na liście chętnych.
+- **QR szkoły z akceptacją:** stały QR/link trenera; klient zakłada konto i wysyła prośbę o dołączenie, trener akceptuje (powstaje kartoteka i dostęp). Zaproponowane, czeka na decyzję.
+- Widok **historii zmian** (audyt jest zapisywany, brak ekranu) z „Cofnij” przy odwracalnych wpisach; ~~kafelek „chętni na wolny termin” na pulpicie~~ ✅ zrobione (PR `feat/waitlist-tile`); preferencje dni i godzin na liście chętnych.
 - Potwierdzenia w panelu klienta; cofnięcie „Wybierz zgłoszenie” (dziś: odwołać utworzone zajęcia i ogłosić ponownie).
 
 ### C. Produkt po okresie testowym (jeśli się spodoba)
