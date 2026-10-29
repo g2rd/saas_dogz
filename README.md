@@ -44,7 +44,7 @@ Test push i instalacji PWA na telefonie (tunel HTTPS): sekcja 7 dokumentu o stan
 | `npm run seed:demo` | Dane demo dla panelu `/admin`: 10 szkół o różnym statusie i aktywności (tylko lokalnie; hasło kont demo w dokumencie o stanie prac) |
 | `npm run env:check -- --file .env.staging` | Kontrola zmiennych środowiskowych wdrożenia (format, sekrety, klucze demo); nie wypisuje wartości |
 | `npm run smoke -- https://adres` | Test dymny wdrożenia (strony, PWA, nagłówki bezpieczeństwa, cron); z `CRON_SECRET` w środowisku sprawdza też cron |
-| `npm run admin:grant -- adres@example.pl` | Nadaje (albo z `--revoke` odbiera) uprawnienia właściciela platformy, czyli dostęp do `/admin` |
+| `npm run admin:grant -- adres@example.pl` | Nadaje (albo z `--revoke` odbiera) uprawnienia właściciela platformy, czyli dostęp do `/admin`; konto właściciela jest osobne od konta trenera (odmawia kontom ze szkołą lub panelem klienta, `--force` wyjątkowo) |
 | `npm run db:start` / `db:reset` / `db:types` | Lokalny Supabase / migracje / typy bazy |
 
 ## Struktura

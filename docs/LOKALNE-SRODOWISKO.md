@@ -58,11 +58,14 @@ Adresy: aplikacja `http://localhost:3000`, **poczta Mailpit `http://127.0.0.1:54
 
 | Rola | E-mail | Hasło | Panel |
 | --- | --- | --- | --- |
-| Trener, właściciel szkoły „Szkoła Łapa” (3 klientów, 2 psy, pakiet, zajęcia) i właściciel platformy | `trener@example.test` | `Dev-Haslo-12345` | `/app`, `/admin` (z „Więcej”) |
+| Trener, właściciel szkoły „Szkoła Łapa” (3 klientów, 2 psy, pakiet, zajęcia) | `trener@example.test` | `Dev-Haslo-12345` | `/app` |
 | Klientka Anna Kowalska (kartoteka w „Szkole Łapa”) | `anna@example.pl` | `Klient-Haslo-2026` | `/portal` |
+| **Właściciel platformy**: osobne konto, bez szkoły i bez panelu klienta | `admin@example.test` | `Admin-Haslo-12345` | po zalogowaniu `/admin` |
 | Drugi trener, osobna szkoła „Szkoła Kontrolna” (1 klient: Zenon Kontrolny), do sprawdzania izolacji danych | `seedcheck@example.test` | `Seed-Check-Pass-1` | `/app` |
 
 Polecenie `npm run seed:local` jest **bezpieczne do wielokrotnego uruchamiania**: istniejącym kontom ustawia powyższe hasło, danych nie dubluje, każdemu kontu zapisuje zgodę na bieżący regulamin (żeby nie trafiało najpierw na ekran ponownej zgody) i odmawia pracy na zdalnym Supabase. Zrób je po każdym `db:reset` albo gdy zalogowanie przestaje działać.
+
+Konto właściciela platformy jest **zawsze osobne** od konta trenera: `admin@example.test` nie ma szkoły, a trener nie ma dostępu do `/admin` ani skrótu w „Więcej”. Własnemu kontu nadasz uprawnienia: `npm.cmd run admin:grant -- adres@example.pl` (skrypt odmówi kontu, które ma szkołę lub panel klienta; `--force` tylko świadomie). Dane demo dla `/admin`: `npm.cmd run seed:demo`.
 
 Inne konta zakładasz sam w aplikacji (zaproszenie klienta, link szkoły, rejestracja); testy E2E i integracyjne zakładają własne losowe konta i ich nie usuwają ani nie zmieniają Twoich.
 

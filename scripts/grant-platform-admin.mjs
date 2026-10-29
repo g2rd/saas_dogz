@@ -1,6 +1,7 @@
 // Nadaje (albo odbiera) uprawnienia właściciela platformy (dostęp do /admin) istniejącemu kontem.
 // Użycie:  npm run admin:grant -- adres@example.pl            nadaje
 //          npm run admin:grant -- adres@example.pl --revoke   odbiera
+// Konto właściciela jest osobne od konta trenera: skrypt odmawia kontom ze szkołą lub panelem klienta (chyba że --force).
 // Zmienne bierze z .env.local (lokalny Supabase) albo z zmiennych środowiskowych (SUPABASE_URL i klucz service_role dla
 // środowiska zdalnego: ustaw je tylko na czas tego polecenia i nigdy nie zapisuj w repozytorium).
 import { existsSync, readFileSync } from "node:fs";
@@ -40,6 +41,16 @@ for (let page = 1; page <= 50 && !user; page++) {
 if (!user) {
   console.error(`Nie znaleziono konta ${email}. Najpierw załóż je (rejestracja z kodem), potem nadaj uprawnienia.`);
   process.exit(1);
+}
+
+// Konto właściciela platformy ma być osobne: bez szkoły (trener) i bez panelu klienta. Wyjątek tylko świadomie (--force).
+if (!revoke && !process.argv.includes("--force")) {
+  const members = await db.from("organization_members").select("organization_id", { count: "exact", head: true }).eq("user_id", user.id);
+  const access = await db.from("client_access").select("client_id", { count: "exact", head: true }).eq("user_id", user.id);
+  if ((members.count ?? 0) > 0 || (access.count ?? 0) > 0) {
+    console.error(`Konto ${email} jest trenerem lub klientem. Konto właściciela platformy powinno być osobne: załóż nowe konto (bez szkoły) i jemu nadaj uprawnienia. Wyjątek: dodaj --force.`);
+    process.exit(1);
+  }
 }
 
 if (revoke) {

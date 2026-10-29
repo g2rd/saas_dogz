@@ -35,8 +35,6 @@ export default function MorePage() {
 async function Links() {
   const t = await getTranslations();
   const ctx = await requireContext();
-  // Właściciel platformy widzi skrót do panelu /admin (zwykły trener nie ma tej pozycji)
-  const { data: platformAdmin } = await ctx.db.from("platform_admins").select("user_id").eq("user_id", ctx.userId).maybeSingle();
   const items = [
     { href: "/app/packages", label: t("common.szablony_pakietow"), show: hasPermission(ctx, "packages.read") },
     { href: "/app/sessions/types", label: t("common.rodzaje_zajec"), show: hasPermission(ctx, "sessions.read") },
@@ -47,7 +45,6 @@ async function Links() {
     { href: "/app/notifications", label: t("common.powiadomienia"), show: true },
     { href: "/app/notifications/settings", label: t("trainer.morePage.ustawienia_powiadomien_i_push"), show: true },
     { href: "/app/feedback", label: t("report.link"), show: true },
-    { href: "/admin", label: t("trainer.morePage.panel_wlasciciela_platformy"), show: Boolean(platformAdmin) },
   ].filter((item) => item.show);
 
   return (

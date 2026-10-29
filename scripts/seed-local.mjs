@@ -2,7 +2,8 @@
 // Idempotentne: można uruchamiać po każdym `db:reset` (albo gdy czegoś brakuje); istniejące konta dostają znane hasło z listy poniżej,
 // dane startowe powstają tylko raz. Odmawia pracy na zdalnym Supabase.
 //
-//   trener@example.test     Dev-Haslo-12345      trener-właściciel szkoły „Szkoła Łapa” (+ właściciel platformy, panel /admin)
+//   trener@example.test     Dev-Haslo-12345      trener-właściciel szkoły „Szkoła Łapa” (panel /app; NIE jest właścicielem platformy)
+//   admin@example.test      Admin-Haslo-12345    właściciel platformy: osobne konto bez szkoły, po zalogowaniu panel /admin
 //   anna@example.pl         Klient-Haslo-2026    klientka Anna Kowalska z dostępem do panelu /portal
 //   seedcheck@example.test  Seed-Check-Pass-1    drugi trener, osobna szkoła „Szkoła Kontrolna” (test izolacji danych między szkołami)
 import { spawnSync } from "node:child_process";
@@ -14,6 +15,7 @@ export const TEST_USERS = {
   trainer: { email: "trener@example.test", password: "Dev-Haslo-12345", name: "Trener Testowy" },
   client: { email: "anna@example.pl", password: "Klient-Haslo-2026", name: "Anna Kowalska" },
   second: { email: "seedcheck@example.test", password: "Seed-Check-Pass-1", name: "Drugi Trener" },
+  admin: { email: "admin@example.test", password: "Admin-Haslo-12345", name: "Właściciel Platformy" },
 };
 
 const env = Object.fromEntries(
@@ -58,16 +60,17 @@ async function ensureConsent(userId) {
 }
 
 // 1. Trener i jego szkoła z danymi (klienci, psy, pakiet, zajęcia): istniejący skrypt, idempotentny
-console.log("1/4 Trener i dane szkoły „Szkoła Łapa”");
+console.log("1/5 Trener i dane szkoły „Szkoła Łapa”");
 await ensureUser(TEST_USERS.trainer);
 const seeded = spawnSync(process.execPath, ["scripts/seed-dev.mjs"], { stdio: "inherit", env: { ...process.env, SEED_PASSWORD: TEST_USERS.trainer.password } });
 if (seeded.status !== 0) throw new Error("seed-dev nie powiódł się (patrz komunikat powyżej)");
 const trainerId = await ensureUser(TEST_USERS.trainer);
 await ensureConsent(trainerId);
-must(await admin.from("platform_admins").upsert({ user_id: trainerId, note: "konto testowe lokalnie" }, { onConflict: "user_id" }), "platform_admins");
+// Konto trenera nie jest właścicielem platformy (wcześniejsze lokalne nadanie cofamy); właściciel to osobne konto z kroku 4
+must(await admin.from("platform_admins").delete().eq("user_id", trainerId), "platform_admins");
 
 // 2. Klientka Anna z dostępem do panelu klienta
-console.log("2/4 Klientka Anna Kowalska (panel /portal)");
+console.log("2/5 Klientka Anna Kowalska (panel /portal)");
 const clientId = await ensureUser(TEST_USERS.client);
 await ensureConsent(clientId);
 const annaRecord = must(await admin.from("clients").select("id, organization_id").eq("email", TEST_USERS.client.email).limit(1), "clients");
@@ -80,7 +83,7 @@ must(
 );
 
 // 3. Drugi trener z osobną szkołą (do sprawdzania izolacji danych)
-console.log("3/4 Drugi trener i szkoła „Szkoła Kontrolna”");
+console.log("3/5 Drugi trener i szkoła „Szkoła Kontrolna”");
 const secondId = await ensureUser(TEST_USERS.second);
 await ensureConsent(secondId);
 const membership = must(await admin.from("organization_members").select("organization_id").eq("user_id", secondId).limit(1), "members");
@@ -94,7 +97,13 @@ if (membership.length === 0) {
   console.log("   szkoła już istnieje, pomijam");
 }
 
-// 4. Podsumowanie
-console.log("4/4 Gotowe. Konta testowe:");
+// 4. Właściciel platformy: osobne konto, bez szkoły i panelu klienta
+console.log("4/5 Właściciel platformy (osobne konto, panel /admin)");
+const ownerId = await ensureUser(TEST_USERS.admin);
+await ensureConsent(ownerId);
+must(await admin.from("platform_admins").upsert({ user_id: ownerId, note: "konto testowe lokalnie" }, { onConflict: "user_id" }), "platform_admins");
+
+// 5. Podsumowanie
+console.log("5/5 Gotowe. Konta testowe:");
 for (const [role, user] of Object.entries(TEST_USERS)) console.log(`   ${role.padEnd(8)} ${user.email.padEnd(24)} ${user.password}`);
 console.log("   Aplikacja: http://localhost:3000, poczta: http://127.0.0.1:54324");
