@@ -998,7 +998,7 @@ isOneToOne: false
           Views: {
             "v_charge_balance": {
                   Row: {
-                    "allocated_minor": number | null,"amount_minor": number | null,"client_id": string | null,"created_at": string | null,"currency": string | null,"description": string | null,"due_date": string | null,"id": string | null,"organization_id": string | null,"source_id": string | null,"source_type": string | null,"voided_at": string | null
+                    "allocated_minor": number | null,"amount_minor": number,"client_id": string,"created_at": string,"currency": string,"description": string,"due_date": string,"id": string,"organization_id": string,"source_id": string | null,"source_type": string,"voided_at": string | null
                   }
                   ComputedFields: never
                   Insert: {
@@ -1024,7 +1024,7 @@ isOneToOne: false
                   ]
                 },"v_client_balance": {
                   Row: {
-                    "allocated_minor": number | null,"charged_minor": number | null,"client_id": string | null,"organization_id": string | null,"paid_minor": number | null
+                    "allocated_minor": number | null,"charged_minor": number | null,"client_id": string,"organization_id": string,"paid_minor": number | null
                   }
                   ComputedFields: never
                   Insert: {
@@ -1044,7 +1044,7 @@ isOneToOne: false
                   ]
                 },"v_client_package_balance": {
                   Row: {
-                    "balance": number | null,"canceled_at": string | null,"client_id": string | null,"created_at": string | null,"currency": string | null,"dog_id": string | null,"id": string | null,"name": string | null,"organization_id": string | null,"package_template_id": string | null,"price_minor": number | null,"sessions_total": number | null,"valid_from": string | null,"valid_until": string | null
+                    "balance": number | null,"canceled_at": string | null,"client_id": string,"created_at": string,"currency": string,"dog_id": string | null,"id": string,"name": string,"organization_id": string,"package_template_id": string | null,"price_minor": number,"sessions_total": number,"valid_from": string,"valid_until": string | null
                   }
                   ComputedFields: never
                   Insert: {
@@ -1082,7 +1082,7 @@ isOneToOne: false
                   ]
                 },"v_session_details": {
                   Row: {
-                    "attendance": string | null,"attendee_id": string | null,"client_first_name": string | null,"client_id": string | null,"client_last_name": string | null,"client_package_id": string | null,"client_summary": string | null,"completed_at": string | null,"currency": string | null,"default_price_minor": number | null,"dog_id": string | null,"dog_name": string | null,"duration_minutes": number | null,"ends_at": string | null,"id": string | null,"location": string | null,"organization_id": string | null,"session_type_id": string | null,"starts_at": string | null,"status": string | null,"trainer_id": string | null,"trainer_name": string | null,"type_name": string | null
+                    "attendance": string | null,"attendee_id": string | null,"client_first_name": string | null,"client_id": string | null,"client_last_name": string | null,"client_package_id": string | null,"client_summary": string | null,"completed_at": string | null,"currency": string,"default_price_minor": number,"dog_id": string | null,"dog_name": string | null,"duration_minutes": number,"ends_at": string,"id": string,"location": string | null,"organization_id": string,"session_type_id": string,"starts_at": string,"status": string,"trainer_id": string,"trainer_name": string | null,"type_name": string
                   }
                   ComputedFields: never
                   Relationships: [
