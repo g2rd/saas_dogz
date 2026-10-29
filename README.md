@@ -11,11 +11,13 @@ Zasady pracy dla agenta: `CLAUDE.md` i `AGENTS.md` (ten Next.js ma zmiany łami�
 
 ## Uruchomienie
 
+**Pełna instrukcja krok po kroku (środowisko, konta, testy, scenariusze ręczne, typowe problemy): [docs/LOKALNE-SRODOWISKO.md](docs/LOKALNE-SRODOWISKO.md).** Skrót:
+
 ```bash
 npm install
 npm run db:start             # lokalny Supabase (wymaga Dockera); wypisze URL i klucze
 cp .env.example .env.local   # uzupełnij klucze Supabase i pozostałe zmienne (opis w pliku)
-npm run db:reset             # migracje 0001-0012 (kasuje dane lokalne)
+npm run db:reset             # migracje (kasuje dane lokalne)
 npm run seed:dev             # dane deweloperskie (tylko lokalnie)
 npm run dev                  # http://localhost:3000
 ```

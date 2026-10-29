@@ -1,6 +1,6 @@
 # DogTrainer SaaS: architektura, stan prac i lista zadań
 
-Stan na 2026-10-29 (po scaleniu wszystkich gałęzi funkcji do `dev` i `main`). Dokument opisuje, jak zbudowana jest aplikacja, co jest zrobione i sprawdzone, co zostało do zrobienia i jakie decyzje podjął właściciel. Pokrewne pliki: [WDROZENIE-PRODUKCYJNE.md](WDROZENIE-PRODUKCYJNE.md) (ścieżka do pierwszej sprzedaży, limitacje i ryzyka), [WDROZENIE-DEMO-10-TESTEROW.md](WDROZENIE-DEMO-10-TESTEROW.md) (instrukcja: demo dla 10 trenerów z panelem właściciela i blokowaniem dostępu), [WDROZENIE-PELNE-PRODUKCJA.md](WDROZENIE-PELNE-PRODUKCJA.md) (instrukcja: pełne wdrożenie i sprzedaż), [WDROZENIE-WIELOJEZYCZNOSCI.md](WDROZENIE-WIELOJEZYCZNOSCI.md) (plan i dziennik wielojęzyczności), `docs/adr/` (zapisy decyzji), `CLAUDE.md` i `AGENTS.md` (zasady pracy dla agenta), `README.md` (skrót dla nowej osoby).
+Stan na 2026-10-29 (po scaleniu wszystkich gałęzi funkcji do `dev` i `main`). Dokument opisuje, jak zbudowana jest aplikacja, co jest zrobione i sprawdzone, co zostało do zrobienia i jakie decyzje podjął właściciel. Pokrewne pliki: [LOKALNE-SRODOWISKO.md](LOKALNE-SRODOWISKO.md) (uruchomienie lokalne i testy krok po kroku), [WDROZENIE-PRODUKCYJNE.md](WDROZENIE-PRODUKCYJNE.md) (ścieżka do pierwszej sprzedaży, limitacje i ryzyka), [WDROZENIE-DEMO-10-TESTEROW.md](WDROZENIE-DEMO-10-TESTEROW.md) (instrukcja: demo dla 10 trenerów z panelem właściciela i blokowaniem dostępu), [WDROZENIE-PELNE-PRODUKCJA.md](WDROZENIE-PELNE-PRODUKCJA.md) (instrukcja: pełne wdrożenie i sprzedaż), [WDROZENIE-WIELOJEZYCZNOSCI.md](WDROZENIE-WIELOJEZYCZNOSCI.md) (plan i dziennik wielojęzyczności), `docs/adr/` (zapisy decyzji), `CLAUDE.md` i `AGENTS.md` (zasady pracy dla agenta), `README.md` (skrót dla nowej osoby).
 
 ## 0. Start nowej sesji: czytaj to najpierw
 
@@ -252,6 +252,8 @@ Panel `/admin` (lista szkół, karta, zmiana statusu z potwierdzeniem, strona ko
 - Wydajność RLS na dużych zbiorach; `npm audit` zgłosił 5 podatności o wysokiej wadze w zależnościach scaffoldu (nie przeglądane).
 
 ## 7. Jak uruchomić
+
+**Pełna instrukcja krok po kroku (kolejność, `.env.local`, seed, testy, scenariusze ręczne): [LOKALNE-SRODOWISKO.md](LOKALNE-SRODOWISKO.md).** Poniżej skrót.
 
 ```bash
 npm install
