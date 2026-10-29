@@ -252,6 +252,16 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
       const reason = typeof event.payload.reason === "string" ? event.payload.reason : "";
       const until = typeof event.payload.access_until === "string" ? new Date(event.payload.access_until) : null;
       const validUntil = until !== null && !Number.isNaN(until.getTime());
+      // Automat końca dostępu zapisuje kod powodu zamiast tekstu: treść składa się w języku odbiorcy
+      if (to === "read_only" && event.payload.reason_code === "access_expired") {
+        return toStaff({
+          type: event.type,
+          messageKey: "org_access_expired",
+          params: { accessUntil: validUntil ? until.toISOString() : "", timezone: facts.timezone },
+          link: "/app",
+          data: { status: to },
+        });
+      }
       if (to === "suspended" || to === "read_only") {
         return toStaff({
           type: event.type,

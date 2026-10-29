@@ -61,6 +61,8 @@ export default defineConfig({
       // Panel właściciela bez weryfikacji dwuetapowej (w testach nie ma aplikacji uwierzytelniającej)
       ADMIN_REQUIRE_MFA: "0",
       ENABLED_LOCALES: "pl,en",
+      // Pozwala testowi układu włączyć pseudo-lokalizację ciasteczkiem `dt_pseudo=1` (bez ciasteczka nic się nie zmienia)
+      ENABLE_PSEUDO_LOCALE: "1",
     },
   },
 });

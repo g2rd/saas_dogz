@@ -39,7 +39,7 @@ self.addEventListener("fetch", (event) => {
   // Nawigacja: zawsze z sieci; bez sieci ogólna strona offline
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(async () => (await caches.match(OFFLINE_URL)) || new Response("Brak połączenia", { status: 503 })),
+      fetch(request).catch(async () => (await caches.match(OFFLINE_URL)) || new Response("Offline", { status: 503, headers: { "Content-Type": "text/plain; charset=utf-8" } })),
     );
     return;
   }

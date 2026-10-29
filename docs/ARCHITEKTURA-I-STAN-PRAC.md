@@ -214,6 +214,7 @@ Migracje `supabase/migrations/20261016000001` … `0018` (wszystkie zastosowane 
 23. **Zapowiedź końca dostępu** (ADR 0016, migracja `20261029000002`): reguły dzienne tworzą zdarzenie `organization.access_ending` 7 dni i 1 dzień przed `access_until` dla szkół w statusie `trial`/`active`; właściciele i administratorzy dostają dzwonek, e-mail i push w swoim języku (`notify.org_access_ending`), bez duplikatów, a po przedłużeniu dostępu zapowiedzi wracają; scenariusz E2E.
 24. **Wygasła sesja i linki powrotu** (ADR 0017, bez migracji): proxy dodaje `expired=1` do przekierowania na `/login`, gdy ciasteczko sesji jest nieważne, strona logowania pokazuje „Sesja wygasła. Zaloguj się ponownie.”, akcje serwerowe po utracie sesji (`reason: session_expired` → `toFormState`) odsyłają do logowania, `BackLink` na podstronach „Więcej” (zespół, powiadomienia, zgłoszenia w obu panelach); `e2e/session.spec.ts`.
 25. **Region i numery telefonów** (ADR 0018, migracja `20261029000003`): sekcja „Język i region” w `Więcej` (region: ciasteczko `dt_region` + `profiles.region`, „Automatycznie” z urządzenia), numery przez `libphonenumber-js` (`src/shared/phone.ts`, E.164, kraj domyślny = region użytkownika albo Polska, import CSV tak samo), podpowiedź prefiksu pod polem telefonu; `e2e/region.spec.ts`.
+26. **Jakość techniczna** (ADR 0019, migracja `20261029000004`): kody powodu (`note_code`, `status_reason_code`, `undone_before_send`) zamiast polskich tekstów z automatów, wygenerowane typy bazy (`database.types.ts`, klienci typowani, kontrola aktualności w CI), neutralny tekst zapasowy `sw.js`, pseudo-lokalizacja (`ENABLE_PSEUDO_LOCALE` + ciasteczko `dt_pseudo`) i test układu 23 ekranów bez przewijania w poziomie.
 13. **Poprawka:** wybór zgłoszenia na wolny termin, gdy termin już minął, rzucał wyjątek (500 w konsoli). Teraz akcje „Wybierz” i „Zamknij ogłoszenie” zwracają komunikat przy przycisku (`slot-offer-forms.tsx`), a lista trenera pomija ogłoszenia z minionym terminem; test regresji w `slots.integration.test.ts`.
 
 ### Funkcje widoczne dla użytkownika
@@ -304,6 +305,7 @@ Szczegółowa ścieżka do sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJN
 - [x] Zrobione (PR `feat/ci-quality-minimum`): `error.tsx`/`not-found.tsx`/`global-error.tsx`, przegląd `npm audit` (produkcja 0 podatności, 5 deweloperskich świadomie zostaje), CI, przegląd RLS z testem niezmienników, limity.
 - [x] Obsługa wygasłej sesji (komunikat zamiast „Brak uprawnień”) i linki powrotu na podstronach w trybie `standalone` (PR `feat/session-expiry`, ADR 0017).
 - [ ] Zostaje z domknięcia: generowane typy bazy, Sentry i monitor dostępności, limity Supabase Auth i dostawcy poczty przy wdrożeniu (lista w PRZEGLAD-BEZPIECZENSTWA.md).
+- [ ] Zostaje z domknięcia: obsługa wygasłej sesji (komunikat zamiast „Brak uprawnień”), linki powrotu na podstronach w trybie `standalone`, ~~generowane typy bazy~~ (zrobione, ADR 0019), Sentry i monitor dostępności, limity Supabase Auth i dostawcy poczty przy wdrożeniu (lista w PRZEGLAD-BEZPIECZENSTWA.md).
 
 ### A2. Dopracowania panelu właściciela
 - [ ] Przeklikać w przeglądarce rejestrację z kodem przy zamkniętym naborze (formularz, błędy) oraz rejestrację klienta i zespołu z zaproszenia; ponowne logowanie do `/admin` kodem TOTP; panel na telefonie.
@@ -329,9 +331,10 @@ Szczegółowa ścieżka do sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJN
 - [x] Etap 3: ekran ustawień szkoły (waluta, strefa, język) i blokada zmiany waluty przy istniejących rekordach z kwotami (PR `feat/school-settings`, ADR 0014); metadane i manifest zrobione w etapie 4.
 - [x] Etap 3, reszta: podpowiedź prefiksu zależna od regionu i biblioteka numerów (PR `feat/region-phone`, ADR 0018).
 - [x] Etap 4: powiadomienia, e-mail i push w języku odbiorcy (`message_key` + `params`), e-maile zaproszeń, metadane, manifest, strona offline.
-- [ ] Etap 4, reszta: kody powodu (`reason_code`) w rejestrach SQL zamiast tekstu; polski tekst zapasowy w `public/sw.js`.
+- [x] Etap 4, reszta: kody powodu w rejestrach SQL zamiast tekstu i neutralny tekst zapasowy w `public/sw.js` (PR `feat/tech-quality`, ADR 0019).
 - [x] Etap 5 (wersja robocza): angielski kompletny i włączony.
 - [ ] Etap 5, reszta: przegląd tłumaczenia przez osobę znającą branżę, pseudo-lokalizacja (przepełnienia układu), przeklikanie na telefonie, strony publiczne i prawne po angielsku, region w profilu (zrobione, ADR 0018); etap 6: trzeci język jako test skalowalności.
+- [ ] Etap 5, reszta: przegląd tłumaczenia przez osobę znającą branżę, pseudo-lokalizacja (zrobione: `e2e/pseudo-locale.spec.ts`, ADR 0019), przeklikanie na telefonie, strony publiczne i prawne po angielsku, region w profilu (format daty), podpowiedź `+48` razem z biblioteką numerów; etap 6: trzeci język jako test skalowalności.
 
 ### B. Pomysły zgłoszone przez właściciela, jeszcze nie zrobione
 - **QR szkoły z akceptacją:** stały QR/link trenera; klient zakłada konto i wysyła prośbę o dołączenie, trener akceptuje (powstaje kartoteka i dostęp). Zaproponowane, czeka na decyzję.

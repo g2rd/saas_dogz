@@ -74,7 +74,7 @@ async function PackageDetails({ params }: Pick<Props, "params">) {
                 <p className="font-medium">{t(`labels.ledgerReason.${entry.reason}`)}</p>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
                   {formats.dateTime(entry.createdAt)}
-                  {entry.note ? ` · ${entry.note}` : ""}
+                  {entry.noteCode ? ` · ${t(`labels.ledgerNote.${entry.noteCode}`)}` : entry.note ? ` · ${entry.note}` : ""}
                 </p>
               </div>
               <strong className={entry.delta < 0 ? "text-red-600" : "text-emerald-600"}>

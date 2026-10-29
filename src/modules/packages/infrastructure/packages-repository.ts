@@ -30,6 +30,8 @@ export type LedgerRecord = {
   delta: number;
   reason: LedgerReason;
   note: string | null;
+  /** Kod uwagi wpisanej przez automat (np. `undo_complete`); interfejs składa z niego tekst w swoim języku. */
+  noteCode: string | null;
   createdAt: Date;
 };
 
@@ -54,6 +56,7 @@ type LedgerRow = {
   delta: number;
   reason: LedgerReason;
   note: string | null;
+  note_code: string | null;
   created_at: string;
 };
 
@@ -121,7 +124,7 @@ export function packagesRepository(db: SupabaseClient) {
     async listLedger(organizationId: string, packageId: string): Promise<Result<LedgerRecord[]>> {
       const { data, error } = await db
         .from("package_ledger")
-        .select("id, delta, reason, note, created_at")
+        .select("id, delta, reason, note, note_code, created_at")
         .eq("organization_id", organizationId)
         .eq("client_package_id", packageId)
         .order("created_at", { ascending: false });
@@ -132,6 +135,7 @@ export function packagesRepository(db: SupabaseClient) {
           delta: row.delta,
           reason: row.reason,
           note: row.note,
+          noteCode: row.note_code,
           createdAt: new Date(row.created_at),
         })),
       );
