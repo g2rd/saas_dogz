@@ -6,6 +6,7 @@ export {
   restoreClient,
   updateClient,
   type ClientListQuery,
+  type ClientOptions,
 } from "./application/clients";
 export { importClients, previewClientImport, type ImportPreview, type ImportResult } from "./application/import";
 export { IMPORT_MAX_BYTES } from "./domain/import";

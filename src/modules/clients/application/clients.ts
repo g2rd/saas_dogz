@@ -3,7 +3,7 @@ import { parseInput } from "@/shared/form";
 import { err, type Result } from "@/shared/result";
 import type { RequestContext } from "@/shared/context";
 import {
-  clientInputSchema,
+  clientInputSchemaFor,
   sanitizeSearch,
   type Client,
 } from "../domain/client";
@@ -31,11 +31,14 @@ export async function getClient(ctx: RequestContext, id: string): Promise<Result
   return clientsRepository(ctx.db).get(ctx.organizationId, id);
 }
 
-export async function createClient(ctx: RequestContext, raw: unknown): Promise<Result<Client>> {
+/** `phoneCountry`: kraj (region użytkownika), z którego liczymy numery telefonu bez prefiksu. */
+export type ClientOptions = { phoneCountry?: string | null };
+
+export async function createClient(ctx: RequestContext, raw: unknown, options: ClientOptions = {}): Promise<Result<Client>> {
   const allowed = authorize(ctx, "clients.write");
   if (!allowed.ok) return allowed;
 
-  const input = parseInput(clientInputSchema, raw);
+  const input = parseInput(clientInputSchemaFor(options.phoneCountry), raw);
   if (!input.ok) return err(input.error);
 
   return clientsRepository(ctx.db).insert(ctx.organizationId, ctx.userId, input.value);
@@ -45,11 +48,12 @@ export async function updateClient(
   ctx: RequestContext,
   id: string,
   raw: unknown,
+  options: ClientOptions = {},
 ): Promise<Result<Client>> {
   const allowed = authorize(ctx, "clients.write");
   if (!allowed.ok) return allowed;
 
-  const input = parseInput(clientInputSchema, raw);
+  const input = parseInput(clientInputSchemaFor(options.phoneCountry), raw);
   if (!input.ok) return err(input.error);
 
   return clientsRepository(ctx.db).update(ctx.organizationId, id, input.value);

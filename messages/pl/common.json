@@ -1,10 +1,11 @@
 {
   "language": {
-    "title": "Język",
-    "description": "Domyślnie używamy języka ustawionego w telefonie lub przeglądarce. Możesz wybrać inny.",
+    "title": "Język i region",
+    "description": "Domyślnie używamy języka i regionu ustawionych w telefonie lub przeglądarce. Region określa zapis dat i liczb oraz kraj, z którego liczymy numery telefonu bez prefiksu.",
     "label": "Język aplikacji",
     "auto": "Automatycznie (z urządzenia)",
-    "saving": "Zapisywanie..."
+    "saving": "Zapisywanie...",
+    "region_label": "Region (kraj)"
   },
   "e_mail": "E-mail",
   "wysylanie": "Wysyłanie...",

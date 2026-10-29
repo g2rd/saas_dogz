@@ -18,10 +18,13 @@ export function ClientForm({
   action,
   values,
   submitLabel,
+  phoneHint,
 }: {
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   values?: ClientFormValues;
   submitLabel: string;
+  /** Podpowiedź pod polem telefonu (kraj i prefiks wg regionu użytkownika); liczy ją serwer. */
+  phoneHint?: string;
 }) {
   const t = useTranslations();
   const [state, formAction] = useActionState(action, {});
@@ -47,7 +50,7 @@ export function ClientForm({
         type="tel"
         defaultValue={v("phone", values?.phone)}
         errors={errors.phone}
-        hint={t("clients.clientForm.numer_polski_bez_prefiksu_zapiszemy_jako")}
+        hint={phoneHint}
         autoComplete="off"
       />
       <SelectField
