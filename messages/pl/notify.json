@@ -87,5 +87,13 @@
   "invitation_accepted": {
     "title": "{client} dołączył(a) do panelu klienta",
     "body": "Klient przyjął zaproszenie i ma już dostęp do panelu."
+  },
+  "join_request_created": {
+    "title": "{name} prosi o dołączenie",
+    "body": "Nowa prośba o dostęp do szkoły przez Twój link lub kod QR. Zaakceptuj ją albo odrzuć."
+  },
+  "join_request_approved": {
+    "title": "Prośba zaakceptowana",
+    "body": "Trener zaakceptował Twoją prośbę. Masz już dostęp do panelu klienta."
   }
 }

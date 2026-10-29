@@ -39,7 +39,7 @@ select is(
   (select coalesce(string_agg(p.proname, ', ' order by p.proname), '')
    from pg_proc p join pg_namespace n on n.oid = p.pronamespace
    where n.nspname = 'public' and has_function_privilege('anon', p.oid, 'execute')),
-  'check_signup_allowed, lookup_invitation, lookup_member_invitation',
+  'check_signup_allowed, lookup_invitation, lookup_member_invitation, lookup_school_join',
   'anon can execute only the allowed public functions');
 
 -- 6. Funkcje zadań w tle i panelu właściciela są dostępne tylko dla service_role
@@ -51,12 +51,12 @@ select is(
      and (has_function_privilege('authenticated', p.oid, 'execute') or has_function_privilege('anon', p.oid, 'execute'))),
   '', 'background and platform owner functions are not callable by users');
 
--- 7. Każda funkcja security definer dostępna dla zalogowanych sprawdza tożsamość lub rolę (poza trzema publicznymi wyszukiwarkami)
+-- 7. Każda funkcja security definer dostępna dla zalogowanych sprawdza tożsamość lub rolę (poza publicznymi wyszukiwarkami)
 select is(
   (select coalesce(string_agg(p.proname, ', ' order by p.proname), '')
    from pg_proc p join pg_namespace n on n.oid = p.pronamespace
    where n.nspname = 'public' and p.prosecdef and has_function_privilege('authenticated', p.oid, 'execute')
-     and p.proname not in ('check_signup_allowed', 'lookup_invitation', 'lookup_member_invitation')
+     and p.proname not in ('check_signup_allowed', 'lookup_invitation', 'lookup_member_invitation', 'lookup_school_join')
      and not (p.prosrc ~ 'auth\.uid\(\)' or p.prosrc ~ 'app\.(has_org_role|is_org_member|is_client_of_org|assert_platform_admin)')),
   '', 'every callable security definer function checks the caller identity or role');
 

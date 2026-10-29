@@ -42,7 +42,8 @@ async function DashboardContent() {
     if (ctx.error.code === "no_organization") {
       // Klient bez organizacji ma panel w /portal; dopiero świeże konto zakłada organizację.
       const db = await createUserClient();
-      if ((await resolveLandingPath(db)) === "/portal") redirect("/portal");
+      const landing = await resolveLandingPath(db);
+      if (landing === "/portal" || landing === "/school") redirect(landing);
       return (
         <section className="mt-6 flex flex-col gap-4">
           <p className="text-zinc-600 dark:text-zinc-400">

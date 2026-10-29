@@ -87,5 +87,13 @@
   "invitation_accepted": {
     "title": "{client} joined the client area",
     "body": "The client accepted the invitation and now has access to the area."
+  },
+  "join_request_created": {
+    "title": "{name} asks to join",
+    "body": "A new request to join your school came in through your link or QR code. Accept or decline it."
+  },
+  "join_request_approved": {
+    "title": "Request accepted",
+    "body": "The trainer accepted your request. You now have access to the client portal."
   }
 }
