@@ -3,7 +3,7 @@
 // dane startowe powstają tylko raz. Odmawia pracy na zdalnym Supabase.
 //
 //   trener@example.test     Dev-Haslo-12345      trener-właściciel szkoły „Szkoła Łapa” (panel /app; NIE jest właścicielem platformy)
-//   admin@example.test      Admin-Haslo-12345    właściciel platformy: osobne konto bez szkoły, po zalogowaniu panel /admin
+//   wlasciciel@example.test      Admin-Haslo-12345    właściciel platformy: osobne konto bez szkoły, po zalogowaniu panel /admin
 //   anna@example.pl         Klient-Haslo-2026    klientka Anna Kowalska z dostępem do panelu /portal
 //   seedcheck@example.test  Seed-Check-Pass-1    drugi trener, osobna szkoła „Szkoła Kontrolna” (test izolacji danych między szkołami)
 import { spawnSync } from "node:child_process";
@@ -15,7 +15,7 @@ export const TEST_USERS = {
   trainer: { email: "trener@example.test", password: "Dev-Haslo-12345", name: "Trener Testowy" },
   client: { email: "anna@example.pl", password: "Klient-Haslo-2026", name: "Anna Kowalska" },
   second: { email: "seedcheck@example.test", password: "Seed-Check-Pass-1", name: "Drugi Trener" },
-  admin: { email: "admin@example.test", password: "Admin-Haslo-12345", name: "Właściciel Platformy" },
+  admin: { email: "wlasciciel@example.test", password: "Admin-Haslo-12345", name: "Właściciel Platformy" },
 };
 
 const env = Object.fromEntries(
@@ -99,6 +99,9 @@ if (membership.length === 0) {
 
 // 4. Właściciel platformy: osobne konto, bez szkoły i panelu klienta
 console.log("4/5 Właściciel platformy (osobne konto, panel /admin)");
+// Poprzednia nazwa tego konta kolidowała z danymi testów pgTAP (admin@example.test): usuwamy ją, jeśli została
+const legacy = must(await admin.auth.admin.listUsers({ perPage: 1000 }), "listUsers").users.find((user) => user.email === "admin@example.test");
+if (legacy) must(await admin.auth.admin.deleteUser(legacy.id), "deleteUser admin@example.test");
 const ownerId = await ensureUser(TEST_USERS.admin);
 await ensureConsent(ownerId);
 must(await admin.from("platform_admins").upsert({ user_id: ownerId, note: "konto testowe lokalnie" }, { onConflict: "user_id" }), "platform_admins");
