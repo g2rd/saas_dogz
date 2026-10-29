@@ -210,6 +210,7 @@ Migracje `supabase/migrations/20261016000001` … `0018` (wszystkie zastosowane 
 16. **Opinie testerów i import klientów** (etap 10, migracje 0014-0015, moduł `feedback`, rozszerzony `clients`): „Zgłoś problem lub pomysł” w `Więcej` obu paneli (`/app/feedback`, `/portal/feedback`; tabela `feedback` z RLS: tylko własne zgłoszenia, bez edycji i usuwania, ekran źródłowy bez zapytania w adresie); przegląd i „Oznacz jako obejrzane” w `/admin/feedback`. Import klientów i psów z CSV (`/app/clients/import`): wgranie pliku albo wklejenie, separator `;` `,` tabulator, nagłówki po polsku i angielsku, podgląd z listą problemów (błędy pomijają wiersz, złe e-mail i telefon to ostrzeżenia), duplikaty w pliku i w szkole (e-mail, telefon), limit 500 wierszy i 1 MB, zapis atomową funkcją SQL `import_clients`, bez zaproszeń i powiadomień. Teksty w `messages/{pl,en}/report.json` i `clients.import.*`.
 15. **Wielojęzyczność, etap 5 (angielski)**: `messages/en/` dla wszystkich przestrzeni (742 klucze), wybór języka w `Więcej` (`ENABLED_LOCALES=pl,en`), parytet kluczy i parametrów w teście, poprawione pominięte teksty (pulpit, konto klienta, zaległości, potwierdzenia próśb), usunięta wzmianka o BLIK.
 14. **Wielojęzyczność, etap 4** (migracja 0013, ADR 0013): powiadomienia jako `message_key` + `params` (przestrzeń `notify`), render w języku odbiorcy (`profiles.locale`, tylko języki włączone) dla skrzynki, e-maila i push; dzwonek składa treść w języku widza; e-maile zaproszeń w języku szkoły; metadane, manifest i `offline.html` zależne od języka; tłumacz poza żądaniem `src/shared/i18n/translator.ts`.
+29. **Historia zmian z „Cofnij”** (ADR 0022, bez migracji): `/app/history` (właściciel i administrator), moduł `history` (odczyt dziennika audytu z opisem obiektu i autora, język widza), przycisk „Cofnij” przy najnowszej wpłacie, sprzedaży pakietu, zakończeniu i odwołaniu zajęć, gdy stan jeszcze pozwala (wykonują go istniejące przypadki użycia, reguły pilnuje baza), pozycja w „Więcej”; `e2e/history.spec.ts`.
 13. **Poprawka:** wybór zgłoszenia na wolny termin, gdy termin już minął, rzucał wyjątek (500 w konsoli). Teraz akcje „Wybierz” i „Zamknij ogłoszenie” zwracają komunikat przy przycisku (`slot-offer-forms.tsx`), a lista trenera pomija ogłoszenia z minionym terminem; test regresji w `slots.integration.test.ts`.
 
 ### Funkcje widoczne dla użytkownika
@@ -224,7 +225,7 @@ Migracje `supabase/migrations/20261016000001` … `0018` (wszystkie zastosowane 
 | Typy | `npm run typecheck` | czysto |
 | Lint | `npm run lint` | czysto |
 | Testy jednostkowe (domena, symulacja service workera, i18n) | `npm test` | 268/268 |
-| Testy end-to-end (przeglądarka, komputer i telefon) | `npm run e2e` | 36/36 (11 plików ze scenariuszami w `e2e/`, ok. 1 min; `settings.spec.ts`: zmiana ustawień, blokada waluty po sprzedaży pakietu, błąd walidacji, brak dostępu trenera) |
+| Testy end-to-end (przeglądarka, komputer i telefon) | `npm run e2e` | 39/39 (12 plików ze scenariuszami w `e2e/`, ok. 1 min; `settings.spec.ts`: zmiana ustawień, blokada waluty po sprzedaży pakietu, błąd walidacji, brak dostępu trenera) |
 | Granice modułów | `npm run check:boundaries` | brak naruszeń (280 modułów) |
 | Build produkcyjny | `npm run build` | przechodzi (trasy panelu to częściowy prerender) |
 | Testy RLS i funkcji SQL (pgTAP) | `npm run db:test` | 302/302 (18 plików; `school_settings.test.sql`: zmiana ustawień bez kwot, przepisanie cennika, blokada waluty `DT018`, strefa i kształt pól, dziennik zmian, brak uprawnień trenera i obcej osoby; `consents.test.sql`: zgody z metadanych rejestracji, odczyt własnych, brak zapisu przez użytkownika; `security_invariants.test.sql`: 13 reguł RLS i uprawnień dla każdej tabeli i funkcji; `rate_limits.test.sql`: limity zaproszeń i opinii; `feedback.test.sql`: zgłoszenia tylko własne, rola i szkoła, brak edycji; `import_clients.test.sql`: atomowy import, duplikaty e-mail, limit, role; `notification_messages.test.sql`: klucz i parametry powiadomień, ograniczenia, brak prawa zmiany przez odbiorcę; `i18n.test.sql`: język profilu, waluta szkoły; `platform_admin.test.sql`: status, blokada zapisów i odczytów, ochrona kolumn, funkcje tylko `service_role`, wygaszanie, zamknięta rejestracja) |
@@ -326,7 +327,7 @@ Szczegółowa ścieżka do sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJN
 
 ### B. Pomysły zgłoszone przez właściciela, jeszcze nie zrobione
 - **QR szkoły z akceptacją:** stały QR/link trenera; klient zakłada konto i wysyła prośbę o dołączenie, trener akceptuje (powstaje kartoteka i dostęp). Zaproponowane, czeka na decyzję.
-- Widok **historii zmian** (audyt jest zapisywany, brak ekranu) z „Cofnij” przy odwracalnych wpisach; kafelek „chętni na wolny termin” na pulpicie; preferencje dni i godzin na liście chętnych.
+- ~~Widok **historii zmian** z „Cofnij” przy odwracalnych wpisach~~ ✅ zrobione (PR `feat/history`, ADR 0022); kafelek „chętni na wolny termin” na pulpicie; preferencje dni i godzin na liście chętnych.
 - Potwierdzenia w panelu klienta; cofnięcie „Wybierz zgłoszenie” (dziś: odwołać utworzone zajęcia i ogłosić ponownie).
 
 ### C. Produkt po okresie testowym (jeśli się spodoba)
