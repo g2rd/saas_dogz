@@ -18,7 +18,7 @@ npm install
 npm run db:start             # lokalny Supabase (wymaga Dockera); wypisze URL i klucze
 cp .env.example .env.local   # uzupełnij klucze Supabase i pozostałe zmienne (opis w pliku)
 npm run db:reset             # migracje (kasuje dane lokalne)
-npm run seed:dev             # dane deweloperskie (tylko lokalnie)
+npm run seed:local           # konta i dane testowe (tylko lokalnie)
 npm run dev                  # http://localhost:3000
 ```
 
@@ -38,7 +38,9 @@ Test push i instalacji PWA na telefonie (tunel HTTPS): sekcja 7 dokumentu o stan
 | `npm run e2e` | Testy end-to-end w przeglądarce (Playwright): buduje i uruchamia aplikację na porcie 3100, wymaga lokalnego Supabase; `npm run e2e:ui` otwiera podgląd interaktywny |
 | `npm run check:boundaries` | Granice modułów (dependency-cruiser) |
 | `npm run outbox:run` | Ręczne wywołanie przetwarzania powiadomień przez trasę cron (`CRON_SECRET`) |
-| `npm run seed:dev` | Dane deweloperskie (konto trenera, klienci, psy, pakiet, zajęcia) |
+| `npm run seed:local` | **Odtwarza komplet kont testowych i danych** (trener, klientka, drugi trener; hasła w [docs/LOKALNE-SRODOWISKO.md](docs/LOKALNE-SRODOWISKO.md)); bezpieczne do wielokrotnego uruchamiania |
+| `npm run seed:dev` | Dane deweloperskie jednej szkoły (używa go `seed:local`) |
+| `npm run db:backup` / `db:restore -- plik` | Kopia danych lokalnej bazy przed `db:reset` / odtworzenie kopii |
 | `npm run seed:demo` | Dane demo dla panelu `/admin`: 10 szkół o różnym statusie i aktywności (tylko lokalnie; hasło kont demo w dokumencie o stanie prac) |
 | `npm run env:check -- --file .env.staging` | Kontrola zmiennych środowiskowych wdrożenia (format, sekrety, klucze demo); nie wypisuje wartości |
 | `npm run smoke -- https://adres` | Test dymny wdrożenia (strony, PWA, nagłówki bezpieczeństwa, cron); z `CRON_SECRET` w środowisku sprawdza też cron |

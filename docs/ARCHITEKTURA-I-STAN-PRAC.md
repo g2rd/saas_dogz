@@ -280,7 +280,7 @@ Adres tunelu zmienia się przy każdym uruchomieniu (subskrypcję i ikonę trzeb
 ### Panel właściciela lokalnie
 `npm run admin:grant -- trener@example.test` nadaje konto właściciela platformy (lokalnie konto testowego trenera ma to już nadane), potem `/admin` (także z `Więcej` → „Panel właściciela platformy”). Na produkcji użyj osobnego konta właściciela i włącz MFA. Odebranie: `npm run admin:grant -- adres --revoke`. **Uwaga:** `next start` (wersja produkcyjna) ma `NODE_ENV=production`, więc wymusza MFA także lokalnie, dopóki w `.env.local` nie ma `ADMIN_REQUIRE_MFA=0`. **Dane demo:** `npm run seed:demo` (tylko lokalnie, powtórzenie odtwarza od nowa) tworzy 10 szkół `demo-*` (próbne, aktywne, tylko do odczytu, zawieszona, nieaktywne, nigdy niezalogowana) z personelem, klientami, zajęciami i push; konta `wlasciciel.<szkoła>@`, `trener1.<szkoła>@`, `klient1.<szkoła>@demo.example.test` (np. `wlasciciel.burek`, `wlasciciel.premium`), hasło `Demo-Haslo-2026`. MFA lokalnie: w `supabase/config.toml` jest `[auth.mfa.totp]` (po zmianie konfiguracji trzeba zrestartować lokalny Supabase) i `ADMIN_REQUIRE_MFA=1` w `.env.local`.
 
-### Konta testowe (tylko lokalnie, znikają po `supabase db reset`)
+### Konta testowe (tylko lokalnie; `supabase db reset` je kasuje, odtworzysz je poleceniem `npm run seed:local`, kopia danych: `npm run db:backup`)
 | Rola | E-mail | Hasło | Po zalogowaniu |
 | --- | --- | --- | --- |
 | Trener (organizacja „Szkoła Łapa”) | `trener@example.test` | `Dev-Haslo-12345` | `/app` |

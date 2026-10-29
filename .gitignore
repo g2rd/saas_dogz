@@ -50,3 +50,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# kopie danych lokalnej bazy (npm run db:backup)
+/backups/

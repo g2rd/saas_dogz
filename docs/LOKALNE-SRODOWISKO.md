@@ -45,9 +45,8 @@ Losowy sekret: `node -e "console.log(require('crypto').randomBytes(32).toString(
 # 5. Migracje (KASUJE dane lokalne; po każdej zmianie gałęzi z nowymi migracjami powtórz)
 npm.cmd run db:reset
 
-# 6. Dane startowe (tylko lokalnie): trener, szkoła, klienci, psy, pakiet, zajęcia
-$env:SEED_PASSWORD = 'Dev-Haslo-12345'
-npm.cmd run seed:dev
+# 6. Konta i dane testowe (tylko lokalnie): trener, klientka, drugi trener, szkoły, klienci, psy, pakiet, zajęcia
+npm.cmd run seed:local
 
 # 7. Aplikacja (przetwarza też powiadomienia co 10 s)
 npm.cmd run dev
@@ -55,24 +54,37 @@ npm.cmd run dev
 
 Adresy: aplikacja `http://localhost:3000`, **poczta Mailpit `http://127.0.0.1:54324`** (wszystkie e-maile aplikacji, w tym zaproszenia i powiadomienia).
 
-### Konta po seedzie
+### Konta testowe (zawsze te same; `npm run seed:local` odtwarza je jednym poleceniem)
 
-| Rola | E-mail | Hasło |
-| --- | --- | --- |
-| Trener (szkoła „Szkoła Łapa”, właściciel) | `trener@example.test` | `Dev-Haslo-12345` (wartość `SEED_PASSWORD`; bez niej hasło jest losowe i wypisane raz w konsoli) |
+| Rola | E-mail | Hasło | Panel |
+| --- | --- | --- | --- |
+| Trener, właściciel szkoły „Szkoła Łapa” (3 klientów, 2 psy, pakiet, zajęcia) i właściciel platformy | `trener@example.test` | `Dev-Haslo-12345` | `/app`, `/admin` (z „Więcej”) |
+| Klientka Anna Kowalska (kartoteka w „Szkole Łapa”) | `anna@example.pl` | `Klient-Haslo-2026` | `/portal` |
+| Drugi trener, osobna szkoła „Szkoła Kontrolna” (1 klient: Zenon Kontrolny), do sprawdzania izolacji danych | `seedcheck@example.test` | `Seed-Check-Pass-1` | `/app` |
 
-Seed zakłada kartotekę klienta Anny Kowalskiej (`anna@example.pl`), ale **konta klienta nie tworzy**. Konto klienta zrobisz na dwa sposoby:
-- karta klienta → „Zaproś klienta do panelu” → otwórz link z Mailpit (albo kod QR/kod) w oknie incognito i załóż konto,
-- albo przez link szkoły (Więcej → Prośby o dołączenie → Utwórz link szkoły) i prośbę o dołączenie.
+Polecenie `npm run seed:local` jest **bezpieczne do wielokrotnego uruchamiania**: istniejącym kontom ustawia powyższe hasło, danych nie dubluje, każdemu kontu zapisuje zgodę na bieżący regulamin (żeby nie trafiało najpierw na ekran ponownej zgody) i odmawia pracy na zdalnym Supabase. Zrób je po każdym `db:reset` albo gdy zalogowanie przestaje działać.
 
-Konto właściciela platformy (panel `/admin`): `npm.cmd run admin:grant -- trener@example.test`, potem „Więcej” → „Panel właściciela platformy”. Dane demo dla `/admin`: `npm.cmd run seed:demo`.
+Inne konta zakładasz sam w aplikacji (zaproszenie klienta, link szkoły, rejestracja); testy E2E i integracyjne zakładają własne losowe konta i ich nie usuwają ani nie zmieniają Twoich.
+
+### Uwaga: `db:reset` KASUJE wszystkie dane lokalne (także Twoje własne konta i klientów)
+
+Zanim go uruchomisz, a także przed testami pgTAP po zmianie gałęzi, zrób kopię:
+
+```powershell
+npm.cmd run db:backup                              # zapisuje backups/dane-RRRRMMDD-GGMMSS.sql (folder poza gitem)
+npm.cmd run db:reset                               # czysty schemat z migracji
+npm.cmd run db:restore -- backups/dane-....sql     # wczytuje Twoje dane z kopii
+npm.cmd run seed:local                             # (opcjonalnie) dosypuje konta testowe, jeśli ich brakuje
+```
+
+Kopia obejmuje dane (konta, szkoły, klienci, pakiety...), a schemat zakłada `db:reset` z migracji. Odtwarzanie dobrze działa, gdy kopia pochodzi z tej samej wersji migracji; po nowszych migracjach najpierw zrób kopię na starej gałęzi, a odtwórz po `db:reset` na tej samej.
 
 ### Przydatne polecenia na co dzień
 
 | Cel | Polecenie |
 | --- | --- |
 | Zatrzymać / uruchomić bazę | `npx.cmd supabase stop` / `npm.cmd run db:start` |
-| Zacząć od zera | `npm.cmd run db:reset`, potem krok 6 |
+| Zacząć od zera (po kopii!) | `npm.cmd run db:backup`, `npm.cmd run db:reset`, `npm.cmd run seed:local` |
 | Przetworzyć powiadomienia od razu | `npm.cmd run outbox:run` (wymaga działającego `dev`) |
 | Zmienić stan w bazie ręcznie | `docker exec supabase_db_dogtrainer psql -U postgres -c "..."` |
 | Po zmianie migracji odświeżyć typy | `npm.cmd run db:types` |
@@ -114,11 +126,12 @@ Każdy scenariusz zajmuje kilka minut; zalecany widok telefonu w przeglądarce (
 | --- | --- |
 | `failed to connect to the docker API` | Uruchom Docker Desktop i poczekaj, aż będzie gotowy |
 | `npm : File ... cannot be loaded because running scripts is disabled` | Używaj `npm.cmd` i `npx.cmd` |
-| Strona zgłasza błąd bazy lub brakującą kolumnę | Migracje nieaktualne po zmianie gałęzi: `npm.cmd run db:reset` i ponownie seed |
-| `seed:dev` odmawia | Skrypt działa tylko na lokalnym Supabase (adres `127.0.0.1`/`localhost` w `.env.local`) |
+| Strona zgłasza błąd bazy lub brakującą kolumnę | Migracje nieaktualne po zmianie gałęzi: `npm.cmd run db:backup`, `npm.cmd run db:reset`, `npm.cmd run seed:local` |
+| Nie mogę się zalogować na konto testowe | `npm.cmd run seed:local` (ustawia znane hasła i odtwarza brakujące konta) |
+| `seed:dev` / `seed:local` odmawia | Skrypt działa tylko na lokalnym Supabase (adres `127.0.0.1`/`localhost` w `.env.local`) |
 | `outbox:run`: brak `CRON_SECRET` | Dopisz sekret do `.env.local` i zrestartuj `dev` |
 | Stary wygląd (CSS) po zmianie gałęzi | Usuń folder `.next/dev` i zrestartuj `dev` |
 | Testy integracyjne lub E2E padają „losowo” | Zatrzymaj `npm run dev` (pętla powiadomień) i uruchom ponownie; dwa serwery `next dev` w jednym katalogu też przeszkadzają |
 | Port 3100 zajęty (E2E) | Zamknij poprzedni serwer testowy (`netstat -ano | findstr 3100`) |
-| pgTAP: lista funkcji publicznych się nie zgadza | Baza ma migracje z innej gałęzi: `npm.cmd run db:reset` |
+| pgTAP: lista funkcji publicznych się nie zgadza | Baza ma migracje z innej gałęzi: kopia (`db:backup`), `db:reset`, potem `seed:local` |
 | Test na telefonie, push, instalacja PWA | Wymaga HTTPS: sekcja „Test na telefonie bez domeny” w [ARCHITEKTURA-I-STAN-PRAC.md](ARCHITEKTURA-I-STAN-PRAC.md) |
