@@ -83,4 +83,29 @@ test.describe("dostęp i blokady szkoły", () => {
     await expect(adminPage.getByText(adminSchool.name)).toBeVisible();
     await adminContext.close();
   });
+
+  test("właściciel platformy to osobne konto: logowanie prowadzi do /admin, bez kreatora szkoły i bez panelu trenera", async ({ page, browser }) => {
+    const owner = await createAccount("wlasciciel-osobny");
+    await makePlatformAdmin(owner);
+    // Konto bez szkoły i bez panelu klienta: po zalogowaniu panel właściciela, a nie kreator szkoły trenera
+    await login(page, owner.email, owner.password, /\/admin/);
+    await expect(page.getByText("Szkoły").first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Mój panel trenera" })).toHaveCount(0);
+    // Adres startowy aplikacji (np. ikona PWA) też prowadzi do panelu właściciela
+    await page.goto("/start");
+    await expect(page).toHaveURL(/\/admin/);
+    // Wejście na /app nie pokazuje kreatora szkoły, tylko odsyła do panelu właściciela
+    await page.goto("/app");
+    await expect(page).toHaveURL(/\/admin/);
+
+    // Zwykły trener nie ma w „Więcej” skrótu do panelu właściciela
+    const trainer = await createAccount("trener-bez-panelu");
+    await createSchool(trainer);
+    const trainerContext = await browser.newContext({ locale: "pl-PL" });
+    const trainerPage = await trainerContext.newPage();
+    await login(trainerPage, trainer.email, trainer.password, /\/app/);
+    await trainerPage.goto("/app/more");
+    await expect(trainerPage.getByRole("link", { name: "Panel właściciela platformy" })).toHaveCount(0);
+    await trainerContext.close();
+  });
 });

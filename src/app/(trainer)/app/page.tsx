@@ -43,7 +43,7 @@ async function DashboardContent() {
       // Klient bez organizacji ma panel w /portal; dopiero świeże konto zakłada organizację.
       const db = await createUserClient();
       const landing = await resolveLandingPath(db);
-      if (landing === "/portal" || landing === "/school") redirect(landing);
+      if (landing !== "/app") redirect(landing);
       return (
         <section className="mt-6 flex flex-col gap-4">
           <p className="text-zinc-600 dark:text-zinc-400">
