@@ -79,4 +79,38 @@ test.describe("konto trenera", () => {
     const mail = (await (await request.get(`http://127.0.0.1:54324/api/v1/message/${search.messages[0].ID}`)).json()) as { HTML: string };
     expect(mail.HTML).toContain("Reset your DogTrainer password");
   });
+
+  test("po zmianie wersji regulaminu stare konto musi zaakceptować nową wersję, zanim wejdzie do panelu", async ({ page }) => {
+    // Konto ze zgodą na starą wersję dokumentów (sprzed zmiany LEGAL_VERSION)
+    const owner = await createAccount("zgoda", { consent_version: "2026-01-01" });
+    await owner.db.rpc("create_organization", { p_name: `Szkoła zgody ${stamp()}`, p_slug: `e2e-zgoda-${stamp()}` });
+
+    await page.goto("/login");
+    await page.getByLabel("E-mail").fill(owner.email);
+    await page.getByLabel("Hasło").fill(owner.password);
+    await page.getByRole("button", { name: "Zaloguj się" }).click();
+    await expect(page).toHaveURL(/\/accept-terms/);
+    await expect(page.getByRole("heading", { name: "Zaktualizowaliśmy regulamin" })).toBeVisible();
+
+    // Bez zgody nie ma dostępu do żadnej podstrony panelu ani panelu klienta
+    await page.goto("/app/clients");
+    await expect(page).toHaveURL(/\/accept-terms/);
+    await page.goto("/portal");
+    await expect(page).toHaveURL(/\/accept-terms/);
+
+    // Pole zgody jest wymagane; po zaznaczeniu konto wchodzi do panelu
+    const consent = page.getByRole("checkbox", { name: /Akceptuję/ });
+    await expect(consent).toHaveAttribute("required", "");
+    await consent.check();
+    await page.getByRole("button", { name: "Akceptuję i przechodzę dalej" }).click();
+    await expect(page).toHaveURL(/\/app/);
+    await expect(page.getByRole("heading", { name: "Panel trenera" })).toBeVisible();
+
+    // Zgoda na bieżącą wersję zapisana dla obu dokumentów, stare zgody zostają; ekran zgody już nie wraca
+    const { data: consents } = await adminDb().from("consents").select("document, version").eq("user_id", owner.id);
+    expect(consents).toHaveLength(4);
+    expect(consents?.filter((c) => c.version === "2026-01-01")).toHaveLength(2);
+    await page.goto("/accept-terms");
+    await expect(page).toHaveURL(/\/app/);
+  });
 });

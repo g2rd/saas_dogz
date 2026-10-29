@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { LEGAL_VERSION } from "../../src/shared/legal";
 
 /**
  * Pomocnicy przygotowania danych dla testów E2E: omijają interfejs tam, gdzie test nie dotyczy danej ścieżki
@@ -28,7 +29,7 @@ export async function createAccount(label: string, metadata: Record<string, unkn
     email,
     password: PASSWORD,
     email_confirm: true,
-    user_metadata: { full_name: `Test ${label}`, ...metadata },
+    user_metadata: { full_name: `Test ${label}`, consent_version: LEGAL_VERSION, ...metadata },
   });
   if (created.error || !created.data.user) throw new Error(`createUser: ${created.error?.message}`);
   const db = createClient(API_URL, ANON_KEY, noSession);

@@ -50,7 +50,7 @@ test.describe("panel klienta", () => {
 
     // Panel klienta: powitanie i saldo pakietu 10 z 10
     await expect(clientPage).toHaveURL(/\/portal/);
-    await expect(clientPage.getByText(/Cześć, Ola/)).toBeVisible();
+    await expect(clientPage.getByRole("heading", { name: /Cześć, Ola/ })).toBeVisible();
     await expect(clientPage.getByText(/10 zajęć zostało|zostało/).first()).toBeVisible();
     await expect(clientPage.getByText("Pakiet 10").or(clientPage.getByText(/Pakiet/)).first()).toBeVisible();
 
@@ -79,7 +79,7 @@ test.describe("panel klienta", () => {
     await grantPortalAccess(school.id, mine.id, clientAccount.id);
     await login(page, clientAccount.email, clientAccount.password, /\/portal/);
 
-    await expect(page.getByText(/Cześć, Moja/)).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Cześć, Moja/ })).toBeVisible();
     await page.goto("/portal/dogs");
     await expect(page.getByText("MójPies")).toBeVisible();
     await expect(page.getByText("CudzyPies")).toHaveCount(0);

@@ -2,10 +2,12 @@ import { Suspense } from "react";
 import { portalLogoutAction } from "./actions";
 import { HeaderBell } from "./header-bell";
 import { PortalNav } from "./portal-nav";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
+import { requireCurrentConsent } from "../../_lib/legal-gate";
 
-export default function PortalLayout({ children }: LayoutProps<"/portal">) {
-  const t = useTranslations();
+export default async function PortalLayout({ children }: LayoutProps<"/portal">) {
+  await requireCurrentConsent();
+  const t = await getTranslations();
   return (
     <div className="mx-auto flex min-h-screen max-w-xl flex-col">
       <header className="flex items-center justify-between border-b border-zinc-200 px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))] dark:border-zinc-800">
