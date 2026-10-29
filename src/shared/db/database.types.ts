@@ -399,6 +399,38 @@ isOneToOne: false
       referencedColumns: ["organization_id","id"]
     }
                   ]
+                },"join_requests": {
+                  Row: {
+                    "client_id": string | null,"created_at": string,"decided_at": string | null,"decided_by": string | null,"email": string | null,"first_name": string,"id": string,"last_name": string,"note": string | null,"organization_id": string,"organization_name": string,"phone": string | null,"status": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "client_id"?: string | null,"created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"email"?: string | null,"first_name": string,"id"?: string,"last_name"?: string,"note"?: string | null,"organization_id": string,"organization_name": string,"phone"?: string | null,"status"?: string,"user_id": string
+                  }
+                  Update: {
+                    "client_id"?: string | null,"created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"email"?: string | null,"first_name"?: string,"id"?: string,"last_name"?: string,"note"?: string | null,"organization_id"?: string,"organization_name"?: string,"phone"?: string | null,"status"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "join_requests_organization_id_client_id_fkey"
+      columns: ["organization_id","client_id"]
+isOneToOne: false
+      referencedRelation: "clients"
+      referencedColumns: ["organization_id","id"]
+    },{
+      foreignKeyName: "join_requests_organization_id_client_id_fkey"
+      columns: ["organization_id","client_id"]
+isOneToOne: false
+      referencedRelation: "v_client_balance"
+      referencedColumns: ["organization_id","client_id"]
+    },{
+      foreignKeyName: "join_requests_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"notification_log": {
                   Row: {
                     "attempts": number,"channel": string,"created_at": string,"detail": string | null,"id": string,"notification_id": string,"status": string,"updated_at": string
@@ -705,14 +737,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "avatar_file_id": string | null,"created_at": string,"full_name": string | null,"id": string,"locale": string,"phone": string | null,"updated_at": string
+                    "avatar_file_id": string | null,"created_at": string,"full_name": string | null,"id": string,"locale": string,"phone": string | null,"region": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "avatar_file_id"?: string | null,"created_at"?: string,"full_name"?: string | null,"id": string,"locale"?: string,"phone"?: string | null,"updated_at"?: string
+                    "avatar_file_id"?: string | null,"created_at"?: string,"full_name"?: string | null,"id": string,"locale"?: string,"phone"?: string | null,"region"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "avatar_file_id"?: string | null,"created_at"?: string,"full_name"?: string | null,"id"?: string,"locale"?: string,"phone"?: string | null,"updated_at"?: string
+                    "avatar_file_id"?: string | null,"created_at"?: string,"full_name"?: string | null,"id"?: string,"locale"?: string,"phone"?: string | null,"region"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -736,6 +768,26 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"school_join_links": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"id": string,"organization_id": string,"revoked_at": string | null,"token": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"organization_id": string,"revoked_at"?: string | null,"token": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"organization_id"?: string,"revoked_at"?: string | null,"token"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "school_join_links_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"session_attendees": {
                   Row: {
@@ -1054,6 +1106,9 @@ isOneToOne: false
             "accept_invitation":
 { Args: { "p_secret_hash": string }; Returns: Json
                            },
+"accept_legal":
+{ Args: { "p_version": string }; Returns: undefined
+                           },
 "accept_member_invitation":
 { Args: { "p_token_hash": string }; Returns: Json
                            },
@@ -1135,6 +1190,9 @@ isOneToOne: false
 "create_slot_offer":
 { Args: { "p_note": string,"p_org": string,"p_session": string }; Returns: string
                            },
+"decide_join_request":
+{ Args: { "p_approve": boolean,"p_client"?: string,"p_org": string,"p_request": string }; Returns: string
+                           },
 "enqueue_daily_notification_events":
 { Args: { "p_now"?: string }; Returns: number
                            },
@@ -1150,14 +1208,23 @@ isOneToOne: false
 "lookup_member_invitation":
 { Args: { "p_email"?: string,"p_token_hash": string }; Returns: Json
                            },
+"lookup_school_join":
+{ Args: { "p_token": string }; Returns: Json
+                           },
 "record_payment":
 { Args: { "p_allocations": Json,"p_amount_minor": number,"p_client": string,"p_currency": string,"p_method": string,"p_org": string,"p_paid_at": string,"p_reference": string }; Returns: string
+                           },
+"request_school_join":
+{ Args: { "p_first_name": string,"p_last_name": string,"p_note": string,"p_phone": string,"p_token": string }; Returns: string
                            },
 "revoke_client_access":
 { Args: { "p_client": string,"p_org": string,"p_user": string }; Returns: undefined
                            },
 "revoke_member_invitation":
 { Args: { "p_invitation": string,"p_org": string }; Returns: undefined
+                           },
+"rotate_school_join_link":
+{ Args: { "p_org": string,"p_token": string }; Returns: undefined
                            },
 "schedule_session":
 { Args: { "p_client": string,"p_dog": string,"p_location": string,"p_org": string,"p_starts_at": string,"p_trainer": string,"p_type": string }; Returns: string
