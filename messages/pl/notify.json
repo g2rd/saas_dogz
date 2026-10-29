@@ -76,6 +76,10 @@
     "title": "Dostęp do konta przywrócony",
     "body": "Twoje konto znów działa w pełni.{hasUntil, select, yes { Dostęp jest przyznany do {until}.} other {}}"
   },
+  "org_access_ending": {
+    "title": "Dostęp do konta kończy się wkrótce",
+    "body": "{days, plural, one {Dostęp do Twojej szkoły kończy się za # dzień} few {Dostęp do Twojej szkoły kończy się za # dni} many {Dostęp do Twojej szkoły kończy się za # dni} other {Dostęp do Twojej szkoły kończy się za # dnia}} (do {until}). Potem konto przejdzie w tryb tylko do odczytu. Skontaktuj się z obsługą, aby go przedłużyć."
+  },
   "invitation_accepted": {
     "title": "{client} dołączył(a) do panelu klienta",
     "body": "Klient przyjął zaproszenie i ma już dostęp do panelu."

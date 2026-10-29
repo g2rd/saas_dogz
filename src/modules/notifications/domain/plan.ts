@@ -40,6 +40,7 @@ export const NOTIFIABLE_EVENT_TYPES = [
   "training_session.restored",
   "payment.voided",
   "organization.status_changed",
+  "organization.access_ending",
 ] as const;
 
 export function isNotifiable(type: string): boolean {
@@ -270,6 +271,19 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
         });
       }
       return [];
+    }
+
+    case "organization.access_ending": {
+      const until = typeof event.payload.access_until === "string" ? new Date(event.payload.access_until) : null;
+      const days = Number(event.payload.days);
+      if (until === null || Number.isNaN(until.getTime()) || !Number.isFinite(days) || days < 1) return [];
+      return toStaff({
+        type: event.type,
+        messageKey: "org_access_ending",
+        params: { days, accessUntil: until.toISOString(), timezone: facts.timezone },
+        link: "/app",
+        data: { days },
+      });
     }
 
     case "invitation.accepted":
