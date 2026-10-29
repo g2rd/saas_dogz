@@ -5,6 +5,7 @@ import { AuthShell } from "../_components/auth-shell";
 import { loginAction } from "./actions";
 import { LoginForm } from "./login-form";
 import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
 export default function LoginPage({ searchParams }: PageProps<"/login">) {
   const t = useTranslations();
@@ -33,7 +34,17 @@ export default function LoginPage({ searchParams }: PageProps<"/login">) {
 }
 
 async function LoginFormWithNext({ searchParams }: Pick<PageProps<"/login">, "searchParams">) {
-  const { next } = await searchParams;
+  const { next, expired } = await searchParams;
   const raw = Array.isArray(next) ? next[0] : next;
-  return <LoginForm action={loginAction} next={safeNextPath(raw, LOGIN_NEXT_PREFIXES, "")} />;
+  const t = await getTranslations();
+  return (
+    <>
+      {expired === "1" ? (
+        <p role="status" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+          {t("auth.loginPage.session_expired")}
+        </p>
+      ) : null}
+      <LoginForm action={loginAction} next={safeNextPath(raw, LOGIN_NEXT_PREFIXES, "")} />
+    </>
+  );
 }

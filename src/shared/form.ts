@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import { appError, type AppError } from "./errors";
 import { parseAmountToMinor } from "./money";
@@ -21,6 +22,10 @@ function formValues(formData: FormData): Record<string, string> {
 }
 
 export function toFormState(error: AppError, formData?: FormData): FormState {
+  // Wygasła sesja (akcja wysłana po utracie logowania): zamiast komunikatu pod formularzem wracamy do logowania z wyjaśnieniem
+  if (error.code === "unauthenticated" && (error.details as { reason?: string } | undefined)?.reason === "session_expired") {
+    redirect("/login?expired=1");
+  }
   const values = formData ? formValues(formData) : undefined;
   if (error.code === "validation" && error.details && typeof error.details === "object") {
     return { error: error.message, fieldErrors: error.details as FormState["fieldErrors"], values };

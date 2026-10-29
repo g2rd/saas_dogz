@@ -40,7 +40,7 @@ test.describe("język interfejsu", () => {
     const context = await browser.newContext({ locale: "en-GB" });
     const page = await context.newPage();
     await login(page, account.email, account.password, /\/portal/);
-    await expect(page.getByText(/Hi, Jane/)).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Hi, Jane/ })).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Payments").first()).toBeVisible();
     await page.goto("/portal/payments");
     await expect(page.getByRole("heading", { name: "Payments" })).toBeVisible();

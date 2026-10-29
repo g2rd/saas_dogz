@@ -18,7 +18,7 @@ export async function getPortalContext(): Promise<Result<ClientRequestContext>> 
   const db = await createUserClient();
   const { data: claimsData } = await db.auth.getClaims();
   const userId = claimsData?.claims?.sub;
-  if (!userId) return err(appError("unauthenticated", msg("errors.auth.sign_in_required")));
+  if (!userId) return err(appError("unauthenticated", msg("errors.auth.sign_in_required"), { reason: "session_expired" }));
 
   const { data, error } = await db
     .from("client_access")
