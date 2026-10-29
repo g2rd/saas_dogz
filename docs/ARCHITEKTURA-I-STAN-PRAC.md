@@ -319,7 +319,7 @@ Szczegółowa ścieżka do sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJN
 - [ ] 🌐 **Kryterium „komuś się spodobało”** ustalone z góry (np. dodał klientów, sprzedał pakiet, klient użył panelu); opinie zbierasz sam (komunikatory, telefon), bez ankiet.
 - [ ] 🌐 **Rekrutacja testerów** i kody beta (`/admin/codes`), zamknięcie rejestracji, nadanie konta właściciela platformy (`admin:grant` z prawdziwym adresem, osobne konto z MFA).
 - [ ] 🌐 Jeśli aplikacja ma działać zdalnie: Supabase w UE, hosting (decyzja: Vercel; Hobby tylko do użytku niekomercyjnego), e-mail (Resend + SPF/DKIM), sekrety, cron powiadomień co minutę i `npm run env:check`/`smoke` (instrukcja: WDROZENIE-STAGING.md).
-- [ ] **GitHub:** pierwszy przebieg CI na `dev`/`main` i ochrona gałęzi z wymaganymi kontrolami (patrz A3).
+- [x] **GitHub, CI:** pierwszy przebieg na `dev` i `main` (2026-10-29) zielony we wszystkich trzech zadaniach (kod, baza z krokiem „Typy bazy są aktualne”, E2E). Zostaje ochrona gałęzi z wymaganymi kontrolami (A3, opcjonalna przy pracy w pojedynkę).
 
 **Odłożone, niewymagane do testów:** wpisy wejść do panelu w audycie, stronicowanie przeglądu przy kilkuset szkołach, role wewnętrzne (wsparcie tylko do odczytu), przeklikanie w przeglądarce rejestracji z kodem beta przy zamkniętym naborze i ponownego logowania do `/admin` kodem TOTP, limity Supabase Auth i dostawcy poczty (lista w PRZEGLAD-BEZPIECZENSTWA.md).
 
