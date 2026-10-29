@@ -34,6 +34,23 @@ export async function acceptSlotClaim(ctx: RequestContext, claimId: string): Pro
   return ok({ sessionId: accepted.value });
 }
 
+/** Skrót dla pulpitu: ilu klientów czeka na wolny termin, ile ogłoszeń jest otwartych i ile zgłoszeń czeka na wybór trenera. */
+export type SlotSummary = { waitlist: number; openOffers: number; pendingClaims: number };
+
+export async function getSlotSummary(ctx: RequestContext): Promise<Result<SlotSummary>> {
+  const allowed = authorize(ctx, "sessions.read");
+  if (!allowed.ok) return allowed;
+  const repo = slotsRepository(ctx.db, ctx.organizationId);
+  const [waitlist, offers] = await Promise.all([repo.waitlistCount(), repo.listOpenOffers()]);
+  if (!waitlist.ok) return waitlist;
+  if (!offers.ok) return offers;
+  return ok({
+    waitlist: waitlist.value,
+    openOffers: offers.value.length,
+    pendingClaims: offers.value.reduce((sum, offer) => sum + offer.claims.length, 0),
+  });
+}
+
 export async function listOpenSlotOffers(ctx: RequestContext): Promise<Result<SlotOffer[]>> {
   const allowed = authorize(ctx, "sessions.read");
   if (!allowed.ok) return allowed;

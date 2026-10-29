@@ -210,6 +210,7 @@ Migracje `supabase/migrations/20261016000001` … `0018` (wszystkie zastosowane 
 16. **Opinie testerów i import klientów** (etap 10, migracje 0014-0015, moduł `feedback`, rozszerzony `clients`): „Zgłoś problem lub pomysł” w `Więcej` obu paneli (`/app/feedback`, `/portal/feedback`; tabela `feedback` z RLS: tylko własne zgłoszenia, bez edycji i usuwania, ekran źródłowy bez zapytania w adresie); przegląd i „Oznacz jako obejrzane” w `/admin/feedback`. Import klientów i psów z CSV (`/app/clients/import`): wgranie pliku albo wklejenie, separator `;` `,` tabulator, nagłówki po polsku i angielsku, podgląd z listą problemów (błędy pomijają wiersz, złe e-mail i telefon to ostrzeżenia), duplikaty w pliku i w szkole (e-mail, telefon), limit 500 wierszy i 1 MB, zapis atomową funkcją SQL `import_clients`, bez zaproszeń i powiadomień. Teksty w `messages/{pl,en}/report.json` i `clients.import.*`.
 15. **Wielojęzyczność, etap 5 (angielski)**: `messages/en/` dla wszystkich przestrzeni (742 klucze), wybór języka w `Więcej` (`ENABLED_LOCALES=pl,en`), parytet kluczy i parametrów w teście, poprawione pominięte teksty (pulpit, konto klienta, zaległości, potwierdzenia próśb), usunięta wzmianka o BLIK.
 14. **Wielojęzyczność, etap 4** (migracja 0013, ADR 0013): powiadomienia jako `message_key` + `params` (przestrzeń `notify`), render w języku odbiorcy (`profiles.locale`, tylko języki włączone) dla skrzynki, e-maila i push; dzwonek składa treść w języku widza; e-maile zaproszeń w języku szkoły; metadane, manifest i `offline.html` zależne od języka; tłumacz poza żądaniem `src/shared/i18n/translator.ts`.
+30. **Kafelek wolnych terminów na pulpicie** (bez migracji): `getSlotSummary` (liczba chętnych, otwartych ogłoszeń i zgłoszeń czekających na wybór) i kafelek na `/app` (pojawia się, gdy są chętni lub ogłoszenia; żółty, gdy czekają zgłoszenia; prowadzi do `/app/sessions`); `e2e/slots-tile.spec.ts`.
 13. **Poprawka:** wybór zgłoszenia na wolny termin, gdy termin już minął, rzucał wyjątek (500 w konsoli). Teraz akcje „Wybierz” i „Zamknij ogłoszenie” zwracają komunikat przy przycisku (`slot-offer-forms.tsx`), a lista trenera pomija ogłoszenia z minionym terminem; test regresji w `slots.integration.test.ts`.
 
 ### Funkcje widoczne dla użytkownika
@@ -326,7 +327,7 @@ Szczegółowa ścieżka do sprzedaży, limitacje i ryzyka: [WDROZENIE-PRODUKCYJN
 
 ### B. Pomysły zgłoszone przez właściciela, jeszcze nie zrobione
 - **QR szkoły z akceptacją:** stały QR/link trenera; klient zakłada konto i wysyła prośbę o dołączenie, trener akceptuje (powstaje kartoteka i dostęp). Zaproponowane, czeka na decyzję.
-- Widok **historii zmian** (audyt jest zapisywany, brak ekranu) z „Cofnij” przy odwracalnych wpisach; kafelek „chętni na wolny termin” na pulpicie; preferencje dni i godzin na liście chętnych.
+- Widok **historii zmian** (audyt jest zapisywany, brak ekranu) z „Cofnij” przy odwracalnych wpisach; ~~kafelek „chętni na wolny termin” na pulpicie~~ ✅ zrobione (PR `feat/waitlist-tile`); preferencje dni i godzin na liście chętnych.
 - Potwierdzenia w panelu klienta; cofnięcie „Wybierz zgłoszenie” (dziś: odwołać utworzone zajęcia i ogłosić ponownie).
 
 ### C. Produkt po okresie testowym (jeśli się spodoba)
