@@ -18,6 +18,7 @@ const SERVICE_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU";
 
 export const E2E_CRON_SECRET = "e2e-cron-secret-0123456789abcdef";
+export const E2E_SENTRY_PORT = 54399;
 
 export default defineConfig({
   testDir: "./e2e",
@@ -63,6 +64,8 @@ export default defineConfig({
       ENABLED_LOCALES: "pl,en",
       // Pozwala testowi układu włączyć pseudo-lokalizację ciasteczkiem `dt_pseudo=1` (bez ciasteczka nic się nie zmienia)
       ENABLE_PSEUDO_LOCALE: "1",
+      // Raportowanie błędów do „Sentry” udawanego przez test (e2e/monitoring.spec.ts); bez nasłuchującego serwera zgłoszenia po cichu przepadają
+      SENTRY_DSN: `http://e2ekey@127.0.0.1:${E2E_SENTRY_PORT}/1`,
     },
   },
 });
