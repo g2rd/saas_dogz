@@ -17,6 +17,7 @@ import {
   restoreClientAction,
   updateClientAction,
 } from "../actions";
+import { getPhoneHint } from "@/shared/i18n/server";
 import { getTranslations } from "next-intl/server";
 import { useTranslations } from "next-intl";
 
@@ -170,6 +171,7 @@ async function ClientDetails({ params }: Pick<PageProps<"/app/clients/[id]">, "p
               <ClientForm
                 action={updateClientAction.bind(null, id)}
                 submitLabel={t("common.zapisz_zmiany")}
+                phoneHint={await getPhoneHint()}
                 values={{
                   firstName: client.firstName,
                   lastName: client.lastName,

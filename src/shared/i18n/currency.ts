@@ -62,6 +62,9 @@ export function currencyFor(language: string, region?: string | null): string {
   return LANGUAGE_CURRENCY[language.toLowerCase()] ?? DEFAULT_CURRENCY;
 }
 
+/** Regiony (kraje) do wyboru w ustawieniach: te, dla których znamy walutę. */
+export const SUPPORTED_REGIONS: readonly string[] = Object.keys(REGION_CURRENCY);
+
 const CURRENCY_PATTERN = /^[A-Z]{3}$/;
 
 /** Kod waluty ISO 4217 rozpoznawany przez `Intl` (odrzuca śmieci z formularza). */

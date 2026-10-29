@@ -49,6 +49,7 @@ describe("resolveLocale", () => {
     expect(resolveLocale({ acceptLanguage: "en-GB,en;q=0.9,pl;q=0.5", enabled: both })).toEqual({
       locale: "en",
       region: "GB",
+      chosenRegion: null,
       source: "browser",
     });
   });
@@ -76,7 +77,7 @@ describe("resolveLocale", () => {
   });
 
   it("bez żadnych wskazówek zwraca polski", () => {
-    expect(resolveLocale({ enabled: both })).toEqual({ locale: "pl", region: null, source: "default" });
+    expect(resolveLocale({ enabled: both })).toEqual({ locale: "pl", region: null, chosenRegion: null, source: "default" });
   });
 });
 

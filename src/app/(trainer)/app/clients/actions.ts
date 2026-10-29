@@ -17,6 +17,7 @@ import {
 } from "@/modules/dogs";
 import { toFormState, type FormState } from "@/shared/form";
 import type { Result } from "@/shared/result";
+import { getPhoneCountry } from "@/shared/i18n/server";
 import { requireContext } from "../../_lib/context";
 
 const clientPath = (clientId: string) => `/app/clients/${clientId}`;
@@ -30,7 +31,7 @@ function unwrap<T>(result: Result<T>): T {
 
 export async function createClientAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const ctx = await requireContext();
-  const result = await createClient(ctx, Object.fromEntries(formData));
+  const result = await createClient(ctx, Object.fromEntries(formData), { phoneCountry: await getPhoneCountry() });
   if (!result.ok) return toFormState(result.error, formData);
   redirect(clientPath(result.value.id));
 }
@@ -41,7 +42,7 @@ export async function updateClientAction(
   formData: FormData,
 ): Promise<FormState> {
   const ctx = await requireContext();
-  const result = await updateClient(ctx, clientId, Object.fromEntries(formData));
+  const result = await updateClient(ctx, clientId, Object.fromEntries(formData), { phoneCountry: await getPhoneCountry() });
   if (!result.ok) return toFormState(result.error, formData);
   redirect(clientPath(clientId));
 }

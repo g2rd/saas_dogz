@@ -1,10 +1,11 @@
 {
   "language": {
-    "title": "Language",
-    "description": "By default we use the language set on your phone or browser. You can choose a different one.",
+    "title": "Language and region",
+    "description": "By default we use the language and region set on your phone or browser. The region sets how dates and numbers are written and the country used for phone numbers without a prefix.",
     "label": "App language",
     "auto": "Automatic (from your device)",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "region_label": "Region (country)"
   },
   "e_mail": "Email",
   "wysylanie": "Sending...",

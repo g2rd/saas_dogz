@@ -3,7 +3,7 @@
     "imie": "Imię",
     "nazwisko": "Nazwisko",
     "telefon": "Telefon",
-    "numer_polski_bez_prefiksu_zapiszemy_jako": "Numer polski bez prefiksu zapiszemy jako +48",
+    "phone_hint": "Numer bez prefiksu zapiszemy jako numer z kraju: {country} ({prefix}). Numer z innego kraju wpisz z plusem i prefiksem.",
     "status": "Status"
   },
   "import": {
