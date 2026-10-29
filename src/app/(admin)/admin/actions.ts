@@ -11,7 +11,9 @@ import {
   setOrganizationStatus,
   setSignupMode,
 } from "@/modules/platform";
+import { processNotificationsNow, sendTestNotification, simulateDaysAhead, type OutboxRunResult } from "@/modules/notifications";
 import { toFormState, type FormState } from "@/shared/form";
+import { msg } from "@/shared/i18n/messages";
 import { createUserClient } from "@/shared/supabase/server";
 import { requireAdmin } from "../_lib/context";
 
@@ -78,4 +80,31 @@ export async function adminLogoutAction() {
   const db = await createUserClient();
   await db.auth.signOut();
   redirect("/login");
+}
+
+// --- sterowanie demo (wymaga DEMO_CONTROLS=1; patrz /admin/demo) -----------------------------------------------------------------
+
+const summary = (run: OutboxRunResult) => `Przetworzono zdarzeń: ${run.processed}, nowych powiadomień: ${run.notifications}, błędów: ${run.failed}.`;
+
+export async function demoTestNotificationAction(_prev: AdminFormState, formData: FormData): Promise<AdminFormState> {
+  await requireAdmin();
+  const organizationId = String(formData.get("organizationId") ?? "");
+  if (!/^[0-9a-f-]{36}$/.test(organizationId)) return { error: msg("errors.db.not_found") };
+  const result = await sendTestNotification(organizationId);
+  if (!result.ok) return toFormState(result.error, formData);
+  return { message: `Wysłano powiadomienie testowe do właścicieli szkoły. ${summary(result.value)}` };
+}
+
+export async function demoProcessAction(): Promise<AdminFormState> {
+  await requireAdmin();
+  const result = await processNotificationsNow();
+  if (!result.ok) return { error: result.error.message };
+  return { message: summary(result.value) };
+}
+
+export async function demoSimulateAction(_prev: AdminFormState, formData: FormData): Promise<AdminFormState> {
+  await requireAdmin();
+  const result = await simulateDaysAhead(Number(formData.get("days")));
+  if (!result.ok) return toFormState(result.error, formData);
+  return { message: `Symulacja +${Number(formData.get("days"))} dni: reguły dzienne dopisały zdarzeń: ${result.value.events}. ${summary(result.value.run)}` };
 }

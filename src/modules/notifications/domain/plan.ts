@@ -43,6 +43,7 @@ export const NOTIFIABLE_EVENT_TYPES = [
   "organization.access_ending",
   "join_request.created",
   "join_request.approved",
+  "demo.test",
 ] as const;
 
 export function isNotifiable(type: string): boolean {
@@ -284,6 +285,9 @@ export function planNotifications(event: OutboxEvent, facts: EventFacts): Notifi
       }
       return [];
     }
+
+    case "demo.test":
+      return toStaff({ type: event.type, messageKey: "demo_test", params: {}, link: "/app", data: {} });
 
     case "organization.access_ending": {
       const until = typeof event.payload.access_until === "string" ? new Date(event.payload.access_until) : null;

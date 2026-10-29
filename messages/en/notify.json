@@ -95,5 +95,9 @@
   "join_request_approved": {
     "title": "Request accepted",
     "body": "The trainer accepted your request. You now have access to the client portal."
+  },
+  "demo_test": {
+    "title": "Test notification",
+    "body": "The app owner sent this notification from the demo panel to show how the bell, e-mail and push work."
   }
 }

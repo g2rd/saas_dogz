@@ -97,5 +97,9 @@
     "throttled": "Too many failed attempts. Try again in a few minutes.",
     "already_member": "You already have access to this organization.",
     "use_invited_email": "Enter the email address the invitation was sent to"
+  },
+  "demo": {
+    "disabled": "Demo controls are disabled on this server (set DEMO_CONTROLS=1).",
+    "days": "Enter a number of days from 1 to 60."
   }
 }

@@ -14,6 +14,7 @@ export default function AdminLayout({ children }: LayoutProps<"/admin">) {
           <Link href="/admin">Szkoły</Link>
           <Link href="/admin/codes">Kody i rejestracja</Link>
           <Link href="/admin/feedback">Opinie</Link>
+          <Link href="/admin/demo">Demo</Link>
           <span className="ml-auto flex items-center gap-4">
             <form action={adminLogoutAction}>
               <button type="submit" className="text-zinc-300">
