@@ -53,3 +53,6 @@ next-env.d.ts
 
 # kopie danych lokalnej bazy (npm run db:backup)
 /backups/
+
+# lokalna konfiguracja narzędzi Claude (nie część aplikacji)
+/.claude/
