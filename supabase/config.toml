@@ -22,6 +22,17 @@ minimum_password_length = 8
 enable_signup = true
 enable_confirmations = false
 
+# Wiadomości Supabase Auth (potwierdzenie konta, reset hasła) po polsku i angielsku wg języka z rejestracji (`user_metadata.locale`).
+# Lokalnie działają od razu; na hostowanym Supabase wklej je w Authentication → Email Templates (instrukcja: docs/WDROZENIE-STAGING.md;
+# NIE używaj `supabase config push`, bo wgrałby na zdalny projekt lokalne ustawienia Auth: adres localhost, brak potwierdzenia e-maila). Temat jest dwujęzyczny, bo szablon nie zna języka odbiorcy przy tworzeniu tematu.
+[auth.email.template.confirmation]
+subject = "Potwierdź konto w DogTrainer / Confirm your DogTrainer account"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.recovery]
+subject = "Nowe hasło w DogTrainer / Reset your DogTrainer password"
+content_path = "./supabase/templates/recovery.html"
+
 [auth.rate_limit]
 # Lokalnie luźno, żeby testy e-maili (reset hasła, potwierdzenie) nie trafiały w limit.
 email_sent = 1000

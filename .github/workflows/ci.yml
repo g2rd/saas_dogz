@@ -1,7 +1,7 @@
 # Ciągła integracja: każdy pull request do `dev` i `main` (oraz każdy scalony push) przechodzi te same kontrole co lokalnie.
 # Zadanie `quality` sprawdza kod (typy, lint, testy jednostkowe, granice modułów, audyt zależności produkcyjnych, build),
 # zadanie `database` uruchamia lokalny Supabase (Docker) i sprawdza bazę: migracje, RLS i funkcje (pgTAP) oraz przypadki użycia
-# na prawdziwej bazie z pocztą (Mailpit). Wynik widać przy PR-ze; zatwierdza i scala wyłącznie właściciel.
+# na prawdziwej bazie z pocztą (Mailpit), a zadanie `e2e` przechodzi najważniejsze ścieżki w prawdziwej przeglądarce (Playwright). Wynik widać przy PR-ze; zatwierdza i scala wyłącznie właściciel.
 name: CI
 
 on:
@@ -68,6 +68,37 @@ jobs:
         run: npx supabase test db
       - name: Testy przypadków użycia na prawdziwej bazie
         run: npm run test:integration
+      - name: Zatrzymaj Supabase
+        if: always()
+        run: npx supabase stop --no-backup
+
+  e2e:
+    name: E2E (przeglądarka, telefon i komputer)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Uruchom lokalny Supabase
+        run: npx supabase start --exclude studio,imgproxy,logflare,vector,edge-runtime,supavisor
+      - name: Zainstaluj przeglądarkę Playwright
+        run: npx playwright install --with-deps chromium
+      # Playwright sam buduje aplikację i uruchamia ją na porcie 3100 (patrz playwright.config.ts)
+      - name: Testy end-to-end
+        run: npm run e2e
+      - name: Raport i ślady nieudanych testów
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-raport
+          path: |
+            e2e/.report
+            e2e/.results
+          retention-days: 7
       - name: Zatrzymaj Supabase
         if: always()
         run: npx supabase stop --no-backup

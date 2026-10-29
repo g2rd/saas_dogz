@@ -22,6 +22,7 @@ export {
   type OrganizationSettings,
   type Trainer,
 } from "./application/organization";
+export { MAX_LATE_CANCEL_HOURS, getSchoolSettings, updateSchoolSettings, type SchoolSettingsOverview } from "./application/settings";
 export {
   ORG_ROLES,
   PERMISSIONS,

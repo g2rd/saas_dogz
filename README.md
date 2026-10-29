@@ -5,7 +5,7 @@ powiadomienia po obu stronach (dzwonek, web push, e-mail) i panel klienta jako P
 Next.js 16 (App Router) + TypeScript + Tailwind 4 + Supabase (PostgreSQL, Auth).
 
 **Stan, architektura i lista zadań: [docs/ARCHITEKTURA-I-STAN-PRAC.md](docs/ARCHITEKTURA-I-STAN-PRAC.md)** (źródło prawdy, czytaj najpierw).
-Ścieżka do sprzedaży, limitacje i ryzyka: [docs/WDROZENIE-PRODUKCYJNE.md](docs/WDROZENIE-PRODUKCYJNE.md). Instrukcje wdrożenia krok po kroku: [wersja demo dla 10 testerów](docs/WDROZENIE-DEMO-10-TESTEROW.md) i [pełne wdrożenie produkcyjne](docs/WDROZENIE-PELNE-PRODUKCJA.md). Decyzje: `docs/adr/`.
+Ścieżka do sprzedaży, limitacje i ryzyka: [docs/WDROZENIE-PRODUKCYJNE.md](docs/WDROZENIE-PRODUKCYJNE.md). Staging (pierwsze środowisko zdalne): [docs/WDROZENIE-STAGING.md](docs/WDROZENIE-STAGING.md). Instrukcje wdrożenia krok po kroku: [wersja demo dla 10 testerów](docs/WDROZENIE-DEMO-10-TESTEROW.md) i [pełne wdrożenie produkcyjne](docs/WDROZENIE-PELNE-PRODUKCJA.md). Decyzje: `docs/adr/`.
 Wielojęzyczność (plan, decyzje, dodawanie języków): [docs/WDROZENIE-WIELOJEZYCZNOSCI.md](docs/WDROZENIE-WIELOJEZYCZNOSCI.md).
 Zasady pracy dla agenta: `CLAUDE.md` i `AGENTS.md` (ten Next.js ma zmiany łamiące zgodność; dokumentacja w `node_modules/next/dist/docs/`).
 
@@ -33,10 +33,13 @@ Test push i instalacji PWA na telefonie (tunel HTTPS): sekcja 7 dokumentu o stan
 | `npm test` | Vitest (logika domenowa, symulacja service workera) |
 | `npm run db:test` | Testy pgTAP (RLS, funkcje SQL), wymaga lokalnego Supabase |
 | `npm run test:integration` | Przypadki użycia na prawdziwej bazie (z Mailpit) |
+| `npm run e2e` | Testy end-to-end w przeglądarce (Playwright): buduje i uruchamia aplikację na porcie 3100, wymaga lokalnego Supabase; `npm run e2e:ui` otwiera podgląd interaktywny |
 | `npm run check:boundaries` | Granice modułów (dependency-cruiser) |
 | `npm run outbox:run` | Ręczne wywołanie przetwarzania powiadomień przez trasę cron (`CRON_SECRET`) |
 | `npm run seed:dev` | Dane deweloperskie (konto trenera, klienci, psy, pakiet, zajęcia) |
 | `npm run seed:demo` | Dane demo dla panelu `/admin`: 10 szkół o różnym statusie i aktywności (tylko lokalnie; hasło kont demo w dokumencie o stanie prac) |
+| `npm run env:check -- --file .env.staging` | Kontrola zmiennych środowiskowych wdrożenia (format, sekrety, klucze demo); nie wypisuje wartości |
+| `npm run smoke -- https://adres` | Test dymny wdrożenia (strony, PWA, nagłówki bezpieczeństwa, cron); z `CRON_SECRET` w środowisku sprawdza też cron |
 | `npm run admin:grant -- adres@example.pl` | Nadaje (albo z `--revoke` odbiera) uprawnienia właściciela platformy, czyli dostęp do `/admin` |
 | `npm run db:start` / `db:reset` / `db:types` | Lokalny Supabase / migracje / typy bazy |
 
@@ -47,7 +50,7 @@ Test push i instalacji PWA na telefonie (tunel HTTPS): sekcja 7 dokumentu o stan
 - `src/shared`: Money, Result, błędy, kontekst, klienci Supabase, env, wspólne UI (formularze, potwierdzenie, PWA)
 - `supabase/migrations`: migracje SQL z RLS; `supabase/tests`: testy pgTAP
 - `public`: service worker, strona offline, ikony PWA; `scripts`: seed, outbox, generator ikon
-- `docs`: stan prac i architektura, plan wdrożenia, `adr/` (decyzje 0001-0013)
+- `docs`: stan prac i architektura, plan wdrożenia, `adr/` (decyzje 0001-0014)
 
 ## Stan (2026-10-21)
 

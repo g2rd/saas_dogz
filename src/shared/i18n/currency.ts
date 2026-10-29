@@ -84,3 +84,6 @@ export function isSupportedTimeZone(zone: string): boolean {
     return false;
   }
 }
+
+/** Waluty oferowane w ustawieniach szkoły: te, które wykrywamy z regionu urządzenia (w kolejności kodów). */
+export const SELECTABLE_CURRENCIES: readonly string[] = [...new Set(Object.values(REGION_CURRENCY))].sort();

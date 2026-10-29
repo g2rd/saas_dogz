@@ -1,0 +1,38 @@
+{
+  "link": "School settings",
+  "title": "School settings",
+  "back": "More",
+  "description": "The school’s currency, time zone and language, and the late-cancellation rules. Owners and admins can change them.",
+  "currency": {
+    "label": "School currency",
+    "hint": "One currency for prices, packages and payments. After a change, the prices in your price list (session types, package templates) get the new currency while the amounts stay the same, so please review them.",
+    "locked": "The currency is locked because the school already has packages, charges or payments. Changing it would change the meaning of the recorded amounts. If this is a mistake, write to support via “Report a problem or idea”."
+  },
+  "timezone": {
+    "label": "Time zone",
+    "hint": "We use it for session times, the billing day and reminders."
+  },
+  "locale": {
+    "label": "School language",
+    "hint": "Messages to people without an account, such as email invitations, are sent in this language. People with an account see the app in their own language."
+  },
+  "lateCancel": {
+    "hours": {
+      "label": "Late cancellation: hours before the session",
+      "hint": "A cancellation made later than this many hours before the start counts as “late”. 0 means no limit."
+    },
+    "consumes": {
+      "label": "A late cancellation uses up a package session",
+      "hint": "Turn off if late cancellations should not charge the client’s package."
+    }
+  },
+  "save": "Save settings",
+  "saving": "Saving...",
+  "saved": "Saved",
+  "validation": {
+    "currency": "Choose a valid currency.",
+    "timezone": "Choose a valid time zone.",
+    "locale": "Choose one of the available languages.",
+    "late_cancel_hours": "Enter a number of hours from 0 to {max}."
+  }
+}

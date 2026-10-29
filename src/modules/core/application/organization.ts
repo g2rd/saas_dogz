@@ -11,6 +11,8 @@ export type OrganizationSettings = {
   timezone: string;
   /** Język szkoły (kod ISO 639-1): w nim idą wiadomości do osób bez konta, np. zaproszenia e-mail. */
   locale: string;
+  /** Waluta szkoły (ISO 4217); zmienić ją można tylko, dopóki szkoła nie ma rekordów z kwotami. */
+  currency: string;
   lateCancelHours: number;
   lateCancelConsumesSession: boolean;
 };
@@ -18,6 +20,7 @@ export type OrganizationSettings = {
 const DEFAULT_SETTINGS: OrganizationSettings = {
   timezone: "Europe/Warsaw",
   locale: "pl",
+  currency: "PLN",
   lateCancelHours: 24,
   lateCancelConsumesSession: true,
 };
@@ -29,16 +32,17 @@ export async function getOrganizationSettings(ctx: RequestContext): Promise<Resu
 
   const { data, error } = await ctx.db
     .from("organization_settings")
-    .select("timezone, locale, late_cancel_hours, late_cancel_consumes_session")
+    .select("timezone, locale, currency, late_cancel_hours, late_cancel_consumes_session")
     .eq("organization_id", ctx.organizationId)
     .maybeSingle();
   if (error) return err(fromDbError(error));
   if (!data) return ok(DEFAULT_SETTINGS);
 
-  const row = data as { timezone: string; locale: string; late_cancel_hours: number; late_cancel_consumes_session: boolean };
+  const row = data as { timezone: string; locale: string; currency: string; late_cancel_hours: number; late_cancel_consumes_session: boolean };
   return ok({
     timezone: row.timezone,
     locale: row.locale,
+    currency: row.currency,
     lateCancelHours: row.late_cancel_hours,
     lateCancelConsumesSession: row.late_cancel_consumes_session,
   });

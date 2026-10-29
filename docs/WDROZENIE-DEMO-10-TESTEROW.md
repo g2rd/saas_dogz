@@ -63,6 +63,7 @@ a zablokowanie osoby: w Supabase → Authentication → Users → zablokuj (ban)
 - **Umowa powierzenia przetwarzania danych** z każdym trenerem (może być zgodą w regulaminie, ale konsultuj z prawnikiem; trener wprowadza dane osobowe klientów i **wizerunek/dane o psach**).
 
 ### 1.4. Zbieranie opinii ✅ (zrobione 2026-10-21)
+**Decyzja właściciela 2026-10-21: opinie zbierasz sam, na bieżąco, przez komunikatory, SMS i telefon; bez ankiet.** Zapisy o ankiecie tygodniowej i końcowej poniżej są nieaktualne; zostaje formularz w aplikacji i rozmowy.
 **Zrobione:** przycisk „Zgłoś problem lub pomysł” w `Więcej` obu paneli (`/app/feedback`, `/portal/feedback`), tabela `feedback` (migracja 0014; autor, szkoła, rodzaj, treść, ekran, język), przegląd w `/admin/feedback` z oznaczaniem jako obejrzane. Zostaje ankieta tygodniowa (ręcznie) i ewentualny link do zewnętrznego formularza w stopce e-maili. Pierwotny plan:
 Link do formularza opinii (Tally/Google Forms) w menu „Więcej” obu paneli i w stopce e-maili; opcjonalnie tabela `feedback` z przyciskiem „Zgłoś problem lub pomysł” (strona, wersja, wiadomość). Plus ankieta tygodniowa (5 pytań) wysyłana ręcznie.
 
@@ -112,6 +113,7 @@ Trener z 30-100 klientami nie wpisze ich ręcznie, więc test bez importu da zaf
 4. Darmowy plan ma limity dzienne i miesięczne; przy 10 trenerach i ich klientach prawdopodobnie wystarczy na start, ale sprawdź zużycie po pierwszym tygodniu.
 
 ## 5. Vercel i zmienne środowiskowe (🧑 + 🤖)
+**Skrót wykonawczy z gotowymi poleceniami (`env:check`, `smoke`, szablony e-maili, cron z bazy, wybór planów): [WDROZENIE-STAGING.md](WDROZENIE-STAGING.md).** Poniżej opis pierwotny (cron: wolisz wersję z bazy, bo działa na każdym planie Vercel; wpis `vercel.json` z punktu 3 dotyczy tylko planu Pro).
 
 1. Vercel → Add New → Project → zaimportuj repozytorium. Framework: Next.js (wykryty). Gałąź produkcyjna: **`main`** (zmieniamy ją tylko po Twojej zgodzie). Wersja Node: ustaw zgodną z lokalną (24.x, jeśli dostępna, w przeciwnym razie najnowsza LTS; sprawdź, czy `build` przechodzi). Region funkcji: **Frankfurt (`fra1`)** (Settings → Functions).
 2. **Zmienne środowiskowe (Production):**
