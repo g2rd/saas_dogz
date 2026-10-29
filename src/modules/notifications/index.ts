@@ -28,6 +28,7 @@ export {
   type NotificationParams,
   type RequestKind,
 } from "./domain/notification";
+export { processNotificationsNow, sendTestNotification, simulateDaysAhead } from "./application/demo";
 export { createEmailSender } from "./infrastructure/senders";
 export { BellBadge, NotificationList } from "./ui/notification-list";
 export { PreferencesForm, PushToggle } from "./ui/preferences-form";

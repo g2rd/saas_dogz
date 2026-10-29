@@ -62,6 +62,8 @@ export default defineConfig({
       // Panel właściciela bez weryfikacji dwuetapowej (w testach nie ma aplikacji uwierzytelniającej)
       ADMIN_REQUIRE_MFA: "0",
       ENABLED_LOCALES: "pl,en",
+      // Sterowanie demo w panelu właściciela (e2e/demo.spec.ts)
+      DEMO_CONTROLS: "1",
       // Pozwala testowi układu włączyć pseudo-lokalizację ciasteczkiem `dt_pseudo=1` (bez ciasteczka nic się nie zmienia)
       ENABLE_PSEUDO_LOCALE: "1",
       // Raportowanie błędów do „Sentry” udawanego przez test (e2e/monitoring.spec.ts); bez nasłuchującego serwera zgłoszenia po cichu przepadają

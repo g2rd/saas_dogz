@@ -7,6 +7,7 @@ Next.js 16 (App Router) + TypeScript + Tailwind 4 + Supabase (PostgreSQL, Auth).
 **Stan, architektura i lista zadań: [docs/ARCHITEKTURA-I-STAN-PRAC.md](docs/ARCHITEKTURA-I-STAN-PRAC.md)** (źródło prawdy, czytaj najpierw).
 Ścieżka do sprzedaży, limitacje i ryzyka: [docs/WDROZENIE-PRODUKCYJNE.md](docs/WDROZENIE-PRODUKCYJNE.md). Staging (pierwsze środowisko zdalne): [docs/WDROZENIE-STAGING.md](docs/WDROZENIE-STAGING.md). Instrukcje wdrożenia krok po kroku: [wersja demo dla 10 testerów](docs/WDROZENIE-DEMO-10-TESTEROW.md) i [pełne wdrożenie produkcyjne](docs/WDROZENIE-PELNE-PRODUKCJA.md). Decyzje: `docs/adr/`.
 Wielojęzyczność (plan, decyzje, dodawanie języków): [docs/WDROZENIE-WIELOJEZYCZNOSCI.md](docs/WDROZENIE-WIELOJEZYCZNOSCI.md).
+Instrukcja dla testujących trenerów: [docs/INSTRUKCJA-DLA-TRENERA.md](docs/INSTRUKCJA-DLA-TRENERA.md).
 Zasady pracy dla agenta: `CLAUDE.md` i `AGENTS.md` (ten Next.js ma zmiany łamiące zgodność; dokumentacja w `node_modules/next/dist/docs/`).
 
 ## Uruchomienie

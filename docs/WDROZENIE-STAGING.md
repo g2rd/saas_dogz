@@ -1,5 +1,7 @@
 # Staging: pierwsze środowisko zdalne krok po kroku
 
+> **Decyzja właściciela (2026-10-29): staging nie jest potrzebny i nie jest planowany.** Ten dokument zostaje jako instrukcja wdrożenia środowiska zdalnego (także produkcyjnego), gdyby kiedyś było potrzebne.
+
 Stan na 2026-10-21. Instrukcja dla właściciela (🧑 = robisz Ty w panelach usług, 🤖 = jest już w repozytorium). Staging to pierwsze środowisko w chmurze: tu przeklikasz całą aplikację na prawdziwym HTTPS i telefonie, a po teście dymnym zapraszasz do niego pierwszych testerów (plan testów, rytm i metryki: [WDROZENIE-DEMO-10-TESTEROW.md](WDROZENIE-DEMO-10-TESTEROW.md)). Przy pełnej produkcji ([WDROZENIE-PELNE-PRODUKCJA.md](WDROZENIE-PELNE-PRODUKCJA.md)) powtarzasz te same kroki na drugim zestawie kont.
 
 **Czas:** ok. 2-3 godziny przy gotowych kontach (DNS i weryfikacja domeny w Resend mogą potrwać do doby).

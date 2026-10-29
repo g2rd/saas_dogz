@@ -125,6 +125,9 @@ export function validateEnv(env, options = {}) {
   else good("EMAIL_FROM");
 
   // 6. Dane operatora w regulaminie i kontakt
+  // Sterowanie demo wysyła prawdziwe wiadomości (symulacja czasu): na serwerze z prawdziwymi klientami ma być wyłączone
+  if (env.DEMO_CONTROLS === "1") warn("DEMO_CONTROLS", "włączone: symulacja czasu w /admin/demo wyśle prawdziwe wiadomości; wyłącz na serwerze z prawdziwymi klientami");
+
   // Sentry jest opcjonalny, ale zła wartość oznacza ciche gubienie błędów
   if (!isSet(env.SENTRY_DSN)) warn("SENTRY_DSN", "brak (błędy serwera nie będą raportowane do Sentry)");
   else if (!/^https?:\/\/[^@/]+@[^/]+\/(?:.*\/)?\d+\/?$/.test(env.SENTRY_DSN.trim())) warn("SENTRY_DSN", "nie wygląda jak DSN (https://<klucz>@<host>/<numer-projektu>)");
