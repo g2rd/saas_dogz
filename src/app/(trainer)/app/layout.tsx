@@ -4,12 +4,11 @@ import { logoutAction } from "./actions";
 import { AccessBanner } from "./access-banner";
 import { BottomNavSlot } from "./bottom-nav-slot";
 import { HeaderBadges } from "./header-badges";
-import { getTranslations } from "next-intl/server";
-import { requireCurrentConsent } from "../../_lib/legal-gate";
+import { useTranslations } from "next-intl";
+import { LegalGate } from "../../_lib/legal-gate";
 
-export default async function TrainerLayout({ children }: LayoutProps<"/app">) {
-  await requireCurrentConsent();
-  const t = await getTranslations();
+export default function TrainerLayout({ children }: LayoutProps<"/app">) {
+  const t = useTranslations();
   return (
     <div className="flex min-h-screen flex-col">
       <header className="border-b border-zinc-200 pt-[env(safe-area-inset-top)] dark:border-zinc-800">
@@ -37,7 +36,11 @@ export default async function TrainerLayout({ children }: LayoutProps<"/app">) {
       <Suspense fallback={null}>
         <AccessBanner />
       </Suspense>
-      <div className="mx-auto w-full max-w-4xl flex-1 px-4 py-6 pb-28 md:py-8 md:pb-8">{children}</div>
+      <div className="mx-auto w-full max-w-4xl flex-1 px-4 py-6 pb-28 md:py-8 md:pb-8">
+        <Suspense fallback={null}>
+          <LegalGate>{children}</LegalGate>
+        </Suspense>
+      </div>
       <Suspense fallback={null}>
         <BottomNavSlot />
       </Suspense>
