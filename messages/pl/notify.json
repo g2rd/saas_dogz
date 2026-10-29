@@ -95,5 +95,9 @@
   "join_request_approved": {
     "title": "Prośba zaakceptowana",
     "body": "Trener zaakceptował Twoją prośbę. Masz już dostęp do panelu klienta."
+  },
+  "demo_test": {
+    "title": "Powiadomienie testowe",
+    "body": "To powiadomienie wysłał właściciel aplikacji z panelu demo, żeby pokazać, jak działają dzwonek, e-mail i push."
   }
 }

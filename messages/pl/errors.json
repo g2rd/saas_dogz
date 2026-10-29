@@ -97,5 +97,9 @@
     "throttled": "Zbyt wiele nieudanych prób. Spróbuj ponownie za kilka minut.",
     "already_member": "Masz już dostęp do tej organizacji.",
     "use_invited_email": "Podaj adres e-mail, na który wysłano zaproszenie"
+  },
+  "demo": {
+    "disabled": "Sterowanie demo jest wyłączone na tym serwerze (ustaw DEMO_CONTROLS=1).",
+    "days": "Podaj liczbę dni od 1 do 60."
   }
 }

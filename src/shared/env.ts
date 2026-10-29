@@ -96,6 +96,14 @@ export function supportEmail(): string | null {
  * Czy panel właściciela wymaga weryfikacji dwuetapowej (TOTP). Na produkcji domyślnie tak (wyłącza to tylko `ADMIN_REQUIRE_MFA=0`),
  * lokalnie domyślnie nie (włącza `ADMIN_REQUIRE_MFA=1`, gdy w Supabase jest włączone MFA).
  */
+/**
+ * Sterowanie demo w panelu właściciela (`/admin/demo`: powiadomienie testowe, przetwarzanie od razu, symulacja kolejnych dni): tylko gdy `DEMO_CONTROLS=1`.
+ * Na serwerze z prawdziwymi klientami zostaw wyłączone, bo reguły dzienne wysłałyby prawdziwe wiadomości.
+ */
+export function demoControlsEnabled(): boolean {
+  return process.env.DEMO_CONTROLS === "1";
+}
+
 export function adminRequireMfa(): boolean {
   const configured = process.env.ADMIN_REQUIRE_MFA;
   if (configured === "1") return true;

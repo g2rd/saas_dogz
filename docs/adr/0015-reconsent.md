@@ -12,7 +12,7 @@ Po podniesieniu `LEGAL_VERSION` (`src/shared/legal.ts`) istniejące konta zostaw
 1. **Funkcja `public.accept_legal(p_version)`** (`security definer`, `search_path = ''`): dopisuje zalogowanemu użytkownikowi zgody na oba dokumenty
    w podanej wersji (format `RRRR-MM-DD`, powtórzenie nic nie zmienia, język z profilu). Tabela `consents` pozostaje bez praw zapisu dla użytkownika,
    a stare zgody zostają jako ślad. Dostęp tylko dla roli `authenticated`.
-2. **Bramka w układach `/app` i `/portal`** (`requireCurrentConsent`): kto nie ma zgody na wszystkie dokumenty w wersji `LEGAL_VERSION`, trafia na
+2. **Bramka w układach `/app` i `/portal`** (komponent `LegalGate` owijający treść strony w `<Suspense>`; wcześniej `await` wprost w układzie blokował prerender trasy i dev zgłaszał „uncached data during prerendering”, poprawka 2026-10-29): kto nie ma zgody na wszystkie dokumenty w wersji `LEGAL_VERSION`, trafia na
    `/accept-terms`. Sprawdzenie robi serwer przy każdym wejściu (jedno zapytanie RLS po `consents`), więc działa też po wejściu z zakładki, przez
    PWA i przez bezpośredni adres. Panel `/admin` i strony publiczne bez bramki.
 3. **Ekran `/accept-terms`**: komunikat o zmianie, to samo pole zgody co w rejestracji (`ConsentField`, linki do obu dokumentów), przycisk
